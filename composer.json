@@ -1,0 +1,13 @@
+{
+    "name": "rozbehsharahi/graphql3",
+    "description": "A GraphQL extension for TYPO3",
+    "type": "library",
+    "license": ["GPL-3.0-or-later"],
+    "authors": [
+        {
+            "name": "Rozbeh Chiryai Sharahi",
+            "email": "rozbeh.sharahi@gmail.com"
+        }
+    ],
+    "require": {}
+}
