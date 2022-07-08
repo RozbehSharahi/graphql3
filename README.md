@@ -1,1 +1,1 @@
-empty
+# GraphQL 3
