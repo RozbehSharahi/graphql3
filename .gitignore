@@ -1,7 +1,10 @@
-/.build
+/.build/**
+!.build/composer.json
+
 /vendor/
 /doka/
 /var/
+/public/
 /config/
 /composer.lock
 /FIRST_INSTALL

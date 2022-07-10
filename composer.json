@@ -1,7 +1,7 @@
 {
     "name": "rozbehsharahi/graphql3",
     "description": "A GraphQL extension for TYPO3",
-    "type": "library",
+    "type": "typo3-cms-extension",
     "license": ["GPL-3.0-or-later"],
     "authors": [
         {
@@ -10,13 +10,14 @@
         }
     ],
     "require": {
-        "typo3/cms-core": "^12.0.x-dev"
-    },
-    "require-dev": {
-        "typo3/cms-install": "^12.0.x-dev",
+        "typo3/cms-core": "^12.0.x-dev",
         "typo3/cms-backend": "12.0.x-dev",
         "typo3/cms-frontend": "12.0.x-dev",
         "typo3/cms-extensionmanager": "12.0.x-dev"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-latest",
+        "typo3/cms-install": "^12.0.x-dev"
     },
     "minimum-stability": "dev",
     "config": {
@@ -25,9 +26,17 @@
             "typo3/cms-composer-installers": true
         }
     },
+    "scripts": {
+        "post-install-cmd": [
+            "cd .build && composer install"
+        ],
+        "post-update-cmd": [
+            "cd .build && composer update"
+        ]
+    },
     "extra": {
         "typo3/cms": {
-            "web-dir": ".build/public"
+            "extension-key": "graphql3"
         }
     }
 }

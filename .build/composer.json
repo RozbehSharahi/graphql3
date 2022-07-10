@@ -1,0 +1,36 @@
+{
+    "repositories": [
+      {
+        "type": "path",
+        "url": "extensions/graphql3"
+      }
+    ],
+    "name": "rozbehsharahi/graphql3-build",
+    "description": "This is just a test application's build",
+    "type": "project",
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "Rozbeh Chiryai Sharahi",
+            "email": "rozbeh.sharahi+graphql3@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "rozbehsharahi/graphql3": "@dev"
+    },
+    "require-dev": {
+        "typo3/cms-install": "12.0.x-dev",
+        "typo3/cms-lowlevel": "12.0.x-dev"
+    },
+    "scripts": {
+        "pre-install-cmd": "mkdir -p ./extensions/ && ln -snf ./../../ ./extensions/graphql3",
+        "pre-update-cmd": "mkdir -p ./extensions/ && ln -snf ./../../ ./extensions/graphql3"
+    },
+    "config": {
+        "allow-plugins": {
+            "typo3/cms-composer-installers": true,
+            "typo3/class-alias-loader": true
+        }
+    }
+}
