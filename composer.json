@@ -9,5 +9,22 @@
             "email": "rozbeh.sharahi@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "typo3/cms-core": "^12.0.x-dev"
+    },
+    "require-dev": {
+        "typo3/cms-install": "^12.0.x-dev"
+    },
+    "minimum-stability": "dev",
+    "config": {
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "web-dir": ".build/public"
+        }
+    }
 }
