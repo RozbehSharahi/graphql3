@@ -26,6 +26,16 @@
             "typo3/cms-composer-installers": true
         }
     },
+    "autoload": {
+        "psr-4": {
+            "RozbehSharahi\\Graphql3\\": "Classes"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RozbehSharahi\\Graphql3\\Tests\\": "Tests"
+        }
+    },
     "scripts": {
         "post-install-cmd": [
             "cd .build && composer install"
