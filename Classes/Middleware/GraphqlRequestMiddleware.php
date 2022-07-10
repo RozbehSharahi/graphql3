@@ -8,7 +8,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use TYPO3\CMS\Core\Routing\SiteRouteResult;
-use TYPO3\CMS\Core\Site\Entity\Site;
 
 class GraphqlRequestMiddleware implements MiddlewareInterface
 {
@@ -19,12 +18,6 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $site = $request->getAttribute('site');
-
-        if (!$site instanceof Site) {
-            return $handler->handle($request);
-        }
-
         $siteRoute = $request->getAttribute('routing');
 
         if (!$siteRoute instanceof SiteRouteResult || $siteRoute->getTail() !== $this->getGraphqlRouteKey()) {

@@ -7,4 +7,4 @@
 /public/
 /config/
 /composer.lock
-/FIRST_INSTALL
+/.phpunit.result.cache
