@@ -5,6 +5,12 @@
 When interested in contribution, you will need to setup your own test environment (php, xdebug, imagemagick,...). I
 personally use my own repo https://github.com/RozbehSharahi/doka.
 
+### Testing
+
+```
+vendor/bin/phpunit
+```
+
 ### Testing build
 
 In order to test your changes on an active TYPO3 installation, you will need
