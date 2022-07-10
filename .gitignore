@@ -1,4 +1,7 @@
 /.build
 /vendor/
 /doka/
+/var/
+/config/
 /composer.lock
+/FIRST_INSTALL
