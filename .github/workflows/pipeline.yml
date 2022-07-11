@@ -1,0 +1,14 @@
+name: GitHub Actions Demo
+on: [push]
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          extensions: pdo, sqlite3, intl-70.1
+      - uses: actions/checkout@v3
+      - run: composer install
+      - run: vendor/bin/php-cs-fixer fix --dry-run
+      - run: vendor/bin/phpunit
