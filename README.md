@@ -5,6 +5,15 @@
 When interested in contribution, you will need to setup your own test environment (php, xdebug, imagemagick,...). I
 personally use my own repo https://github.com/RozbehSharahi/doka.
 
+### Code sniffing
+
+```
+vendor/bin/php-cs-fixer fix
+
+// dry run for pipeline
+vendor/bin/php-cs-fixer fix --dry-run
+```
+
 ### Testing
 
 ```

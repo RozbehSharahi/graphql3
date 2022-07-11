@@ -1,7 +1,6 @@
 <?php
 
 /** @noinspection PhpReturnValueOfMethodIsNeverUsedInspection */
-
 /** @noinspection PhpUnhandledExceptionInspection */
 
 namespace RozbehSharahi\Graphql3\Tests\Functional;
@@ -36,7 +35,7 @@ class FunctionAppBuilder
     public const DEFAULT_LOCAL_CONFIGURATION = [
         'SYS' => [
             'encryptionKey' => 'testing',
-            'trustedHostsPattern' => VerifyHostHeader::ENV_TRUSTED_HOSTS_PATTERN_ALLOW_ALL
+            'trustedHostsPattern' => VerifyHostHeader::ENV_TRUSTED_HOSTS_PATTERN_ALLOW_ALL,
         ],
         'DB' => [
             'Connections' => [
@@ -72,6 +71,7 @@ class FunctionAppBuilder
     {
         $clone = clone $this;
         $clone->instanceName = $instanceName;
+
         return $clone;
     }
 
@@ -84,6 +84,7 @@ class FunctionAppBuilder
     {
         $clone = clone $this;
         $clone->configuration = array_replace_recursive($this->configuration, $configuration);
+
         return $clone;
     }
 
@@ -96,6 +97,7 @@ class FunctionAppBuilder
     {
         $clone = clone $this;
         $clone->autoCreateHomepage = $autoCreateHomepage;
+
         return $clone;
     }
 
@@ -108,6 +110,7 @@ class FunctionAppBuilder
     {
         $clone = clone $this;
         $clone->autoCreateSchema = $autoCreateSchema;
+
         return $clone;
     }
 
@@ -120,18 +123,20 @@ class FunctionAppBuilder
     {
         $clone = clone $this;
         $clone->autoCreateSite = $autoCreateSite;
+
         return $clone;
     }
 
     public function getInstancePath(): string
     {
         $root = realpath(__DIR__.'/../..');
-        return $root . '/var/tests/functional-' . $this->instanceName;
+
+        return $root.'/var/tests/functional-'.$this->instanceName;
     }
 
     public function getPath(string $subPath = ''): string
     {
-        return $this->getInstancePath() . $subPath;
+        return $this->getInstancePath().$subPath;
     }
 
     public function getContainer(): ContainerInterface
@@ -139,6 +144,7 @@ class FunctionAppBuilder
         if (empty($this->container)) {
             throw new \RuntimeException('Did you forget to call ->build ?');
         }
+
         return $this->container;
     }
 
@@ -146,6 +152,7 @@ class FunctionAppBuilder
     {
         $clone = clone $this;
         $clone->container = $container;
+
         return $clone;
     }
 
@@ -156,7 +163,7 @@ class FunctionAppBuilder
 
     public function build(): self
     {
-        $classLoader = require __DIR__ . '/../../vendor/autoload.php';
+        $classLoader = require __DIR__.'/../../vendor/autoload.php';
 
         @mkdir($this->getInstancePath(), 0777, true);
         @mkdir($this->getPath('/public'), 0777, true);
@@ -222,7 +229,7 @@ class FunctionAppBuilder
     {
         $configuration = [
             'rootPageId' => 1,
-            'base' => "/test-app",
+            'base' => '/test-app',
             'languages' => [
                 [
                     'title' => 'English',
@@ -292,6 +299,6 @@ class FunctionAppBuilder
 
     protected function getPhpFile(array $configuration): string
     {
-        return '<?php return ' . var_export($configuration, true) . ';';
+        return '<?php return '.var_export($configuration, true).';';
     }
 }

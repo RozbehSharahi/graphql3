@@ -7,7 +7,6 @@ use TYPO3\CMS\Core\Http\ServerRequest;
 
 class GraphqlRequestTest extends TestCase
 {
-
     public function testCanRunAGraphqlRequest(): void
     {
         $response = $this
@@ -15,8 +14,8 @@ class GraphqlRequestTest extends TestCase
             ->getApplication()
             ->handle(new ServerRequest('/test-app/graphql'));
 
-        self::assertEquals(200, (string)$response->getStatusCode());
-        self::assertEquals('Not implemented yet', (string)$response->getBody());
+        self::assertEquals(200, (string) $response->getStatusCode());
+        self::assertEquals('Not implemented yet', (string) $response->getBody());
     }
 
     public function createFunctionalApp(): FunctionAppBuilder
@@ -27,5 +26,4 @@ class GraphqlRequestTest extends TestCase
             ->withAutoCreateSite(true)
             ->build();
     }
-
 }

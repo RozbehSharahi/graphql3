@@ -11,7 +11,6 @@ use TYPO3\CMS\Core\Routing\SiteRouteResult;
 
 class GraphqlRequestMiddleware implements MiddlewareInterface
 {
-
     public function __construct(protected ResponseFactoryInterface $responseFactory)
     {
     }
@@ -26,6 +25,7 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
 
         $response = $this->responseFactory->createResponse();
         $response->getBody()->write('Not implemented yet');
+
         return $response;
     }
 
