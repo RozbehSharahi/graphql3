@@ -18,15 +18,14 @@ class GraphqlRequestTest extends TestCase
         self::assertEquals('Not implemented yet', (string) $response->getBody());
     }
 
-    public function testCanRunAGraphqlInterfaceRequest(): void
+    public function testGraphqlInterfaceRequestOnlyInDevelopmentMode(): void
     {
         $response = $this
             ->createFunctionalApp()
             ->getApplication()
             ->handle(new ServerRequest('/test-app/graphiql'));
 
-        self::assertEquals(200, (string) $response->getStatusCode());
-        self::assertEquals('Not implemented yet', (string) $response->getBody());
+        self::assertEquals(404, (string) $response->getStatusCode());
     }
 
     public function createFunctionalApp(): FunctionAppBuilder

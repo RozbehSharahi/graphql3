@@ -7,6 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Routing\SiteRouteResult;
 
 class GraphqlRequestMiddleware implements MiddlewareInterface
@@ -23,7 +24,11 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        if (!in_array($siteRoute->getTail(), [$this->getGraphqlRouteKey(), $this->getGraphqlInterfaceRouteKey()])) {
+        if (!$this->isGraphqlRoute($siteRoute) && !$this->isGraphqlInterfaceRoute($siteRoute)) {
+            return $handler->handle($request);
+        }
+
+        if ($this->isGraphqlInterfaceRoute($siteRoute) && !Environment::getContext()->isDevelopment()) {
             return $handler->handle($request);
         }
 
@@ -31,6 +36,16 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
         $response->getBody()->write('Not implemented yet');
 
         return $response;
+    }
+
+    protected function isGraphqlRoute(SiteRouteResult $route): bool
+    {
+        return $route->getTail() === $this->getGraphqlRouteKey();
+    }
+
+    protected function isGraphqlInterfaceRoute(SiteRouteResult $route): bool
+    {
+        return $route->getTail() === $this->getGraphqlInterfaceRouteKey();
     }
 
     protected function getGraphqlRouteKey(): string
