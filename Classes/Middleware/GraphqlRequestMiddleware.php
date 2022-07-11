@@ -19,7 +19,11 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
     {
         $siteRoute = $request->getAttribute('routing');
 
-        if (!$siteRoute instanceof SiteRouteResult || $siteRoute->getTail() !== $this->getGraphqlRouteKey()) {
+        if (!$siteRoute instanceof SiteRouteResult) {
+            return $handler->handle($request);
+        }
+
+        if (!in_array($siteRoute->getTail(), [$this->getGraphqlRouteKey(), $this->getGraphqlInterfaceRouteKey()])) {
             return $handler->handle($request);
         }
 
@@ -32,5 +36,10 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
     protected function getGraphqlRouteKey(): string
     {
         return 'graphql';
+    }
+
+    protected function getGraphqlInterfaceRouteKey(): string
+    {
+        return 'graphiql';
     }
 }
