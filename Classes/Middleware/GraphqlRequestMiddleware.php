@@ -32,6 +32,10 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
+        if($this->isGraphqlInterfaceRoute($siteRoute)) {
+            return $this->getGraphqlInterfaceResponse();
+        }
+
         $response = $this->responseFactory->createResponse();
         $response->getBody()->write('Not implemented yet');
 
@@ -56,5 +60,12 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
     protected function getGraphqlInterfaceRouteKey(): string
     {
         return 'graphiql';
+    }
+
+    private function getGraphqlInterfaceResponse(): ResponseInterface
+    {
+        $response = $this->responseFactory->createResponse();
+        $response->getBody()->write(file_get_contents(__DIR__.'/../../Resources/Private/Graphiql/Index.html'));
+        return $response;
     }
 }
