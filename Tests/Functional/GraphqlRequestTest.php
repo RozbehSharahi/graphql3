@@ -10,7 +10,8 @@ class GraphqlRequestTest extends TestCase
     public function testCanRunAGraphqlRequest(): void
     {
         $response = $this
-            ->createFunctionalApp()
+            ->getFunctionalAppBuilder()
+            ->build()
             ->getApplication()
             ->handle(new ServerRequest('/test-app/graphql'));
 
@@ -21,19 +22,29 @@ class GraphqlRequestTest extends TestCase
     public function testGraphqlInterfaceRequestOnlyInDevelopmentMode(): void
     {
         $response = $this
-            ->createFunctionalApp()
+            ->getFunctionalAppBuilder()
+            ->withContext('Production')
+            ->build()
             ->getApplication()
             ->handle(new ServerRequest('/test-app/graphiql'));
 
         self::assertEquals(404, (string) $response->getStatusCode());
+
+        $response = $this
+            ->getFunctionalAppBuilder()
+            ->withContext('Development/SomeDeveloper')
+            ->build()
+            ->getApplication()
+            ->handle(new ServerRequest('/test-app/graphiql'));
+
+        self::assertEquals(200, (string) $response->getStatusCode());
     }
 
-    public function createFunctionalApp(): FunctionAppBuilder
+    public function getFunctionalAppBuilder(): FunctionAppBuilder
     {
         return (new FunctionAppBuilder())
             ->withAutoCreateHomepage(true)
             ->withAutoCreateSchema(true)
-            ->withAutoCreateSite(true)
-            ->build();
+            ->withAutoCreateSite(true);
     }
 }

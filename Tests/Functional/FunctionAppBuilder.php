@@ -32,6 +32,8 @@ class FunctionAppBuilder
 
     public const DEFAULT_AUTO_CREATE_SITE = true;
 
+    public const DEFAULT_CONTEXT = 'Testing';
+
     public const DEFAULT_LOCAL_CONFIGURATION = [
         'SYS' => [
             'encryptionKey' => 'testing',
@@ -57,6 +59,8 @@ class FunctionAppBuilder
     protected bool $autoCreateHomepage = self::DEFAULT_AUTO_CREATE_HOMEPAGE;
 
     protected bool $autoCreateSite = self::DEFAULT_AUTO_CREATE_SITE;
+
+    protected string $context = self::DEFAULT_CONTEXT;
 
     protected ContainerInterface $container;
 
@@ -127,6 +131,19 @@ class FunctionAppBuilder
         return $clone;
     }
 
+    public function getContext(): string
+    {
+        return $this->context;
+    }
+
+    public function withContext(string $context): self
+    {
+        $clone = clone $this;
+        $clone->context = $context;
+
+        return $clone;
+    }
+
     public function getInstancePath(): string
     {
         $root = realpath(__DIR__.'/../..');
@@ -180,7 +197,7 @@ class FunctionAppBuilder
         SystemEnvironmentBuilder::run();
 
         Environment::initialize(
-            new ApplicationContext('Testing'),
+            new ApplicationContext($this->context),
             false,
             true,
             $this->getInstancePath(),
