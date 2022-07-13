@@ -2,17 +2,17 @@
 
 namespace RozbehSharahi\Graphql3\Middleware;
 
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RozbehSharahi\Graphql3\Controller\GraphqlController;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Routing\SiteRouteResult;
 
 class GraphqlRequestMiddleware implements MiddlewareInterface
 {
-    public function __construct(protected ResponseFactoryInterface $responseFactory)
+    public function __construct(protected GraphqlController $graphqlController)
     {
     }
 
@@ -32,14 +32,11 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        if($this->isGraphqlInterfaceRoute($siteRoute)) {
-            return $this->getGraphqlInterfaceResponse();
+        if ($this->isGraphqlInterfaceRoute($siteRoute)) {
+            return $this->graphqlController->graphqlInterfaceAction($request);
         }
 
-        $response = $this->responseFactory->createResponse();
-        $response->getBody()->write('Not implemented yet');
-
-        return $response;
+        return $this->graphqlController->graphqlAction($request);
     }
 
     protected function isGraphqlRoute(SiteRouteResult $route): bool
@@ -60,12 +57,5 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
     protected function getGraphqlInterfaceRouteKey(): string
     {
         return 'graphiql';
-    }
-
-    private function getGraphqlInterfaceResponse(): ResponseInterface
-    {
-        $response = $this->responseFactory->createResponse();
-        $response->getBody()->write(file_get_contents(__DIR__.'/../../Resources/Private/Graphiql/Index.html'));
-        return $response;
     }
 }

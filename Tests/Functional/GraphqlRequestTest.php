@@ -38,7 +38,7 @@ class GraphqlRequestTest extends TestCase
             ->handle(new ServerRequest('/test-app/graphiql'));
 
         self::assertEquals(200, (string) $response->getStatusCode());
-        self::assertStringContainsString('graphQLFetcher', (string)$response->getBody());
+        self::assertStringContainsString('graphQLFetcher', (string) $response->getBody());
     }
 
     public function getFunctionalAppBuilder(): FunctionAppBuilder

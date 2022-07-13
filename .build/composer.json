@@ -25,7 +25,9 @@
     },
     "scripts": {
         "pre-install-cmd": "mkdir -p ./extensions/ && ln -snf ./../../ ./extensions/graphql3",
-        "pre-update-cmd": "mkdir -p ./extensions/ && ln -snf ./../../ ./extensions/graphql3"
+        "pre-update-cmd": "mkdir -p ./extensions/ && ln -snf ./../../ ./extensions/graphql3",
+        "post-install-cmd": "cp _.htaccess public/.htaccess",
+        "post-update-cmd": "cp _.htaccess public/.htaccess"
     },
     "config": {
         "allow-plugins": {

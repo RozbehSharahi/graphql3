@@ -22,10 +22,20 @@ vendor/bin/phpunit
 
 ### Testing build
 
-In order to test your changes on an active TYPO3 installation, you will need
-call `http://your-local-domain/typo3/install.php`. The installation is the same as with fresh installation.
+In order to test your changes on an active TYPO3 installation you can use the `.build` directory, which contains
+a `composer.json` that should be able to setup your build.
 
-When using sqlite in install wizard, you will not need further configurations.
+In order to install the build do:
+
+```
+cd .build
+composer install
+```
+
+It will create a fresh installation and you might navigation to `http://YOUR_LOCAL_DOMAIN:PORT/`. It should ask you to
+create a `FIRST_INSTALL` file.
+
+Installation steps should be fast and easy if you use sqlite (hopefully :)).
 
 When using my `doka` package the path would be `http://localhost:8080/typo3/install.php`, according to configuration
 in `.doka.env`.

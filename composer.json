@@ -38,14 +38,6 @@
             "RozbehSharahi\\Graphql3\\Tests\\": "Tests"
         }
     },
-    "scripts": {
-        "post-install-cmd": [
-            "cd .build && composer install"
-        ],
-        "post-update-cmd": [
-            "cd .build && composer update"
-        ]
-    },
     "extra": {
         "typo3/cms": {
             "extension-key": "graphql3"
