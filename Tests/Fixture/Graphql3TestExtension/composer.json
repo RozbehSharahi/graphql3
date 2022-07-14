@@ -1,0 +1,24 @@
+{
+    "name": "rozbehsharahi/graphql3-test-extension",
+    "description": "Just for testing",
+    "type": "typo3-cms-extension",
+    "license": "GPL-3.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "Rozbehsharahi\\Graphql3TestExtension\\": "Classes/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Rozbeh Chiryai Sharahi",
+            "email": "rozbeh.sharahi@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "graphql3test"
+        }
+    }
+}

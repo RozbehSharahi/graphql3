@@ -45,8 +45,12 @@
         }
     },
     "scripts": {
+        "cache-clear": [
+            "rm -rf var/cache",
+            "rm -rf .build/var/cache"
+        ],
         "tests": [
-            "rm -rf var/cache && rm -rf .build/var/cache",
+            "@cache-clear",
             "vendor/bin/php-cs-fixer fix && vendor/bin/phpunit"
         ]
     }
