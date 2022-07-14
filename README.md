@@ -1,5 +1,12 @@
 # GraphQL 3
 
+Graphql3 is based on TYPO3 sites. Each site has its own graphql endpoint. In dev mode also a graphiql endpoint.
+
+```
+https://[HOST]:[PORT]/my-site/graphql
+https://[HOST]:[PORT]/my-site/grapihql
+```
+
 ## Contribution
 
 When interested in contribution, you will need to setup your own test environment (php, xdebug, imagemagick,...). I

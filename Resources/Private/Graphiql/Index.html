@@ -54,7 +54,7 @@
 <script>
     function graphQLFetcher(graphQLParams) {
         return fetch(
-            'http://localhost:8080/graphql',
+            '//' + window.location.host + '/graphql',
             {
                 method: 'post',
                 headers: {
