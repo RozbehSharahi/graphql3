@@ -47,7 +47,9 @@ use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
 /** @var SiteSchemaRegistry $siteSchemaRegistry */
 $siteSchemaRegistry->registerSiteSchema('my-site', (new NoopSchemaBuilder())->build())
 ```
+
 In order to have an real working TYPO3 code, put this code on your extensions `ext_localconf.php`.
+
 ```php
 use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
 use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
@@ -90,6 +92,9 @@ composer install
 
 It will create a fresh installation and you might navigation to `http://YOUR_LOCAL_DOMAIN:PORT/`. It should ask you to
 create a `FIRST_INSTALL` file.
+
+By now it is still mandatory to call the site-identifier manually `main` in order to have graphql route
+active. See: `/Tests/Fixture/Graphql3TestExtension/ext_localconf.php`.
 
 Installation steps should be fast and easy if you use sqlite (hopefully :)).
 
