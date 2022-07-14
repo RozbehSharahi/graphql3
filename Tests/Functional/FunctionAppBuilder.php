@@ -1,6 +1,7 @@
 <?php
 
 /** @noinspection PhpReturnValueOfMethodIsNeverUsedInspection */
+
 /** @noinspection PhpUnhandledExceptionInspection */
 
 namespace RozbehSharahi\Graphql3\Tests\Functional;
@@ -34,6 +35,8 @@ class FunctionAppBuilder
 
     public const DEFAULT_CONTEXT = 'Testing';
 
+    public const DEFAULT_FRESH_DATABASE = false;
+
     public const DEFAULT_LOCAL_CONFIGURATION = [
         'SYS' => [
             'encryptionKey' => 'testing',
@@ -59,6 +62,8 @@ class FunctionAppBuilder
     protected bool $autoCreateHomepage = self::DEFAULT_AUTO_CREATE_HOMEPAGE;
 
     protected bool $autoCreateSite = self::DEFAULT_AUTO_CREATE_SITE;
+
+    protected bool $freshDatabase = self::DEFAULT_FRESH_DATABASE;
 
     protected string $context = self::DEFAULT_CONTEXT;
 
@@ -118,6 +123,19 @@ class FunctionAppBuilder
         return $clone;
     }
 
+    public function isFreshDatabase(): bool
+    {
+        return $this->freshDatabase;
+    }
+
+    public function withFreshDatabase(bool $freshDatabase): self
+    {
+        $clone = clone $this;
+        $clone->freshDatabase = $freshDatabase;
+
+        return $clone;
+    }
+
     public function isAutoCreateSite(): bool
     {
         return $this->autoCreateSite;
@@ -151,6 +169,11 @@ class FunctionAppBuilder
         return $root.'/var/tests/functional-'.$this->instanceName;
     }
 
+    public function getDatabasePath(): string
+    {
+        return $this->getPath('/database.sqlite');
+    }
+
     public function getPath(string $subPath = ''): string
     {
         return $this->getInstancePath().$subPath;
@@ -182,12 +205,13 @@ class FunctionAppBuilder
     {
         $classLoader = require __DIR__.'/../../vendor/autoload.php';
 
+        @unlink($this->getDatabasePath());
         @mkdir($this->getInstancePath(), 0777, true);
         @mkdir($this->getPath('/public'), 0777, true);
         @mkdir($this->getPath('/public/typo3conf'), 0777, true);
 
         $configuration = $this->configuration;
-        $configuration['DB']['Connections']['Default']['path'] = $this->getPath('/database.sqlite');
+        $configuration['DB']['Connections']['Default']['path'] = $this->getDatabasePath();
 
         file_put_contents(
             $this->getPath('/public/typo3conf/LocalConfiguration.php'),
@@ -274,6 +298,14 @@ class FunctionAppBuilder
 
     public function createDatabaseStructure(): self
     {
+        $this->getConnection()->close();
+
+        if (!$this->freshDatabase) {
+            copy(__DIR__.'/../Fixture/Database/base-database.sqlite', $this->getDatabasePath());
+
+            return $this;
+        }
+
         $schemaManager = $this->getSchemaManager();
 
         foreach ($schemaManager->listTableNames() as $tableName) {
