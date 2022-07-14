@@ -43,5 +43,11 @@
         "typo3/cms": {
             "extension-key": "graphql3"
         }
+    },
+    "scripts": {
+        "tests": [
+            "rm -rf var/cache && rm -rf .build/var/cache",
+            "vendor/bin/php-cs-fixer fix && vendor/bin/phpunit"
+        ]
     }
 }
