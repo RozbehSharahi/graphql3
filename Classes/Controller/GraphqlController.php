@@ -7,7 +7,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlErrorCollection;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Encoder\JsonEncoder;
 use RozbehSharahi\Graphql3\Graphql\GraphqlErrorResponseBuilder;
 use RozbehSharahi\Graphql3\Graphql\GraphqlExecutor;
 
@@ -17,6 +17,7 @@ class GraphqlController
 
     public function __construct(
         protected ResponseFactoryInterface $responseFactory,
+        protected JsonEncoder $encoder,
         protected GraphqlExecutor $executor,
         protected GraphqlErrorResponseBuilder $errorResponseBuilder
     ) {
@@ -28,7 +29,7 @@ class GraphqlController
             return $this->errorResponseBuilder->withMessage(self::ERROR_MESSAGE_INVALID_INPUT)->build();
         }
 
-        $input = $this->decode((string) $request->getBody());
+        $input = $this->encoder->decode((string) $request->getBody());
 
         try {
             $output = $this
@@ -50,7 +51,7 @@ class GraphqlController
             ->createResponse()
             ->withHeader('Content-Type', 'application/json');
 
-        $response->getBody()->write($this->encode($output));
+        $response->getBody()->write($this->encoder->encode($output));
 
         return $response;
     }
@@ -65,36 +66,8 @@ class GraphqlController
 
     protected function isValidInput(ServerRequestInterface $request): bool
     {
-        try {
-            $data = $this->decode((string) $request->getBody());
-        } catch (Exception) {
-            return false;
-        }
+        $json = (string) $request->getBody();
 
-        if (!is_array($data)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    protected function decode(string $json): mixed
-    {
-        try {
-            $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        } catch (Exception) {
-            throw new GraphqlException(self::ERROR_MESSAGE_INVALID_INPUT);
-        }
-
-        return $data;
-    }
-
-    protected function encode(array $data): string
-    {
-        try {
-            return json_encode($data, JSON_THROW_ON_ERROR);
-        } catch (Exception) {
-            throw new GraphqlException('GraphQL library responded with unexpected value');
-        }
+        return $this->encoder->isValidJson($json) && is_array($this->encoder->decode($json));
     }
 }
