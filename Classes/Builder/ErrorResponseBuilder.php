@@ -1,6 +1,6 @@
 <?php
 
-namespace RozbehSharahi\Graphql3\Graphql;
+namespace RozbehSharahi\Graphql3\Builder;
 
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -9,7 +9,7 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlErrorCollection;
 use RozbehSharahi\Graphql3\Encoder\JsonEncoder;
 use Symfony\Component\HttpFoundation\Response;
 
-class GraphqlErrorResponseBuilder
+class ErrorResponseBuilder
 {
     protected GraphqlErrorCollection $errors;
 

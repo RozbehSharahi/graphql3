@@ -3,21 +3,35 @@
 namespace RozbehSharahi\Graphql3\Tests\Functional\Traits;
 
 use Exception;
+use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
+use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\FunctionAppBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * @method fail(string $message)
  */
 trait FunctionalUtilsTrait
 {
-    public function getFunctionalAppBuilder(): FunctionAppBuilder
+    protected function getFunctionalAppBuilder(): FunctionAppBuilder
     {
-        return (new FunctionAppBuilder())
+        return GeneralUtility::makeInstance(FunctionAppBuilder::class)
             ->withAutoCreateHomepage(true)
             ->withAutoCreateSchema(true)
             ->withAutoCreateSite(true);
+    }
+
+    protected function getGraphqlSchemaRegistry()
+    {
+        return GeneralUtility::makeInstance(SiteSchemaRegistry::class);
+    }
+
+    protected function getNoopSchema(): Schema
+    {
+        return (new NoopSchemaBuilder())->build();
     }
 
     protected function decode(string $json): mixed
@@ -31,12 +45,12 @@ trait FunctionalUtilsTrait
         return $data;
     }
 
-    protected function createGraphqlRequest(string $graphqlBody): ServerRequest
+    protected function createGraphqlRequest(string $graphqlBody, string $url = '/test-app/graphql'): ServerRequest
     {
         $streamFactory = new StreamFactory();
 
         try {
-            return new ServerRequest('/test-app/graphql', 'POST', $streamFactory->createStream(
+            return new ServerRequest($url, 'POST', $streamFactory->createStream(
                 json_encode(['query' => $graphqlBody], JSON_THROW_ON_ERROR)
             ));
         } catch (Exception) {

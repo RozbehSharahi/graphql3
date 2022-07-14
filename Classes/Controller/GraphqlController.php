@@ -6,10 +6,12 @@ use Exception;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RozbehSharahi\Graphql3\Builder\ErrorResponseBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlErrorCollection;
 use RozbehSharahi\Graphql3\Encoder\JsonEncoder;
-use RozbehSharahi\Graphql3\Graphql\GraphqlErrorResponseBuilder;
-use RozbehSharahi\Graphql3\Graphql\GraphqlExecutor;
+use RozbehSharahi\Graphql3\Executor\Executor;
+use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
+use TYPO3\CMS\Core\Site\Entity\Site;
 
 class GraphqlController
 {
@@ -18,8 +20,9 @@ class GraphqlController
     public function __construct(
         protected ResponseFactoryInterface $responseFactory,
         protected JsonEncoder $encoder,
-        protected GraphqlExecutor $executor,
-        protected GraphqlErrorResponseBuilder $errorResponseBuilder
+        protected Executor $executor,
+        protected SiteSchemaRegistry $siteSchemaRegistry,
+        protected ErrorResponseBuilder $errorResponseBuilder,
     ) {
     }
 
@@ -32,8 +35,12 @@ class GraphqlController
         $input = $this->encoder->decode((string) $request->getBody());
 
         try {
+            /** @var Site $site */
+            $site = $request->getAttribute('site');
+
             $output = $this
                 ->executor
+                ->withSchema($this->siteSchemaRegistry->getSchema($site->getIdentifier()))
                 ->withQuery($input['query'])
                 ->withVariables($input['variables'] ?? [])
                 ->execute();

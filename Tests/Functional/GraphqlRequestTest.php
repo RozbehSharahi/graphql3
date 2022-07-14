@@ -16,6 +16,10 @@ class GraphqlRequestTest extends TestCase
 
     public function testCanRunAGraphqlRequest(): void
     {
+        $this
+            ->getGraphqlSchemaRegistry()
+            ->registerSiteSchema('test-app', $this->getNoopSchema());
+
         $request = $this->createGraphqlRequest('{
           noop
         }');
@@ -33,6 +37,10 @@ class GraphqlRequestTest extends TestCase
 
     public function testGraphqlInterfaceRequestOnlyInDevelopmentMode(): void
     {
+        $this
+            ->getGraphqlSchemaRegistry()
+            ->registerSiteSchema('test-app', $this->getNoopSchema());
+
         $response = $this
             ->getFunctionalAppBuilder()
             ->withContext('Production')
@@ -65,10 +73,10 @@ class GraphqlRequestTest extends TestCase
             ->getApplication()
             ->handle($request);
 
-        $responseData = $this->decode((string) $response->getBody());
-
         self::assertEquals(400, (string) $response->getStatusCode());
         self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
+
+        $responseData = $this->decode((string) $response->getBody());
         self::assertArrayHasKey('errors', $responseData);
         self::assertCount(1, $responseData['errors']);
         self::assertArrayHasKey('message', $responseData['errors'][0]);
@@ -83,10 +91,10 @@ class GraphqlRequestTest extends TestCase
             ->getApplication()
             ->handle(new ServerRequest('/test-app/graphql', 'POST'));
 
-        $responseData = $this->decode((string) $response->getBody());
-
         self::assertEquals(400, (string) $response->getStatusCode());
         self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
+
+        $responseData = $this->decode((string) $response->getBody());
         self::assertArrayHasKey('errors', $responseData);
         self::assertCount(1, $responseData['errors']);
         self::assertArrayHasKey('message', $responseData['errors'][0]);
@@ -101,10 +109,10 @@ class GraphqlRequestTest extends TestCase
             ->getApplication()
             ->handle(new ServerRequest('/test-app/graphql', 'POST', (new StreamFactory())->createStream('"bla"')));
 
-        $responseData = $this->decode((string) $response->getBody());
-
         self::assertEquals(400, (string) $response->getStatusCode());
         self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
+
+        $responseData = $this->decode((string) $response->getBody());
         self::assertArrayHasKey('errors', $responseData);
         self::assertCount(1, $responseData['errors']);
         self::assertArrayHasKey('message', $responseData['errors'][0]);

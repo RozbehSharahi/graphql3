@@ -1,25 +1,18 @@
 <?php
 
-namespace RozbehSharahi\Graphql3\Graphql;
+namespace RozbehSharahi\Graphql3\Executor;
 
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 
-class GraphqlExecutor
+class Executor
 {
     protected string $query;
 
     protected array $variables = [];
 
     protected Schema $schema;
-
-    public function __construct(GraphqlRegistry $registry)
-    {
-        $this->schema = new Schema([
-            'query' => $registry->getQuery(),
-        ]);
-    }
 
     public function getQuery(): string
     {
@@ -43,6 +36,19 @@ class GraphqlExecutor
     {
         $clone = clone $this;
         $clone->variables = $variables;
+
+        return $clone;
+    }
+
+    public function getSchema(): Schema
+    {
+        return $this->schema;
+    }
+
+    public function withSchema(Schema $schema): self
+    {
+        $clone = clone $this;
+        $clone->schema = $schema;
 
         return $clone;
     }

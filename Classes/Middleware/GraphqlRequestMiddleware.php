@@ -7,13 +7,16 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
+use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Routing\SiteRouteResult;
 
 class GraphqlRequestMiddleware implements MiddlewareInterface
 {
-    public function __construct(protected GraphqlController $graphqlController)
-    {
+    public function __construct(
+        protected GraphqlController $graphqlController,
+        protected SiteSchemaRegistry $schemaRegistry
+    ) {
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -32,11 +35,13 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        if ($this->isGraphqlInterfaceRoute($siteRoute)) {
-            return $this->graphqlController->graphqlInterfaceAction($request);
+        if (!$this->schemaRegistry->hasSiteSchema($siteRoute->getSite()->getIdentifier())) {
+            return $handler->handle($request);
         }
 
-        return $this->graphqlController->graphqlAction($request);
+        return $this->isGraphqlRoute($siteRoute)
+            ? $this->graphqlController->graphqlAction($request)
+            : $this->graphqlController->graphqlInterfaceAction($request);
     }
 
     protected function isGraphqlRoute(SiteRouteResult $route): bool
