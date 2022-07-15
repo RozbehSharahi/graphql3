@@ -2,7 +2,19 @@
 
 Graphql3 is based on TYPO3 sites.
 
-Each site can register it's schema.
+Each site can register its schema.
+
+> Whenever a schema is registered it is accessible via the tail `/graphql` or `/graphiql` on its root-page:
+> https://www.example.com/my-site-root/graphql  
+> https://www.example.com/my-site-root/graphiql (only on TYPO3_CONTEXT=Development)
+
+## Usage
+
+Schematically the usage of `graphql3` is as following.
+
+We register our schema with normal `webonyx/graphql-php`-package types.
+
+Documentation: https://webonyx.github.io/graphql-php/
 
 ```php
 use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
@@ -22,23 +34,15 @@ $siteSchemaRegistry->registerSiteSchema('my-site', new Schema([
 ]))
 ```
 
-After that you should be able to access your graphql endpoint
+After that you should already be able to access your graphql endpoint.
 
-```
-https://[HOST]:[PORT]/my-site/graphql
-https://[HOST]:[PORT]/my-site/grapihql
-```
+As the second parameter of `registerSiteSchema` expects a schema of `webonyx/graphql-php` package, you are free to do
+whatever you wish from here on. 
 
-The second parameter of `registerSiteSchema` actually expects a Schema of webonyx graphql-php package.
+However, the main focus of `graphql3` is providing builders which will facilitate the introduction of GraphQL on
+TYPO3 sites.
 
-Therefore, you are free to define whatever you wish to.
-
-https://webonyx.github.io/graphql-php/
-
-Nevertheless, the main work of this extension is providing builders which will facilitate the introduction of GraphQL on
-your TYPO3 site.
-
-For instance the following code is completely equivalent, but uses one of the in-house builders:
+For instance the following code is completely equivalent, but uses one of the in-house builders.
 
 ```php
 use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
@@ -47,12 +51,11 @@ use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
 /** @var SiteSchemaRegistry $siteSchemaRegistry */
 $siteSchemaRegistry->registerSiteSchema('my-site', (new NoopSchemaBuilder())->build())
 ```
-
-In order to have some real working TYPO3 code, follow the next chapter `Getting started`.
+In order to have some real working TYPO3 code, continue to the next chapter `Getting started`.
 
 # Getting started
 
-We assume you have a working TYPO3 extension and a site with identifier `my-site`. 
+We assume you have a working TYPO3 extension and a site with identifier `my-site`.
 
 Also make sure to have a proper `Configuration/Services.yaml` similar to this one running:
 
@@ -68,6 +71,7 @@ services:
     exclude: '../Classes/Domain/Model/*'
 
 ```
+
 ... otherwise constructor injection of `GraphqlRegistration` might not work as expected.
 
 Now create a registration class in your project's main extension:
@@ -101,15 +105,10 @@ use Your\Extension\Graphql\GraphqlRegistration;
 
 \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(GraphqlRegistration::class)->register();
 ```
-
-After that you should be able to call your graphql endpoint. Also, graphiql endpoint will be available if TYPO3_CONTEXT
-is set to `Development/*`.
-
-> Please consider that your graphql endpoint will only be available on your sites root page path with an additional `/graphql` tail.
-> 
-> https://my-page.com/my-site-root/    
-> https://my-page.com/my-site-root/graphql  
-> https://my-page.com/my-site-root/graphiql
+At this point your graphql endpoint should already be accessible.
+```
+https://www.example.com/site-root/graphql
+```
 
 ## Contribution
 
