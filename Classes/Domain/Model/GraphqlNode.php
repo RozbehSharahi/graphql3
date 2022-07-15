@@ -1,0 +1,68 @@
+<?php
+
+namespace RozbehSharahi\Graphql3\Domain\Model;
+
+use Closure;
+use GraphQL\Type\Definition\Type;
+
+class GraphqlNode
+{
+    public static function create(string $name): self
+    {
+        return new self($name, Type::string(), fn () => null);
+    }
+
+    public function __construct(
+        protected string $name,
+        protected Type $type,
+        protected Closure $resolver
+    ) {
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function withName(string $name): self
+    {
+        $clone = clone $this;
+        $clone->name = $name;
+
+        return $clone;
+    }
+
+    public function getType(): Type
+    {
+        return $this->type;
+    }
+
+    public function withType(Type $type): self
+    {
+        $clone = clone $this;
+        $clone->type = $type;
+
+        return $clone;
+    }
+
+    public function getResolver(): Closure
+    {
+        return $this->resolver;
+    }
+
+    public function withResolver(Closure $resolver): self
+    {
+        $clone = clone $this;
+        $clone->resolver = $resolver;
+
+        return $clone;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'type' => $this->type,
+            'resolve' => $this->resolver,
+        ];
+    }
+}
