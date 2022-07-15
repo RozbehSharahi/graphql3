@@ -10,11 +10,11 @@ Each site can register its schema.
 
 ## Usage
 
-Schematically the usage of `graphql3` is as following.
-
 We register our schema with normal `webonyx/graphql-php`-package types.
 
 Documentation: https://webonyx.github.io/graphql-php/
+
+Schematically the usage of `graphql3` is as following.
 
 ```php
 use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
