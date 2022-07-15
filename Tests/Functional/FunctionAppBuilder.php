@@ -8,6 +8,8 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Psr\Container\ContainerInterface;
+use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
+use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Bootstrap;
@@ -32,6 +34,8 @@ class FunctionAppBuilder
     public const DEFAULT_AUTO_CREATE_HOMEPAGE = true;
 
     public const DEFAULT_AUTO_CREATE_SITE = true;
+
+    public const DEFAULT_AUTO_CREATE_SITE_SCHEMA = true;
 
     public const DEFAULT_CONTEXT = 'Testing';
 
@@ -62,6 +66,8 @@ class FunctionAppBuilder
     protected bool $autoCreateHomepage = self::DEFAULT_AUTO_CREATE_HOMEPAGE;
 
     protected bool $autoCreateSite = self::DEFAULT_AUTO_CREATE_SITE;
+
+    protected bool $autoCreateSiteSchema = self::DEFAULT_AUTO_CREATE_SITE_SCHEMA;
 
     protected bool $freshDatabase = self::DEFAULT_FRESH_DATABASE;
 
@@ -149,6 +155,19 @@ class FunctionAppBuilder
         return $clone;
     }
 
+    public function isAutoCreateSiteSchema(): bool
+    {
+        return $this->autoCreateSiteSchema;
+    }
+
+    public function withAutoCreateSiteSchema(bool $autoCreateSiteSchema): self
+    {
+        $clone = clone $this;
+        $clone->autoCreateSiteSchema = $autoCreateSiteSchema;
+
+        return $clone;
+    }
+
     public function getContext(): string
     {
         return $this->context;
@@ -201,6 +220,11 @@ class FunctionAppBuilder
         return $this->getContainer()->get(Application::class);
     }
 
+    public function getSiteSchemaRegistry(): SiteSchemaRegistry
+    {
+        return $this->getContainer()->get(SiteSchemaRegistry::class);
+    }
+
     public function build(): self
     {
         $classLoader = require __DIR__.'/../../vendor/autoload.php';
@@ -245,6 +269,12 @@ class FunctionAppBuilder
 
         if ($this->autoCreateSite) {
             $this->createSite();
+        }
+
+        if ($this->autoCreateSiteSchema) {
+            /** @var SiteSchemaRegistry $siteSchemaRegistry */
+            $siteSchemaRegistry = $container->get(SiteSchemaRegistry::class);
+            $siteSchemaRegistry->registerSiteSchema('test-app', $container->get(NoopSchemaBuilder::class)->build());
         }
 
         /** @var SiteFinder $siteFinder */

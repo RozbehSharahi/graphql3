@@ -21,10 +21,11 @@ trait FunctionalUtilsTrait
         return GeneralUtility::makeInstance(FunctionAppBuilder::class)
             ->withAutoCreateHomepage(true)
             ->withAutoCreateSchema(true)
-            ->withAutoCreateSite(true);
+            ->withAutoCreateSite(true)
+            ->withAutoCreateSiteSchema(true);
     }
 
-    protected function getGraphqlSchemaRegistry()
+    protected function getSiteSchemaRegistry()
     {
         return GeneralUtility::makeInstance(SiteSchemaRegistry::class);
     }

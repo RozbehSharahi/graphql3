@@ -4,9 +4,8 @@ namespace RozbehSharahi\Graphql3\Registry;
 
 use GraphQL\Type\Schema;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
-use TYPO3\CMS\Core\SingletonInterface;
 
-class SiteSchemaRegistry implements SingletonInterface
+class SiteSchemaRegistry
 {
     /**
      * @var array<string,string>

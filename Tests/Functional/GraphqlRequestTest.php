@@ -16,10 +16,6 @@ class GraphqlRequestTest extends TestCase
 
     public function testCanRunAGraphqlRequest(): void
     {
-        $this
-            ->getGraphqlSchemaRegistry()
-            ->registerSiteSchema('test-app', $this->getNoopSchema());
-
         $request = $this->createGraphqlRequest('{
           noop
         }');
@@ -37,10 +33,6 @@ class GraphqlRequestTest extends TestCase
 
     public function testGraphqlInterfaceRequestOnlyInDevelopmentMode(): void
     {
-        $this
-            ->getGraphqlSchemaRegistry()
-            ->registerSiteSchema('test-app', $this->getNoopSchema());
-
         $response = $this
             ->getFunctionalAppBuilder()
             ->withContext('Production')
@@ -117,5 +109,17 @@ class GraphqlRequestTest extends TestCase
         self::assertCount(1, $responseData['errors']);
         self::assertArrayHasKey('message', $responseData['errors'][0]);
         self::assertEquals(GraphqlController::ERROR_MESSAGE_INVALID_INPUT, $responseData['errors'][0]['message']);
+    }
+
+    public function testNoSchemaActsAs404Page(): void
+    {
+        $response = $this
+            ->getFunctionalAppBuilder()
+            ->withAutoCreateSiteSchema(false)
+            ->build()
+            ->getApplication()
+            ->handle(new ServerRequest('/test-app/graphql', 'POST'));
+
+        self::assertEquals(404, $response->getStatusCode());
     }
 }
