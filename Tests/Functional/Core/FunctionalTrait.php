@@ -1,12 +1,8 @@
 <?php
 
-namespace RozbehSharahi\Graphql3\Tests\Functional\Traits;
+namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 
 use Exception;
-use GraphQL\Type\Schema;
-use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
-use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
-use RozbehSharahi\Graphql3\Tests\Functional\FunctionAppBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -14,25 +10,15 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * @method fail(string $message)
  */
-trait FunctionalUtilsTrait
+trait FunctionalTrait
 {
-    protected function getFunctionalAppBuilder(): FunctionAppBuilder
+    protected function getFunctionalScopeBuilder(): FunctionScopeBuilder
     {
-        return GeneralUtility::makeInstance(FunctionAppBuilder::class)
+        return GeneralUtility::makeInstance(FunctionScopeBuilder::class)
             ->withAutoCreateHomepage(true)
             ->withAutoCreateSchema(true)
             ->withAutoCreateSite(true)
             ->withAutoCreateSiteSchema(true);
-    }
-
-    protected function getSiteSchemaRegistry()
-    {
-        return GeneralUtility::makeInstance(SiteSchemaRegistry::class);
-    }
-
-    protected function getNoopSchema(): Schema
-    {
-        return (new NoopSchemaBuilder())->build();
     }
 
     protected function decode(string $json): mixed

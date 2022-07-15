@@ -6,22 +6,16 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
-use RozbehSharahi\Graphql3\Tests\Functional\Traits\FunctionalUtilsTrait;
+use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 
 class SiteSchemaRegistryTest extends TestCase
 {
-    use FunctionalUtilsTrait;
+    use FunctionalTrait;
 
     public function testCanRegisterSiteSchema(): void
     {
-        $schemaRegistry = new SiteSchemaRegistry();
-        $schemaRegistry->registerSiteSchema('test-app', $this->getNoopSchema());
-
-        $response = $this
-            ->getFunctionalAppBuilder()
-            ->build()
-            ->getApplication()
-            ->handle($this->createGraphqlRequest('{ noop }'));
+        $scope = $this->getFunctionalScopeBuilder()->build();
+        $response = $scope->doServerRequest($this->createGraphqlRequest('{ noop }'));
 
         self::assertEquals(200, $response->getStatusCode());
         self::assertEquals('{"data":{"noop":"noop"}}', (string) $response->getBody());

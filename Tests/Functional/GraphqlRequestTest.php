@@ -6,25 +6,21 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
-use RozbehSharahi\Graphql3\Tests\Functional\Traits\FunctionalUtilsTrait;
+use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
 
 class GraphqlRequestTest extends TestCase
 {
-    use FunctionalUtilsTrait;
+    use FunctionalTrait;
 
     public function testCanRunAGraphqlRequest(): void
     {
-        $request = $this->createGraphqlRequest('{
-          noop
-        }');
+        $scope = $this->getFunctionalScopeBuilder()->build();
 
-        $response = $this
-            ->getFunctionalAppBuilder()
-            ->build()
-            ->getApplication()
-            ->handle($request);
+        $response = $scope->doServerRequest($this->createGraphqlRequest('{
+          noop
+        }'));
 
         self::assertEquals(200, (string) $response->getStatusCode());
         self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
@@ -34,20 +30,18 @@ class GraphqlRequestTest extends TestCase
     public function testGraphqlInterfaceRequestOnlyInDevelopmentMode(): void
     {
         $response = $this
-            ->getFunctionalAppBuilder()
+            ->getFunctionalScopeBuilder()
             ->withContext('Production')
             ->build()
-            ->getApplication()
-            ->handle(new ServerRequest('/test-app/graphiql'));
+            ->doServerRequest(new ServerRequest('/test-app/graphiql'));
 
         self::assertEquals(404, (string) $response->getStatusCode());
 
         $response = $this
-            ->getFunctionalAppBuilder()
+            ->getFunctionalScopeBuilder()
             ->withContext('Development/SomeDeveloper')
             ->build()
-            ->getApplication()
-            ->handle(new ServerRequest('/test-app/graphiql'));
+            ->doServerRequest(new ServerRequest('/test-app/graphiql'));
 
         self::assertEquals(200, (string) $response->getStatusCode());
         self::assertStringContainsString('graphQLFetcher', (string) $response->getBody());
@@ -60,10 +54,9 @@ class GraphqlRequestTest extends TestCase
         }');
 
         $response = $this
-            ->getFunctionalAppBuilder()
+            ->getFunctionalScopeBuilder()
             ->build()
-            ->getApplication()
-            ->handle($request);
+            ->doServerRequest($request);
 
         self::assertEquals(400, (string) $response->getStatusCode());
         self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
@@ -78,10 +71,9 @@ class GraphqlRequestTest extends TestCase
     public function testNoQueryRespondsAsJsonWithStatusCode400(): void
     {
         $response = $this
-            ->getFunctionalAppBuilder()
+            ->getFunctionalScopeBuilder()
             ->build()
-            ->getApplication()
-            ->handle(new ServerRequest('/test-app/graphql', 'POST'));
+            ->doServerRequest(new ServerRequest('/test-app/graphql', 'POST'));
 
         self::assertEquals(400, (string) $response->getStatusCode());
         self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
@@ -96,10 +88,11 @@ class GraphqlRequestTest extends TestCase
     public function testNoArrayQueryRespondsAsJsonWithStatusCode400(): void
     {
         $response = $this
-            ->getFunctionalAppBuilder()
+            ->getFunctionalScopeBuilder()
             ->build()
-            ->getApplication()
-            ->handle(new ServerRequest('/test-app/graphql', 'POST', (new StreamFactory())->createStream('"bla"')));
+            ->doServerRequest(
+                new ServerRequest('/test-app/graphql', 'POST', (new StreamFactory())->createStream('"bla"'))
+            );
 
         self::assertEquals(400, (string) $response->getStatusCode());
         self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
@@ -114,11 +107,10 @@ class GraphqlRequestTest extends TestCase
     public function testNoSchemaActsAs404Page(): void
     {
         $response = $this
-            ->getFunctionalAppBuilder()
+            ->getFunctionalScopeBuilder()
             ->withAutoCreateSiteSchema(false)
             ->build()
-            ->getApplication()
-            ->handle(new ServerRequest('/test-app/graphql', 'POST'));
+            ->doServerRequest(new ServerRequest('/test-app/graphql', 'POST'));
 
         self::assertEquals(404, $response->getStatusCode());
     }

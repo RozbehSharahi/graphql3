@@ -4,7 +4,7 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
-namespace RozbehSharahi\Graphql3\Tests\Functional;
+namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Psr\Container\ContainerInterface;
@@ -25,7 +25,7 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Http\Application;
 
-class FunctionAppBuilder
+class FunctionScopeBuilder
 {
     public const DEFAULT_INSTANCE_NAME = 'test-app';
 
@@ -90,7 +90,7 @@ class FunctionAppBuilder
         return $clone;
     }
 
-    public function getConfiguration(): array|string
+    public function getConfiguration(): array
     {
         return $this->configuration;
     }
@@ -183,7 +183,7 @@ class FunctionAppBuilder
 
     public function getInstancePath(): string
     {
-        $root = realpath(__DIR__.'/../..');
+        $root = realpath(__DIR__.'/../../..');
 
         return $root.'/var/tests/functional-'.$this->instanceName;
     }
@@ -198,36 +198,9 @@ class FunctionAppBuilder
         return $this->getInstancePath().$subPath;
     }
 
-    public function getContainer(): ContainerInterface
+    public function build(): FunctionalScope
     {
-        if (empty($this->container)) {
-            throw new \RuntimeException('Did you forget to call ->build ?');
-        }
-
-        return $this->container;
-    }
-
-    public function withContainer(ContainerInterface $container): self
-    {
-        $clone = clone $this;
-        $clone->container = $container;
-
-        return $clone;
-    }
-
-    public function getApplication(): Application
-    {
-        return $this->getContainer()->get(Application::class);
-    }
-
-    public function getSiteSchemaRegistry(): SiteSchemaRegistry
-    {
-        return $this->getContainer()->get(SiteSchemaRegistry::class);
-    }
-
-    public function build(): self
-    {
-        $classLoader = require __DIR__.'/../../vendor/autoload.php';
+        $classLoader = require __DIR__.'/../../../vendor/autoload.php';
 
         @unlink($this->getDatabasePath());
         @mkdir($this->getInstancePath(), 0777, true);
@@ -274,17 +247,17 @@ class FunctionAppBuilder
         if ($this->autoCreateSiteSchema) {
             /** @var SiteSchemaRegistry $siteSchemaRegistry */
             $siteSchemaRegistry = $container->get(SiteSchemaRegistry::class);
-            $siteSchemaRegistry->registerSiteSchema('test-app', $container->get(NoopSchemaBuilder::class)->build());
+            $siteSchemaRegistry->registerSiteSchema($this->instanceName, $container->get(NoopSchemaBuilder::class)->build());
         }
 
         /** @var SiteFinder $siteFinder */
         $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
         $siteFinder->getAllSites(false);
 
-        return $this->withContainer($container);
+        return new FunctionalScope($container);
     }
 
-    private function createHomepage(): self
+    protected function createHomepage(): self
     {
         $query = $this->getQueryBuilder('pages');
 
@@ -300,7 +273,7 @@ class FunctionAppBuilder
     {
         $configuration = [
             'rootPageId' => 1,
-            'base' => '/test-app',
+            'base' => '/'.$this->instanceName,
             'languages' => [
                 [
                     'title' => 'English',
@@ -320,18 +293,21 @@ class FunctionAppBuilder
             'routes' => [],
         ];
 
-        @mkdir($this->getPath('/config/sites/test-app'), 0777, true);
-        file_put_contents($this->getPath('/config/sites/test-app/config.yaml'), Yaml::dump($configuration, 99, 2));
+        @mkdir($this->getPath('/config/sites/'.$this->instanceName), 0777, true);
+        file_put_contents(
+            $this->getPath('/config/sites/'.$this->instanceName.'/config.yaml'),
+            Yaml::dump($configuration, 99, 2)
+        );
 
         return $this;
     }
 
-    public function createDatabaseStructure(): self
+    protected function createDatabaseStructure(): self
     {
         $this->getConnection()->close();
 
         if (!$this->freshDatabase) {
-            copy(__DIR__.'/../Fixture/Database/base-database.sqlite', $this->getDatabasePath());
+            copy(__DIR__.'/../../Fixture/Database/base-database.sqlite', $this->getDatabasePath());
 
             return $this;
         }
