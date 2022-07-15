@@ -185,21 +185,20 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 /** @var RegistryBasedQueryType $registryBasedQueryType */
 /** @var SchemaRegistry $schemaRegistry */
 
-$queryFieldRegistry
-    ->register(GraphqlNode::create('sayHello')->withResolver(fn() => 'Hi !'))
 $schemaRegistry->register(new \GraphQL\Type\Schema([
     'query' => $registryBasedQueryType
 ]))
+
+$queryFieldRegistry
+    ->register(GraphqlNode::create('sayHello')->withResolver(fn() => 'Hi !'))
+    ->register(GraphqlNode::create('sayNo')->withResolver(fn() => 'No !'));
 ```
 
 From this point your graphql schema supports following query:
 
 ```
-{
-    sayHello
-}
+{ sayHello }
 ```
-
 ```json
 {
   "data": {
