@@ -48,34 +48,78 @@ use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
 $siteSchemaRegistry->registerSiteSchema('my-site', (new NoopSchemaBuilder())->build())
 ```
 
-In order to have some real working TYPO3 code, put this code on your extensions `ext_localconf.php`.
+In order to have some real working TYPO3 code, follow the next chapter `Getting started`.
+
+# Getting started
+
+We assume you have a working TYPO3 extension and a site with identifier `my-site`. 
+
+Also make sure to have a proper `Configuration/Services.yaml` similar to this one running:
+
+```yaml
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Your\Extension\:
+    resource: '../Classes/*'
+    exclude: '../Classes/Domain/Model/*'
+
+```
+... otherwise constructor injection of `GraphqlRegistration` might not work as expected.
+
+Now create a registration class in your project's main extension:
 
 ```php
-use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
-use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
+namespace Your\Extension\Graphql;
 
-$siteSchemaRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(SiteSchemaRegistry::class);
-$siteSchemaRegistry->registerSiteSchema('my-site', (new NoopSchemaBuilder())->build());
+class GraphqlRegistration
+{
+
+    public function __construct(
+        protected SiteSchemaRegistry $registry, 
+        protected NoopSchemaBuilder $noopSchemaBuilder
+    ) {
+    }
+
+    public function register(): void
+    {
+        $this
+            ->registry
+            ->registerSiteSchema('my-site', $this->noopSchemaBuilder->build());
+    }
+
+}
 ```
+
+Now you need to call the register method on your `ext_localconf.php`.
+
+```php
+use Your\Extension\Graphql\GraphqlRegistration;
+
+\TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(GraphqlRegistration::class)->register();
+```
+
+After that you should be able to call your graphql endpoint. Also, graphiql endpoint will be available if TYPO3_CONTEXT
+is set to `Development/*`.
+
+> Please consider that your graphql endpoint will only be available on your sites root page path with an additional `/graphql` tail.
+> 
+> https://my-page.com/my-site-root/    
+> https://my-page.com/my-site-root/graphql  
+> https://my-page.com/my-site-root/graphiql
 
 ## Contribution
 
-When interested in contribution, you will need to setup your own test environment (php, xdebug, imagemagick,...). I
-personally use my own repo https://github.com/RozbehSharahi/doka.
+When interested in contribution, you will need to set up your own test environment (php, xdebug, imagemagick,...). I
+personally use my own repo https://github.com/RozbehSharahi/doka, which you are also free to use ofc.
 
-### Code sniffing
-
-```
-vendor/bin/php-cs-fixer fix
-
-// dry run for pipeline
-vendor/bin/php-cs-fixer fix --dry-run
-```
-
-### Testing
+### Testing (and sniffing)
 
 ```
-vendor/bin/phpunit
+composer run tests
 ```
 
 ### Testing build
@@ -90,13 +134,18 @@ cd .build
 composer install
 ```
 
-It will create a fresh installation and you might navigation to `http://YOUR_LOCAL_DOMAIN:PORT/`. It should ask you to
-create a `FIRST_INSTALL` file.
+This will create a fresh TYPO3 installation. Navigate to `http://[HOST]:[PORT]/`, where it should ask you to create
+a `FIRST_INSTALL` file.
 
-By now it is still mandatory to call the site-identifier manually `main` in order to have graphql route
-active. See: `/Tests/Fixture/Graphql3TestExtension/ext_localconf.php`.
+For the time being it is still mandatory to call the site-identifier manually `main` in order to have graphql route
+activated. See: `/Tests/Fixture/Graphql3TestExtension/ext_localconf.php`.
 
 Installation steps should be fast and easy if you use sqlite (hopefully :)).
 
-When using my `doka` package the path would be `http://localhost:8080/typo3/install.php`, according to configuration
+When using my `doka` package, the path would be `http://localhost:8080/typo3/install.php`, according to configuration
 in `.doka.env`.
+
+# Well known open tasks
+
+- Need tests for installation of extension ext_localconf.php of Graphql3TestExtension.
+- Need good test base in order to test if extending graphql3 via extensions is working

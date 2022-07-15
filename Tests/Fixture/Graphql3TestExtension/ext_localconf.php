@@ -1,7 +1,5 @@
 <?php
 
-use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
-use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
+use RozbehSharahi\Graphql3TestExtension\Graphql\GraphqlRegistration;
 
-$siteSchemaRegistry = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(SiteSchemaRegistry::class);
-$siteSchemaRegistry->registerSiteSchema('main', (new NoopSchemaBuilder())->build());
+\TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(GraphqlRegistration::class)->register();

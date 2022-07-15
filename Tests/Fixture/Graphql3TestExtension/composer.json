@@ -5,7 +5,7 @@
     "license": "GPL-3.0-or-later",
     "autoload": {
         "psr-4": {
-            "Rozbehsharahi\\Graphql3TestExtension\\": "Classes/"
+            "RozbehSharahi\\Graphql3TestExtension\\": "Classes/"
         }
     },
     "authors": [
