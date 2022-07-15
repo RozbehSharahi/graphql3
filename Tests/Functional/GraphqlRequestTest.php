@@ -108,7 +108,7 @@ class GraphqlRequestTest extends TestCase
     {
         $response = $this
             ->getFunctionalScopeBuilder()
-            ->withAutoCreateSiteSchema(false)
+            ->withAutoCreateGraphqlSchema(false)
             ->build()
             ->doServerRequest(new ServerRequest('/test-app/graphql', 'POST'));
 

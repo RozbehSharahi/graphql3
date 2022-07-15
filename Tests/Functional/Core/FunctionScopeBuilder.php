@@ -9,7 +9,7 @@ namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Psr\Container\ContainerInterface;
 use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
-use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Bootstrap;
@@ -35,7 +35,7 @@ class FunctionScopeBuilder
 
     public const DEFAULT_AUTO_CREATE_SITE = true;
 
-    public const DEFAULT_AUTO_CREATE_SITE_SCHEMA = true;
+    public const DEFAULT_AUTO_CREATE_GRAPHQL_SCHEMA = true;
 
     public const DEFAULT_CONTEXT = 'Testing';
 
@@ -67,7 +67,7 @@ class FunctionScopeBuilder
 
     protected bool $autoCreateSite = self::DEFAULT_AUTO_CREATE_SITE;
 
-    protected bool $autoCreateSiteSchema = self::DEFAULT_AUTO_CREATE_SITE_SCHEMA;
+    protected bool $autoCreateGraphqlSchema = self::DEFAULT_AUTO_CREATE_GRAPHQL_SCHEMA;
 
     protected bool $freshDatabase = self::DEFAULT_FRESH_DATABASE;
 
@@ -155,15 +155,15 @@ class FunctionScopeBuilder
         return $clone;
     }
 
-    public function isAutoCreateSiteSchema(): bool
+    public function isAutoCreateGraphqlSchema(): bool
     {
-        return $this->autoCreateSiteSchema;
+        return $this->autoCreateGraphqlSchema;
     }
 
-    public function withAutoCreateSiteSchema(bool $autoCreateSiteSchema): self
+    public function withAutoCreateGraphqlSchema(bool $autoCreateGraphqlSchema): self
     {
         $clone = clone $this;
-        $clone->autoCreateSiteSchema = $autoCreateSiteSchema;
+        $clone->autoCreateGraphqlSchema = $autoCreateGraphqlSchema;
 
         return $clone;
     }
@@ -244,10 +244,10 @@ class FunctionScopeBuilder
             $this->createSite();
         }
 
-        if ($this->autoCreateSiteSchema) {
-            /** @var SiteSchemaRegistry $siteSchemaRegistry */
-            $siteSchemaRegistry = $container->get(SiteSchemaRegistry::class);
-            $siteSchemaRegistry->registerSiteSchema($this->instanceName, (new NoopSchemaBuilder())->build());
+        if ($this->autoCreateGraphqlSchema) {
+            /** @var SchemaRegistry $schemaRegistry */
+            $schemaRegistry = $container->get(SchemaRegistry::class);
+            $schemaRegistry->register((new NoopSchemaBuilder())->build());
         }
 
         /** @var SiteFinder $siteFinder */

@@ -10,8 +10,7 @@ use RozbehSharahi\Graphql3\Builder\ErrorResponseBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlErrorCollection;
 use RozbehSharahi\Graphql3\Encoder\JsonEncoder;
 use RozbehSharahi\Graphql3\Executor\Executor;
-use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
-use TYPO3\CMS\Core\Site\Entity\Site;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 
 class GraphqlController
 {
@@ -21,7 +20,7 @@ class GraphqlController
         protected ResponseFactoryInterface $responseFactory,
         protected JsonEncoder $encoder,
         protected Executor $executor,
-        protected SiteSchemaRegistry $siteSchemaRegistry,
+        protected SchemaRegistry $schemaRegistry,
         protected ErrorResponseBuilder $errorResponseBuilder,
     ) {
     }
@@ -35,12 +34,9 @@ class GraphqlController
         $input = $this->encoder->decode((string) $request->getBody());
 
         try {
-            /** @var Site $site */
-            $site = $request->getAttribute('site');
-
             $output = $this
                 ->executor
-                ->withSchema($this->siteSchemaRegistry->getSchema($site->getIdentifier()))
+                ->withSchema($this->schemaRegistry->getSchema())
                 ->withQuery($input['query'])
                 ->withVariables($input['variables'] ?? [])
                 ->execute();

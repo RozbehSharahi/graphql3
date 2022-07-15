@@ -3,17 +3,17 @@
 namespace RozbehSharahi\Graphql3TestExtension\Graphql;
 
 use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
-use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use TYPO3\CMS\Core\SingletonInterface;
 
 class GraphqlRegistration implements SingletonInterface
 {
-    public function __construct(protected SiteSchemaRegistry $registry, protected NoopSchemaBuilder $noopSchemaBuilder)
+    public function __construct(protected SchemaRegistry $registry, protected NoopSchemaBuilder $noopSchemaBuilder)
     {
     }
 
     public function register(): void
     {
-        $this->registry->registerSiteSchema('main', $this->noopSchemaBuilder->build());
+        $this->registry->register($this->noopSchemaBuilder->build());
     }
 }

@@ -8,5 +8,5 @@ services:
     resource: '../Classes/*'
     exclude: '../Classes/Domain/Model/*'
 
-  RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry:
+  RozbehSharahi\Graphql3\Registry\SchemaRegistry:
     public: true

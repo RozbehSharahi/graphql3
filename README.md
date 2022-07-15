@@ -1,12 +1,10 @@
 # GraphQL 3
 
-Graphql3 is based on TYPO3 sites.
+This package enables you to register a graphql schema for your TYPO3 page.
 
-Each site can register its schema.
-
-> Whenever a schema is registered it is accessible via the tail `/graphql` or `/graphiql` on its root-page:
+If you register a schema, it is accessible via the tail `/graphql` or `/graphiql` on its root-page:
 > https://www.example.com/my-site-root/graphql  
-> https://www.example.com/my-site-root/graphiql (only on TYPO3_CONTEXT=Development)
+> https://www.example.com/my-site-root/graphiql (TYPO3_CONTEXT=Development only)
 
 ## Usage
 
@@ -17,11 +15,11 @@ Documentation: https://webonyx.github.io/graphql-php/
 Schematically the usage of `graphql3` is as following.
 
 ```php
-use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use GraphQL\Type\Schema;
 
-/** @var SiteSchemaRegistry $siteSchemaRegistry */
-$siteSchemaRegistry->registerSiteSchema('my-site', new Schema([
+/** @var SchemaRegistry $schemaRegistry */
+$schemaRegistry->register(new Schema([
     'query' => new ObjectType([
         'name' => 'Query',
         'fields' => [
@@ -36,7 +34,7 @@ $siteSchemaRegistry->registerSiteSchema('my-site', new Schema([
 
 After that you should already be able to access your graphql endpoint.
 
-As the second parameter of `registerSiteSchema` expects a schema of `webonyx/graphql-php` package, you are free to do
+The method `registerSiteSchema` expects a schema of `webonyx/graphql-php` package, so you are free to do
 whatever you wish from here on. 
 
 However, the main focus of `graphql3` is providing builders which will facilitate the introduction of GraphQL on
@@ -45,19 +43,18 @@ TYPO3 sites.
 For instance the following code is completely equivalent, but uses one of the in-house builders.
 
 ```php
-use RozbehSharahi\Graphql3\Registry\SiteSchemaRegistry;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
 
-/** @var SiteSchemaRegistry $siteSchemaRegistry */
-$siteSchemaRegistry->registerSiteSchema('my-site', (new NoopSchemaBuilder())->build())
+/** @var SchemaRegistry $schemaRegistry */
+$schemaRegistry->register((new NoopSchemaBuilder())->build())
 ```
 In order to have some real working TYPO3 code, continue to the next chapter `Getting started`.
 
 # Getting started
 
-We assume you have a working TYPO3 extension and a site with identifier `my-site`.
-
-Also make sure to have a proper `Configuration/Services.yaml` similar to this one running:
+We assume you have a working TYPO3 extension and a `Configuration/Services.yaml` (as following), which will make 
+constructor injection work. (For instance on middleware).
 
 ```yaml
 services:
@@ -72,43 +69,59 @@ services:
 
 ```
 
-... otherwise constructor injection of `GraphqlRegistration` might not work as expected.
-
-Now create a registration class in your project's main extension:
+Now you need to register a middleware in order to register a schema via `SchemaRegistry`.
 
 ```php
-namespace Your\Extension\Graphql;
+namespace Your\Extension\Middleware;
 
-class GraphqlRegistration
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+
+class GraphqlRegistrationMiddleware implements MiddlewareInterface
 {
-
-    public function __construct(
-        protected SiteSchemaRegistry $registry, 
-        protected NoopSchemaBuilder $noopSchemaBuilder
-    ) {
-    }
-
-    public function register(): void
+    public function __construct(protected SchemaRegistry $schemaRegistry)
     {
-        $this
-            ->registry
-            ->registerSiteSchema('my-site', $this->noopSchemaBuilder->build());
     }
 
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
+        // You can pass any schema you want here
+        // https://webonyx.github.io/graphql-php/
+        $this->schemaRegistry->register((new NoopSchemaBuilder())->build());
+
+        return $handler->handle($request);
+    }
 }
 ```
+> Recommendation: Delegate your schema registration into a dedicated GraphqlRegistration class.
+> Checkout `\RozbehSharahi\Graphql3TestExtension\Middleware\GraphqlRegistrationMiddleware`
 
-Now you need to call the register method on your `ext_localconf.php`.
-
+Finally, activate your middleware on `Configuration/RequestMiddlewares.php`:
 ```php
-use Your\Extension\Graphql\GraphqlRegistration;
+use RozbehSharahi\Graphql3\Middleware\GraphqlRequestMiddleware;
+use Your\Extension\Middleware\GraphqlRegistrationMiddleware;
 
-\TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(GraphqlRegistration::class)->register();
+return [
+    'frontend' => [
+        GraphqlRegistrationMiddleware::class => [
+            'after' => ['typo3/cms-frontend/site'],
+            'before' => [GraphqlRequestMiddleware::class],
+            'target' => GraphqlRegistrationMiddleware::class,
+        ],
+    ],
+];
+
 ```
 At this point your graphql endpoint should already be accessible.
 ```
 https://www.example.com/site-root/graphql
 ```
+> Please make sure your registration middleware runs before `GraphqlRequestMiddleware`. Otherwise,
+> you will receive a 404-page on `/graphql` and `/graphiql`.
 
 ## Contribution
 
@@ -135,9 +148,6 @@ composer install
 
 This will create a fresh TYPO3 installation. Navigate to `http://[HOST]:[PORT]/`, where it should ask you to create
 a `FIRST_INSTALL` file.
-
-For the time being it is still mandatory to call the site-identifier manually `main` in order to have graphql route
-activated. See: `/Tests/Fixture/Graphql3TestExtension/ext_localconf.php`.
 
 Installation steps should be fast and easy if you use sqlite (hopefully :)).
 
