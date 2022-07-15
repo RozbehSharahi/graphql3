@@ -10,3 +10,10 @@ services:
 
   RozbehSharahi\Graphql3\Registry\SchemaRegistry:
     public: true
+
+  RozbehSharahi\Graphql3\Registry\QueryFieldRegistry:
+    public: true
+
+  RozbehSharahi\Graphql3\Type\:
+    resource: '../Classes/Type/*'
+    public: true

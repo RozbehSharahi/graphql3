@@ -34,11 +34,11 @@ $schemaRegistry->register(new Schema([
 
 After that you should already be able to access your graphql endpoint.
 
-The method `registerSiteSchema` expects a schema of `webonyx/graphql-php` package, so you are free to do
-whatever you wish from here on. 
+The method `registerSiteSchema` expects a schema of `webonyx/graphql-php` package, so you are free to do whatever you
+wish from here on.
 
-However, the main focus of `graphql3` is providing builders which will facilitate the introduction of GraphQL on
-TYPO3 sites.
+However, the main focus of `graphql3` is providing builders/types/registries, which will facilitate the introduction of
+GraphQL on TYPO3 sites.
 
 For instance the following code is completely equivalent, but uses one of the in-house builders.
 
@@ -49,11 +49,12 @@ use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
 /** @var SchemaRegistry $schemaRegistry */
 $schemaRegistry->register((new NoopSchemaBuilder())->build())
 ```
+
 In order to have some real working TYPO3 code, continue to the next chapter `Getting started`.
 
 # Getting started
 
-We assume you have a working TYPO3 extension and a `Configuration/Services.yaml` (as following), which will make 
+We assume you have a working TYPO3 extension and a `Configuration/Services.yaml` (as following), which will make
 constructor injection work. (For instance on middleware).
 
 ```yaml
@@ -97,10 +98,12 @@ class GraphqlRegistrationMiddleware implements MiddlewareInterface
     }
 }
 ```
+
 > Recommendation: Delegate your schema registration into a dedicated GraphqlRegistration class.
 > Checkout `\RozbehSharahi\Graphql3TestExtension\Middleware\GraphqlRegistrationMiddleware`
 
 Finally, activate your middleware on `Configuration/RequestMiddlewares.php`:
+
 ```php
 use RozbehSharahi\Graphql3\Middleware\GraphqlRequestMiddleware;
 use Your\Extension\Middleware\GraphqlRegistrationMiddleware;
@@ -116,12 +119,85 @@ return [
 ];
 
 ```
+
 At this point your graphql endpoint should already be accessible.
+
 ```
 https://www.example.com/site-root/graphql
 ```
+
 > Please make sure your registration middleware runs before `GraphqlRequestMiddleware`. Otherwise,
 > you will receive a 404-page on `/graphql` and `/graphiql`.
+
+## Documentation
+
+Graphql3 brings a couple of handy types, registries & builders which shall facilitate the introduction of GraphQL on
+TYPO3 projects. Without you telling `graphql3` what you want, nothing will happen.
+
+First step every project should take, is registering a schema.
+
+```php
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use GraphQL\Type\Schema;
+
+/** @var SchemaRegistry $schemaRegistry */
+$schemaRegistry->register(new \GraphQL\Type\Schema([...]))
+```
+
+However, doing everything by hand this way is possible but boring.
+
+Instead, we want to use a built-in query types, which offer a couple of TYPO3 related features.
+
+Let's start off with the `RegistryBasedQueryType`.
+
+### RegistryBasedQueryType
+
+Instead of defining a hardcoded object-type for our main graphql query node, we will use `RegistryBasedQueryType`.
+
+```php
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
+
+/** @var RegistryBasedQueryType $registryBasedQueryType */
+/** @var SchemaRegistry $schemaRegistry */
+$schemaRegistry->register(new \GraphQL\Type\Schema([
+    'query' => $registryBasedQueryType
+]))
+```
+
+`RegistryBasedQueryType` exposed the configuration of root nodes/fields by `QueryFieldRegistry`.
+
+```php
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
+use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+
+/** @var QueryFieldRegistry $queryFieldRegistry */
+$queryFieldRegistry
+    ->register(GraphqlNode::create('sayHello')->withResolver(fn() => 'Hi !'))
+
+/** @var RegistryBasedQueryType $registryBasedQueryType */
+/** @var SchemaRegistry $schemaRegistry */
+$schemaRegistry->register(new \GraphQL\Type\Schema([
+    'query' => $registryBasedQueryType
+]))
+```
+From this point your graphql schema supports following query:
+```
+{
+    sayHello
+}
+```
+```json
+{
+    "data": {
+        "sayHello": "Hi !"
+    }
+}
+```
 
 ## Contribution
 
