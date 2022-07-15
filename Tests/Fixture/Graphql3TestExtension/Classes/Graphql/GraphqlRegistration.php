@@ -12,7 +12,7 @@ use TYPO3\CMS\Core\SingletonInterface;
 class GraphqlRegistration implements SingletonInterface
 {
     public function __construct(
-        protected SchemaRegistry $registry,
+        protected SchemaRegistry $schemaRegistry,
         protected QueryFieldRegistry $queryFieldRegistry,
         protected RegistryBasedQueryType $registryBasedQueryType
     ) {
@@ -20,12 +20,15 @@ class GraphqlRegistration implements SingletonInterface
 
     public function register(): void
     {
-        $this->queryFieldRegistry
-            ->register(GraphqlNode::create('noop')->withResolver(fn () => 'noop'))
-            ->register(GraphqlNode::create('foo')->withResolver(fn () => 'bar'));
-
-        $this->registry->register(new Schema([
+        // Register schema
+        $this->schemaRegistry->register(new Schema([
             'query' => $this->registryBasedQueryType,
         ]));
+
+        // Register some query fields
+        $this->queryFieldRegistry
+            ->register(GraphqlNode::create('noop')->withResolver(fn () => 'noop'))
+            ->register(GraphqlNode::create('bar')->withResolver(fn () => 'foo'))
+            ->register(GraphqlNode::create('foo')->withResolver(fn () => 'bar'));
     }
 }
