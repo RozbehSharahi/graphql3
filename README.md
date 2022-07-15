@@ -133,7 +133,7 @@ https://www.example.com/site-root/graphql
 
 > Please note that the given examples are always using doc-comments to clarify the service used in a variable.
 >
-> In the context of a project these doc-comment variables like `SchemaRegistry`,`RegistryBasedQueryType`, would be 
+> In the context of a project these doc-comment variables like `SchemaRegistry`,`RegistryBasedQueryType`, would be
 > injected usually, or instantiated via `GeneralUtility::makeInstance`.
 
 Graphql3 brings a couple of handy types, registries & builders which shall facilitate the introduction of GraphQL on
@@ -199,6 +199,7 @@ From this point your graphql schema supports following query:
 ```
 { sayHello }
 ```
+
 ```json
 {
   "data": {
@@ -206,6 +207,11 @@ From this point your graphql schema supports following query:
   }
 }
 ```
+
+Using `RegistryBasedQueryType` enables any extension to extend the root query at any time and place.
+
+We don't need to know the query fields at the time of creation. It is closed to the functionality it
+offers, but can be extended and modified easily.
 
 ## Contribution
 
