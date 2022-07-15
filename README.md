@@ -147,5 +147,7 @@ in `.doka.env`.
 
 # Well known open tasks
 
+- improve/refactor functional tests
+- services are currently public in `Services.yaml` since functional tests have to be improved still
 - Need tests for installation of extension ext_localconf.php of Graphql3TestExtension.
 - Need good test base in order to test if extending graphql3 via extensions is working
