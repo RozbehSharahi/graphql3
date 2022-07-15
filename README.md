@@ -131,6 +131,11 @@ https://www.example.com/site-root/graphql
 
 ## Documentation
 
+> Please note that the given examples are always using doc-comments to clarify the service used in a variable.
+>
+> In the context of a project these doc-comment variables like `SchemaRegistry`,`RegistryBasedQueryType`, would be 
+> injected usually, or instantiated via `GeneralUtility::makeInstance`.
+
 Graphql3 brings a couple of handy types, registries & builders which shall facilitate the introduction of GraphQL on
 TYPO3 projects. Without you telling `graphql3` what you want, nothing will happen.
 
@@ -161,12 +166,13 @@ use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
 
 /** @var RegistryBasedQueryType $registryBasedQueryType */
 /** @var SchemaRegistry $schemaRegistry */
+
 $schemaRegistry->register(new \GraphQL\Type\Schema([
     'query' => $registryBasedQueryType
 ]))
 ```
 
-`RegistryBasedQueryType` exposed the configuration of root nodes/fields by `QueryFieldRegistry`.
+`RegistryBasedQueryType` exposes the configuration of root nodes/fields by `QueryFieldRegistry`.
 
 ```php
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
@@ -176,26 +182,29 @@ use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 
 /** @var QueryFieldRegistry $queryFieldRegistry */
-$queryFieldRegistry
-    ->register(GraphqlNode::create('sayHello')->withResolver(fn() => 'Hi !'))
-
 /** @var RegistryBasedQueryType $registryBasedQueryType */
 /** @var SchemaRegistry $schemaRegistry */
+
+$queryFieldRegistry
+    ->register(GraphqlNode::create('sayHello')->withResolver(fn() => 'Hi !'))
 $schemaRegistry->register(new \GraphQL\Type\Schema([
     'query' => $registryBasedQueryType
 ]))
 ```
+
 From this point your graphql schema supports following query:
+
 ```
 {
     sayHello
 }
 ```
+
 ```json
 {
-    "data": {
-        "sayHello": "Hi !"
-    }
+  "data": {
+    "sayHello": "Hi !"
+  }
 }
 ```
 
