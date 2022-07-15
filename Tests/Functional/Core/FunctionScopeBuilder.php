@@ -247,7 +247,7 @@ class FunctionScopeBuilder
         if ($this->autoCreateSiteSchema) {
             /** @var SiteSchemaRegistry $siteSchemaRegistry */
             $siteSchemaRegistry = $container->get(SiteSchemaRegistry::class);
-            $siteSchemaRegistry->registerSiteSchema($this->instanceName, $container->get(NoopSchemaBuilder::class)->build());
+            $siteSchemaRegistry->registerSiteSchema($this->instanceName, (new NoopSchemaBuilder())->build());
         }
 
         /** @var SiteFinder $siteFinder */
