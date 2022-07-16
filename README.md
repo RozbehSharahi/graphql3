@@ -2,7 +2,7 @@
 
 This package enables you to register a graphql schema for your TYPO3 page.
 
-If you register a schema, it is accessible via the tail `/graphql` or `/graphiql` on its root-page:
+If you register a schema, it is accessible via the tail `/graphql` or `/graphiql` on your site's root-page:
 > https://www.example.com/my-site-root/graphql  
 > https://www.example.com/my-site-root/graphiql (TYPO3_CONTEXT=Development only)
 
@@ -212,8 +212,7 @@ From this point your graphql schema supports following query:
 ```
 
 Using `RegistryBasedQueryType` enables any extension to extend the root query at any time and place, since we don't need
-to know the query fields at the time of creation.
-modified easily.
+to know the query fields at the time of creation. modified easily.
 
 ## Contribution
 

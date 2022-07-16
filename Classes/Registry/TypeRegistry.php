@@ -4,6 +4,7 @@ namespace RozbehSharahi\Graphql3\Registry;
 
 use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Type\NoopQueryType;
 use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
 
 class TypeRegistry
@@ -13,9 +14,10 @@ class TypeRegistry
     /**
      * Here we register our graphql3 core types.
      */
-    public function __construct(RegistryBasedQueryType $registryBasedQueryType)
+    public function __construct(NoopQueryType $noopQueryType, RegistryBasedQueryType $registryBasedQueryType)
     {
         $this
+            ->register($noopQueryType)
             ->register($registryBasedQueryType);
     }
 
