@@ -8,15 +8,15 @@ If you register a schema, it is accessible via the tail `/graphql` or `/graphiql
 
 ## Usage
 
-We register our schema with normal `webonyx/graphql-php`-package types.
+We register our schema with normal `webonyx/graphql-php` package types.
 
 Documentation: https://webonyx.github.io/graphql-php/
 
 Schematically the usage of `graphql3` is as following.
 
 ```php
-use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 
 /** @var SchemaRegistry $schemaRegistry */
 $schemaRegistry->register(new Schema([
@@ -34,7 +34,7 @@ $schemaRegistry->register(new Schema([
 
 After that you should already be able to access your graphql endpoint.
 
-The method `registerSiteSchema` expects a schema of `webonyx/graphql-php` package, so you are free to do whatever you
+The method `register` expects a schema of `webonyx/graphql-php` package, so you are free to do whatever you
 wish from here on.
 
 However, the main focus of `graphql3` is providing builders/types/registries, which will facilitate the introduction of
