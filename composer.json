@@ -47,9 +47,7 @@
     "scripts": {
         "cache-clear": [
             "rm -rf var/cache",
-            "rm -rf .build/var/cache"
-        ],
-        "cache-clear-test": [
+            "rm -rf .build/var/cache",
             "rm -rf var/tests"
         ],
         "tests": [

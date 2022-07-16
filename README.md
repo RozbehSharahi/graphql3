@@ -157,36 +157,39 @@ Let's start off with the `RegistryBasedQueryType`.
 
 ### RegistryBasedQueryType
 
-Instead of defining a hardcoded object-type for our main graphql query node, we will use `RegistryBasedQueryType`.
+Instead of defining a hardcoded object-type for our main graphql query node, we will use `RegistryBasedQueryType`, which
+we will receive by `TypeRegistry`.
 
 ```php
-use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
+use RozbehSharahi\Graphql3\Registry\TypeRegistry;
 
-/** @var RegistryBasedQueryType $registryBasedQueryType */
+/** @var TypeRegistry $typeRegister */
 /** @var SchemaRegistry $schemaRegistry */
 
 $schemaRegistry->register(new \GraphQL\Type\Schema([
-    'query' => $registryBasedQueryType
+    'query' => $typeRegister->get(RegistryBasedQueryType::class)
 ]))
 ```
 
 `RegistryBasedQueryType` exposes the configuration of root nodes/fields by `QueryFieldRegistry`.
 
 ```php
-use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
 use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Registry\TypeRegistry;
 
-/** @var QueryFieldRegistry $queryFieldRegistry */
-/** @var RegistryBasedQueryType $registryBasedQueryType */
 /** @var SchemaRegistry $schemaRegistry */
+/** @var TypeRegistry $typeRegistry */
+/** @var QueryFieldRegistry $queryFieldRegistry */
 
 $schemaRegistry->register(new \GraphQL\Type\Schema([
-    'query' => $registryBasedQueryType
+    'query' => $typeRegistry->get(RegistryBasedQueryType::class)
 ]))
 
 $queryFieldRegistry
@@ -208,10 +211,9 @@ From this point your graphql schema supports following query:
 }
 ```
 
-Using `RegistryBasedQueryType` enables any extension to extend the root query at any time and place.
-
-We don't need to know the query fields at the time of creation. It is closed to the functionality it
-offers, but can be extended and modified easily.
+Using `RegistryBasedQueryType` enables any extension to extend the root query at any time and place, since we don't need
+to know the query fields at the time of creation.
+modified easily.
 
 ## Contribution
 
