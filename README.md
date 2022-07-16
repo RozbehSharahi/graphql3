@@ -8,11 +8,11 @@ If you register a schema, it is accessible via the tail `/graphql` or `/graphiql
 
 ## Usage
 
-We register our schema with normal `webonyx/graphql-php` package types.
+Schemas are registered using `webonyx/graphql-php` package types.
 
 Documentation: https://webonyx.github.io/graphql-php/
 
-Schematically the usage of `graphql3` is as following.
+Schematically the usage of `graphql3` is as following:
 
 ```php
 use GraphQL\Type\Schema;
@@ -25,7 +25,7 @@ $schemaRegistry->register(new Schema([
         'fields' => [
             'noop' => [
                 'type' => Type::string(),
-                'resolve' => fn ($rootValue, array $args) => 'noop',
+                'resolve' => fn () => 'noop',
             ],
         ],
     ]),
@@ -34,8 +34,8 @@ $schemaRegistry->register(new Schema([
 
 After that you should already be able to access your graphql endpoint.
 
-The method `register` expects a schema of `webonyx/graphql-php` package, so you are free to do whatever you
-wish from here on.
+The method `register` expects a schema of `webonyx/graphql-php` package, so you are free to do whatever you wish from
+here on.
 
 However, the main focus of `graphql3` is providing builders/types/registries, which will facilitate the introduction of
 GraphQL on TYPO3 sites.
@@ -55,7 +55,9 @@ In order to have some real working TYPO3 code, continue to the next chapter `Get
 # Getting started
 
 We assume you have a working TYPO3 extension and a `Configuration/Services.yaml` (as following), which will make
-constructor injection work. (For instance on middleware).
+constructor injection work.
+
+https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/DependencyInjection/Index.html#dependency-injection-autoconfigure
 
 ```yaml
 services:
@@ -70,134 +72,176 @@ services:
 
 ```
 
-Now you need to register a middleware in order to register a schema via `SchemaRegistry`.
+Create a graphql setup class, somewhere in your extension's `Classes` directory.
 
 ```php
-namespace Your\Extension\Middleware;
+<?php
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
+namespace Your\Extension;
+
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
+use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
 
-class GraphqlRegistrationMiddleware implements MiddlewareInterface
+class GraphqlSetup implements GraphqlSetupInterface
 {
-    public function __construct(protected SchemaRegistry $schemaRegistry)
-    {
+    public function __construct(
+        protected SchemaRegistry $schemaRegistry,
+    ) {
     }
 
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function setup(): void
     {
         // You can pass any schema you want here
         // https://webonyx.github.io/graphql-php/
         $this->schemaRegistry->register((new NoopSchemaBuilder())->build());
-
-        return $handler->handle($request);
     }
 }
 ```
 
+> It does not matter, where you place your `GraphqlSetup` class. As long as you implement `GraphqlSetupInterface`
+> graphql3 will auto-detect your class and call the `setup` method.
+
 > Recommendation: Delegate your schema registration into a dedicated GraphqlRegistration class.
 > Checkout `\RozbehSharahi\Graphql3TestExtension\Middleware\GraphqlRegistrationMiddleware`
-
-Finally, activate your middleware on `Configuration/RequestMiddlewares.php`:
-
-```php
-use RozbehSharahi\Graphql3\Middleware\GraphqlRequestMiddleware;
-use Your\Extension\Middleware\GraphqlRegistrationMiddleware;
-
-return [
-    'frontend' => [
-        GraphqlRegistrationMiddleware::class => [
-            'after' => ['typo3/cms-frontend/site'],
-            'before' => [GraphqlRequestMiddleware::class],
-            'target' => GraphqlRegistrationMiddleware::class,
-        ],
-    ],
-];
-
-```
 
 At this point your graphql endpoint should already be accessible.
 
 ```
-https://www.example.com/site-root/graphql
+https://../your-site-root/graphql
 ```
 
-> Please make sure your registration middleware runs before `GraphqlRequestMiddleware`. Otherwise,
-> you will receive a 404-page on `/graphql` and `/graphiql`.
+Registering a schema on graphql3 will activate the graphql endpoint. This is task should be done by only one single
+extension, in most cases your main project extension. Other extensions should only provide schema fields and types, ...
+which will be explained in the following chapter `Documentation`.
 
 ## Documentation
 
-> Please note that the given examples are always using doc-comments to clarify the service used in a variable.
->
-> In the context of a project these doc-comment variables like `SchemaRegistry`,`RegistryBasedQueryType`, would be
-> injected usually, or instantiated via `GeneralUtility::makeInstance`.
-
 Graphql3 brings a couple of handy types, registries & builders which shall facilitate the introduction of GraphQL on
-TYPO3 projects. Without you telling `graphql3` what you want, nothing will happen.
+TYPO3 projects. However, without you telling `graphql3` what you want, nothing will happen.
 
-First step every project should take, is registering a schema.
+First step every project should take, is creating a setup class which registers a schema.
 
 ```php
-use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use GraphQL\Type\Schema;
+<?php
 
-/** @var SchemaRegistry $schemaRegistry */
-$schemaRegistry->register(new \GraphQL\Type\Schema([...]))
+namespace Your\Extension;
+
+use GraphQL\Type\Schema;
+use GraphQL\Type\Definition\ObjectType
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
+
+class GraphqlSetup implements GraphqlSetupInterface
+{
+    public function __construct(
+        protected SchemaRegistry $schemaRegistry,
+    ) {
+    }
+
+    public function setup(): void
+    {
+        $this->schemaRegistry->register(new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'sayHi' => [
+                        'type' => Type::string(),
+                        'resolve' => fn () => 'Hi !',
+                    ],
+                ],
+            ]),
+        ]));
+    }
+}
 ```
 
-However, doing everything by hand this way is possible but boring.
+> The position of your setup class within your extension's `Classes` directory is irrelevant. As long as you implement
+> `GraphqlSetupInterface` and your namespace is correct, graphql3 will find your class. :)
 
-Instead, we want to use a built-in query types, which offer a couple of TYPO3 related features.
+Registering a schema like this is possible, however, doing now everything by hand is boring.
+
+Instead, we want to use on of the built-in query types.
 
 Let's start off with the `RegistryBasedQueryType`.
 
 ### RegistryBasedQueryType
 
-Instead of defining a hardcoded object-type for our main graphql query node, we will use `RegistryBasedQueryType`, which
-we will receive by `TypeRegistry`.
+Instead of defining a hardcoded object-type for our main graphql query node, we will use `RegistryBasedQueryType`. Types
+on graphql3 can be registered and retrieved via `TypeRegistry`.
 
 ```php
+<?php
+
+namespace Your\Extension;
+
 use GraphQL\Type\Schema;
+use GraphQL\Type\Definition\ObjectType
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
+use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
 use RozbehSharahi\Graphql3\Registry\TypeRegistry;
+use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
 
-/** @var TypeRegistry $typeRegister */
-/** @var SchemaRegistry $schemaRegistry */
+class GraphqlSetup implements GraphqlSetupInterface
+{
+    public function __construct(
+        protected SchemaRegistry $schemaRegistry,
+        protected TypeRegistry $typeRegistry
+    ) {
+    }
 
-$schemaRegistry->register(new \GraphQL\Type\Schema([
-    'query' => $typeRegister->get(RegistryBasedQueryType::class)
-]))
+    public function setup(): void
+    {
+        $this->schemaRegistry->register(new Schema([
+            'query' => $this->typeRegistry->get(RegistryBasedQueryType::class),
+        ]));
+    }
+}
 ```
 
-`RegistryBasedQueryType` exposes the configuration of root nodes/fields by `QueryFieldRegistry`.
+`RegistryBasedQueryType` exposes the configuration of root nodes/fields by `QueryFieldRegistry`. In the given example
+our graphql endpoint will show an error, since no fields are yet defined.
+
+In order to get rid of this error, we will define our first query field. This way we will also see the advantage
+of `RegistryBasedQueryType`.
 
 ```php
+<?php
+
+namespace Your\Extension;
+
 use GraphQL\Type\Schema;
+use GraphQL\Type\Definition\ObjectType
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
+use RozbehSharahi\Graphql3\Registry\TypeRegistry;
 use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
 use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
-use RozbehSharahi\Graphql3\Registry\TypeRegistry;
 
-/** @var SchemaRegistry $schemaRegistry */
-/** @var TypeRegistry $typeRegistry */
-/** @var QueryFieldRegistry $queryFieldRegistry */
+class GraphqlSetup implements GraphqlSetupInterface
+{
+    public function __construct(
+        protected SchemaRegistry $schemaRegistry,
+        protected TypeRegistry $typeRegistry,
+        protected QueryFieldRegistry $queryFieldRegistry
+    ) {
+    }
 
-$schemaRegistry->register(new \GraphQL\Type\Schema([
-    'query' => $typeRegistry->get(RegistryBasedQueryType::class)
-]))
-
-$queryFieldRegistry
-    ->register(GraphqlNode::create('sayHello')->withResolver(fn() => 'Hi !'))
-    ->register(GraphqlNode::create('sayNo')->withResolver(fn() => 'No !'));
+    public function setup(): void
+    {
+        $this->schemaRegistry->register(new Schema([
+            'query' => $this->typeRegistry->get(RegistryBasedQueryType::class),
+        ]));
+        
+        $this->queryFieldRegistry
+            ->register(GraphqlNode::create('sayHello')->withResolver(fn() => 'Hi !'))
+            ->register(GraphqlNode::create('sayNo')->withResolver(fn() => 'No !'))
+    }
+}
 ```
 
-From this point your graphql schema supports following query:
+At this point your graphql schema supports following query:
 
 ```
 { sayHello }
@@ -211,8 +255,9 @@ From this point your graphql schema supports following query:
 }
 ```
 
-Using `RegistryBasedQueryType` enables any extension to extend the root query at any time and place, since we don't need
-to know the query fields at the time of creation. modified easily.
+Using `RegistryBasedQueryType` enables any extension to extend the root query at any time and place. By this we don't
+need to know the project's final query fields at the time of creation and can let further extensions participate on
+creating our schema.
 
 ## Contribution
 

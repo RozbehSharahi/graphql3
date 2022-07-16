@@ -8,14 +8,19 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Routing\SiteRouteResult;
 
 class GraphqlRequestMiddleware implements MiddlewareInterface
 {
+    /**
+     * @param iterable<GraphqlSetupInterface> $setups
+     */
     public function __construct(
         protected GraphqlController $graphqlController,
-        protected SchemaRegistry $schemaRegistry
+        protected SchemaRegistry $schemaRegistry,
+        protected iterable $setups
     ) {
     }
 
@@ -33,6 +38,11 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
 
         if ($this->isGraphqlInterfaceRoute($siteRoute) && !Environment::getContext()->isDevelopment()) {
             return $handler->handle($request);
+        }
+
+        // Call all instances of GraphqlSetupInterface
+        foreach ($this->setups as $setup) {
+            $setup->setup();
         }
 
         if (!$this->schemaRegistry->isRegistered()) {
