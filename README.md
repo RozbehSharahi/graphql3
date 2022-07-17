@@ -388,8 +388,8 @@ node/field on root query.
 
 ### Setup for query field 'page'
 
-Setting up a query field was already covered in the previous chapters. This chapter will describe the creation of
-a parameterized page node on root query. The task of the node is to enable us to do the following query:
+Setting up a query field was already covered in the previous chapters. This chapter will describe the creation of a
+parameterized page node on root query. The task of the node is to enable us to do the following query:
 
 ```
 {
@@ -607,6 +607,82 @@ class GraphqlSetup implements SetupInterface
 
 In the last given example, most of the code is using in-house types and registries. By this, the schema definition stays
 extendable and lines of code are reduced.
+
+The next chapter `RegistryBasedPageQueryBuilder` will describe, how to make also page resolving extendable.
+
+### RegistryBasedPageQueryBuilder
+
+Most project will probably have a page node in order to query pages. However, the business logic on fetching pages might
+differ from project to project. In order to further reduce the hard-coded amount of business logic you might extend the
+last given example in the previous chapter `Setup for query field 'page''` by `RegistryBasedPageQueryBuilder`.
+
+The registry based page query builder also takes care of fetching the page record from DB. By that our Setup code
+shrinks again to:
+
+```php
+<?php
+
+namespace Your\Extension;
+
+use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Builder\RegistryBasedPageQueryBuilder;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Registry\PageArgumentRegistry;
+use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Registry\TypeRegistry;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
+use RozbehSharahi\Graphql3\Type\RegistryBasedPageType;
+use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
+
+class GraphqlSetup implements SetupInterface
+{
+    public function __construct(
+        protected SchemaRegistry $schemaRegistry,
+        protected TypeRegistry $typeRegistry,
+        protected QueryFieldRegistry $queryFieldRegistry,
+        protected PageArgumentRegistry $pageArgumentRegistry,
+        protected RegistryBasedPageQueryBuilder $pageQueryBuilder,
+    ) {
+    }
+
+    public function setup(): void
+    {
+        $this->schemaRegistry->register(new Schema([
+            'query' => $this->typeRegistry->get(RegistryBasedQueryType::class),
+        ]));
+
+        $this->queryFieldRegistry
+            ->register(
+                GraphqlNode::create('page')
+                    ->withType($this->typeRegistry->get(RegistryBasedPageType::class))
+                    ->withArguments($this->pageArgumentRegistry->getArguments())
+                    ->withResolver(fn ($_, $args) => $this->pageQueryBuilder->withArguments($args)->getPage())
+            );
+    }
+}
+```
+
+`RegistryBasedPageQueryBuilder` also brings the possibility to extend the query for fetching pages at any time via
+PageQueryExtenderRegistry.
+
+```php
+use RozbehSharahi\Graphql3\Domain\Model\QueryExtender;
+use RozbehSharahi\Graphql3\Registry\PageQueryExtenderRegistry;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+
+/** @var PageQueryExtenderRegistry $pageQueryExtender **/
+$pageQueryExtender->register(
+    QueryExtender::create('my-extension')
+        ->withClosure(fn(QueryBuilder $query) => $query->andWhere('...'))
+);
+```
+
+So far the amount of complexity might be overwhelming. However, all the chapters until here, were only supposed to give
+an in depth knowledge on how `graphql3` is working (on fetching data).
+
+In fact the amount of code needed to introduce graphql by this extension, can be even minimized harder. This can be
+achieved by a good amount of builders, which are explained in the next chapter `Node builders`.
 
 ## Contribution & known issues
 

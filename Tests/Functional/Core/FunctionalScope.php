@@ -36,7 +36,7 @@ class FunctionalScope
      * @return T
      * @noinspection PhpDocMissingThrowsInspection
      */
-    public function get(string $class): mixed
+    public function get(string $class)
     {
         return $this->container->get($class);
     }

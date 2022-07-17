@@ -12,6 +12,10 @@ services:
     arguments:
       $setups: !tagged_iterator graphql3.setup
 
+  RozbehSharahi\Graphql3\Builder\:
+    resource: '../Classes/Builder/*'
+    public: true
+
   RozbehSharahi\Graphql3\Type\:
     resource: '../Classes/Type/*'
     public: true
