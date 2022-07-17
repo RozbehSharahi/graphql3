@@ -173,7 +173,7 @@ on graphql3 can be registered and retrieved via `TypeRegistry`.
 namespace Your\Extension;
 
 use GraphQL\Type\Schema;
-use GraphQL\Type\Definition\ObjectType
+use GraphQL\Type\Definition\ObjectType;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
 use RozbehSharahi\Graphql3\Registry\TypeRegistry;
