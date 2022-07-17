@@ -255,6 +255,137 @@ Using `RegistryBasedQueryType` enables any extension to extend the root query at
 need to know the project's final query fields at the time of creation and can let further extensions participate on
 creating our schema.
 
+Since extendability is not only needed on root level query type, we will follow up with the
+chapter `RegistryBasdPageType`, which covers the exposure of page objects on graphql including extendability via
+registries.
+
+### RegistryBasedPageType
+
+The registry based page type is a graphql object type, which is extendable via `PageFieldRegistry`. However, it already
+comes with a pack of predefined properties, fields like `uid`, `title`, ...
+
+```php
+<?php
+
+namespace Yout\Extension;
+
+use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Registry\TypeRegistry;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
+use RozbehSharahi\Graphql3\Type\RegistryBasedPageType;
+use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
+
+class GraphqlSetup implements SetupInterface
+{
+    public function __construct(
+        protected SchemaRegistry $schemaRegistry,
+        protected TypeRegistry $typeRegistry,
+        protected QueryFieldRegistry $queryFieldRegistry
+    ) {
+    }
+
+    public function setup(): void
+    {
+        // Register schema
+        $this->schemaRegistry->register(new Schema([
+           'query' => $this->typeRegistry->get(RegistryBasedQueryType::class),
+        ]));
+
+        $this->queryFieldRegistry
+            ->register(
+                GraphqlNode::create('page')
+                    ->withType($this->typeRegistry->get(RegistryBasedPageType::class))
+                    ->withResolver(fn () => ['uid' => 1, 'title' => 'This is a hard-coded fake page record for now'])
+            );
+    }
+}
+```
+
+With the shown example, you are already able to do following query.
+
+```
+{
+  page {
+    uid
+    title
+  }
+}
+```
+
+which will result into
+
+```json
+{
+  "data": {
+    "page": {
+      "uid": 1,
+      "title": "This is a hard-coded fake page record for now"
+    }
+  }
+}
+```
+
+While `RegistryBasedPageType` comes with predefined fields (uid, title, ...), it can be extended any time as
+with `RegistryBasedQueryType`.
+
+```php
+<?php
+
+namespace Your\Extension;
+
+use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Registry\PageFieldRegistry;use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Registry\TypeRegistry;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
+use RozbehSharahi\Graphql3\Type\RegistryBasedPageType;
+use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
+
+class GraphqlSetup implements SetupInterface
+{
+    public function __construct(
+        protected SchemaRegistry $schemaRegistry,
+        protected TypeRegistry $typeRegistry,
+        protected QueryFieldRegistry $queryFieldRegistry,
+        protected PageFieldRegistry $pageFieldRegistry
+    ) {
+    }
+
+    public function setup(): void
+    {
+        // Register schema
+        $this->schemaRegistry->register(new Schema([
+           'query' => $this->typeRegistry->get(RegistryBasedQueryType::class),
+        ]));
+
+        $this->queryFieldRegistry
+            ->register(
+                GraphqlNode::create('page')
+                    ->withType($this->typeRegistry->get(RegistryBasedPageType::class))
+                    ->withResolver(fn () => ['uid' => 1, 'title' => 'This is a hard-coded fake page record for now'])
+            );
+            
+        // Register page type fields
+        $this->pageFieldRegistry
+            ->register(
+               GraphqlNode::create('hash')->withResolver(fn(array $page) => md5(json_encode($page)))
+            );
+    }
+}
+```
+
+As you can see in the given example our page record is still hard coded with `uid` and `title`. The following chapter
+will cover possible ways of adding the page node in a reasonable way, with reasonable arguments in order to dismiss the
+hardcoded page record (Setup for query field 'page').
+
+### Setup for query field 'page'
+
+...
+
 ## Contribution & known issues
 
 [Continue here](contributing.md)
