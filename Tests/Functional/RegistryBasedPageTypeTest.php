@@ -15,7 +15,7 @@ class RegistryBasedPageTypeTest extends TestCase
     public function testPageQueryType(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-        $scope->get(RegistryBasedPageType::class)->setup();
+        $scope->getTypesSetup()->setup();
 
         // Register schema
         $scope

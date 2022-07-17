@@ -6,7 +6,6 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-use RozbehSharahi\Graphql3\Registry\PageArgumentRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 
 class PageArgumentRegistryTest extends TestCase
@@ -16,9 +15,9 @@ class PageArgumentRegistryTest extends TestCase
     public function testCanUseRegistryBasedPageArguments(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
+        $scope->getPageArgumentsSetup()->setup();
 
-        $pageArgumentRegistry = $scope->get(PageArgumentRegistry::class);
-        $pageArgumentRegistry->setup();
+        $pageArgumentRegistry = $scope->getPageArgumentRegistry();
 
         $scope->getSchemaRegistry()->register(new Schema([
             'query' => new ObjectType([
