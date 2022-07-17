@@ -23,9 +23,22 @@ class GraphqlNodeCollection
         }
     }
 
+    public function add(GraphqlNode $node): self
+    {
+        return $this->withItems([...$this->items, $node]);
+    }
+
     public function getItems(): array
     {
         return $this->items;
+    }
+
+    public function withItems(array $items): self
+    {
+        $clone = clone $this;
+        $clone->items = $items;
+
+        return $clone;
     }
 
     public function toArray(): array

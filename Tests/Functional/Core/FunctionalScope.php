@@ -10,11 +10,15 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Registry\TypeRegistry;
 use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
 use TYPO3\CMS\Frontend\Http\Application;
 
+/**
+ * @template T
+ */
 class FunctionalScope
 {
     public function __construct(protected ContainerInterface $container)
@@ -24,6 +28,17 @@ class FunctionalScope
     public function getContainer(): ContainerInterface
     {
         return $this->container;
+    }
+
+    /**
+     * @param T $class
+     *
+     * @return T
+     * @noinspection PhpDocMissingThrowsInspection
+     */
+    public function get(string $class): mixed
+    {
+        return $this->container->get($class);
     }
 
     public function getApplication(): Application
@@ -44,6 +59,11 @@ class FunctionalScope
     public function getQueryFieldRegistry(): QueryFieldRegistry
     {
         return $this->getContainer()->get(QueryFieldRegistry::class);
+    }
+
+    public function getTypeRegistry(): TypeRegistry
+    {
+        return $this->getContainer()->get(TypeRegistry::class);
     }
 
     public function doServerRequest(ServerRequestInterface $request): ResponseInterface
