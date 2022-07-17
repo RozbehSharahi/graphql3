@@ -14,7 +14,7 @@ class NoopQueryType extends ObjectType
             'fields' => [
                 'noop' => [
                     'type' => Type::string(),
-                    'resolve' => fn ($rootValue, array $args) => 'noop',
+                    'resolve' => fn () => 'noop',
                 ],
             ],
         ]);
