@@ -4,10 +4,12 @@ namespace RozbehSharahi\Graphql3\Type;
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use RozbehSharahi\Graphql3\Registry\TypeRegistry;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
 
-class NoopQueryType extends ObjectType
+class NoopQueryType extends ObjectType implements SetupInterface
 {
-    public function __construct()
+    public function __construct(protected ?TypeRegistry $typeRegistry = null)
     {
         parent::__construct([
             'name' => 'Query',
@@ -18,5 +20,10 @@ class NoopQueryType extends ObjectType
                 ],
             ],
         ]);
+    }
+
+    public function setup(): void
+    {
+        $this->typeRegistry?->register($this);
     }
 }
