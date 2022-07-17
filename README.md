@@ -80,10 +80,10 @@ Create a graphql setup class, somewhere in your extension's `Classes` directory.
 namespace Your\Extension;
 
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
 use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
 
-class GraphqlSetup implements GraphqlSetupInterface
+class GraphqlSetup implements SetupInterface
 {
     public function __construct(
         protected SchemaRegistry $schemaRegistry,
@@ -127,9 +127,9 @@ namespace Your\Extension;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
 
-class GraphqlSetup implements GraphqlSetupInterface
+class GraphqlSetup implements SetupInterface
 {
     public function __construct(
         protected SchemaRegistry $schemaRegistry,
@@ -174,11 +174,11 @@ namespace Your\Extension;
 
 use GraphQL\Type\Schema;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
 use RozbehSharahi\Graphql3\Registry\TypeRegistry;
 use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
 
-class GraphqlSetup implements GraphqlSetupInterface
+class GraphqlSetup implements SetupInterface
 {
     public function __construct(
         protected SchemaRegistry $schemaRegistry,
@@ -209,13 +209,13 @@ namespace Your\Extension;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
 use RozbehSharahi\Graphql3\Registry\TypeRegistry;
 use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
 use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 
-class GraphqlSetup implements GraphqlSetupInterface
+class GraphqlSetup implements SetupInterface
 {
     public function __construct(
         protected SchemaRegistry $schemaRegistry,

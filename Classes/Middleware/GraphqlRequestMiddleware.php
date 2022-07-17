@@ -8,14 +8,14 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Routing\SiteRouteResult;
 
 class GraphqlRequestMiddleware implements MiddlewareInterface
 {
     /**
-     * @param iterable<GraphqlSetupInterface> $setups
+     * @param iterable<SetupInterface> $setups
      */
     public function __construct(
         protected GraphqlController $graphqlController,

@@ -4,7 +4,7 @@ namespace RozbehSharahi\Graphql3\Setup;
 
 use TYPO3\CMS\Core\SingletonInterface;
 
-interface GraphqlSetupInterface extends SingletonInterface
+interface SetupInterface extends SingletonInterface
 {
     public function setup(): void;
 }

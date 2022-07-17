@@ -7,10 +7,10 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Registry\TypeRegistry;
-use RozbehSharahi\Graphql3\Setup\GraphqlSetupInterface;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
 use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
 
-class GraphqlSetup implements GraphqlSetupInterface
+class GraphqlSetup implements SetupInterface
 {
     public function __construct(
         protected SchemaRegistry $schemaRegistry,
