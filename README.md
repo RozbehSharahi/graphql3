@@ -102,9 +102,6 @@ class GraphqlSetup implements GraphqlSetupInterface
 > It does not matter, where you place your `GraphqlSetup` class. As long as you implement `GraphqlSetupInterface`
 > graphql3 will auto-detect your class and call the `setup` method.
 
-> Recommendation: Delegate your schema registration into a dedicated GraphqlRegistration class.
-> Checkout `\RozbehSharahi\Graphql3TestExtension\Middleware\GraphqlRegistrationMiddleware`
-
 At this point your graphql endpoint should already be accessible.
 
 ```
