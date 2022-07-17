@@ -255,11 +255,6 @@ Using `RegistryBasedQueryType` enables any extension to extend the root query at
 need to know the project's final query fields at the time of creation and can let further extensions participate on
 creating our schema.
 
-## Contribution
+## Contribution & known issues
 
 [Continue here](contributing.md)
-
-# Well known open tasks
-
-- Need tests for installation of extension ext_localconf.php of Graphql3TestExtension.
-- Need good test base in order to test if extending graphql3 via extensions is working
