@@ -14,7 +14,7 @@ use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 
 class GraphqlController
 {
-    public const ERROR_MESSAGE_INVALID_INPUT = 'Invalid input for graphql input';
+    public const ERROR_MESSAGE_INVALID_INPUT = 'Invalid input given on graphql request: Missing or invalid query.';
 
     public function __construct(
         protected ResponseFactoryInterface $responseFactory,
@@ -71,6 +71,12 @@ class GraphqlController
     {
         $json = (string) $request->getBody();
 
-        return $this->encoder->isValidJson($json) && is_array($this->encoder->decode($json));
+        if (!$this->encoder->isValidJson($json)) {
+            return false;
+        }
+
+        $input = $this->encoder->decode($json);
+
+        return !(!is_array($input) || !is_string($input['query'] ?? null));
     }
 }
