@@ -9,13 +9,14 @@ class GraphqlNode
 {
     public static function create(string $name): self
     {
-        return new self($name, Type::string(), fn () => null);
+        return new self($name, Type::string(), fn () => null, GraphqlArgumentCollection::create());
     }
 
     public function __construct(
         protected string $name,
         protected Type $type,
-        protected Closure $resolver
+        protected Closure $resolver,
+        protected GraphqlArgumentCollection $arguments
     ) {
     }
 
@@ -45,6 +46,28 @@ class GraphqlNode
         return $clone;
     }
 
+    public function getArguments(): GraphqlArgumentCollection
+    {
+        return $this->arguments;
+    }
+
+    /**
+     * @param GraphqlArgumentCollection|GraphqlArgument[] $arguments
+     *
+     * @return $this
+     */
+    public function withArguments(GraphqlArgumentCollection|array $arguments): self
+    {
+        if (is_array($arguments)) {
+            $arguments = GraphqlArgumentCollection::create($arguments);
+        }
+
+        $clone = clone $this;
+        $clone->arguments = $arguments;
+
+        return $clone;
+    }
+
     public function getResolver(): Closure
     {
         return $this->resolver;
@@ -62,6 +85,7 @@ class GraphqlNode
     {
         return [
             'type' => $this->type,
+            'args' => $this->arguments->toArray(),
             'resolve' => $this->resolver,
         ];
     }

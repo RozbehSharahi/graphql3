@@ -369,7 +369,9 @@ class GraphqlSetup implements SetupInterface
                     ->withResolver(fn () => ['uid' => 1, 'title' => 'This is a hard-coded fake page record for now'])
             );
             
-        // Register page type fields
+        // Here:
+        // We are adding a new page type field hash here
+        // However, this could happen in any extension, model, class, ... that implements the `SetupInterface`.
         $this->pageFieldRegistry
             ->register(
                GraphqlNode::create('hash')->withResolver(fn(array $page) => md5(json_encode($page)))
@@ -378,13 +380,233 @@ class GraphqlSetup implements SetupInterface
 }
 ```
 
-As you can see in the given example our page record is still hard coded with `uid` and `title`. The following chapter
-will cover possible ways of adding the page node in a reasonable way, with reasonable arguments in order to dismiss the
-hardcoded page record (Setup for query field 'page').
+Now you can query a new field `hash` on you page.
+
+In all given examples of this chapter the page record was passed as a hardcoded array. Of course this does make little
+sense. The following chapter `Setup for query field 'page'` will cover possible ways of implementing a reasonable page
+node/field on root query.
 
 ### Setup for query field 'page'
 
-...
+Setting up a query field was already covered in the previous chapters. This chapter will describe the creation of
+a parameterized page node on root query. The task of the node is to enable us to do the following query:
+
+```
+{
+  page(uid: 1) {
+    uid
+    title
+  }
+}
+```
+
+In a complete hardcoded setup we could do as following:
+
+```php
+<?php
+
+namespace RozbehSharahi\Graphql3TestExtension;
+
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+
+class GraphqlSetup implements SetupInterface
+{
+    public function __construct(
+        protected SchemaRegistry $schemaRegistry,
+        protected ConnectionPool $connectionPool
+    ) {
+    }
+
+    public function setup(): void
+    {
+        $this->schemaRegistry->register(new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'page' => [
+                    
+                        // uid argument to pass the request page id
+                        'args' => [
+                            'uid' => Type::nonNull(Type::int()),
+                        ],
+
+                        'resolve' => fn($_, $args) => $this->getPage($args['uid']),
+                        'type' => new ObjectType([
+                            'name' => 'Page',
+                            'fields' => [
+                                'uid' => [
+                                    'type' => Type::int(),
+                                    'resolve' => fn ($page) => $page['uid'],
+                                ],
+                                'title' => [
+                                    'type' => Type::string(),
+                                    'resolve' => fn ($page) => $page['title'],
+                                ],
+                            ],
+                        ]),
+                    ],
+                ],
+            ]),
+        ]));
+    }
+
+    protected function getPage(int $id): array
+    {
+        $query = $this
+            ->connectionPool
+            ->getQueryBuilderForTable('page');
+
+        return $query
+            ->select('*')
+            ->from('pages')
+            ->where('uid='.$query->createNamedParameter($id, \PDO::PARAM_INT))
+            ->executeQuery()
+            ->fetchAssociative();
+    }
+}
+```
+
+In order to make this code extendable, we will start of by using `PageArgumentRegistry` instead of hard-coding the page
+arguments (uid: non-null-int).
+
+```php
+<?php
+
+namespace Your\Extension;
+
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Registry\PageArgumentRegistry;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+
+class GraphqlSetup implements SetupInterface
+{
+    public function __construct(
+        protected SchemaRegistry $schemaRegistry,
+        protected ConnectionPool $connectionPool,
+        protected PageArgumentRegistry $pageArgumentRegistry
+    ) {
+    }
+
+    public function setup(): void
+    {
+        $this->schemaRegistry->register(new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'page' => [
+
+                        // Use page argument registry now
+                        'args' => $this->pageArgumentRegistry->getArguments()->toArray(),
+
+                        'resolve' => fn ($_, $args) => $this->getPage($args['uid']),
+                        'type' => new ObjectType([
+                            'name' => 'Page',
+                            'fields' => [
+                                'uid' => [
+                                    'type' => Type::int(),
+                                    'resolve' => fn ($page) => $page['uid'],
+                                ],
+                                'title' => [
+                                    'type' => Type::string(),
+                                    'resolve' => fn ($page) => $page['title'],
+                                ],
+                            ],
+                        ]),
+                    ],
+                ],
+            ]),
+        ]));
+    }
+
+    protected function getPage(int $id): array
+    {
+        $query = $this
+            ->connectionPool
+            ->getQueryBuilderForTable('page');
+
+        return $query
+            ->select('*')
+            ->from('pages')
+            ->where('uid='.$query->createNamedParameter($id, \PDO::PARAM_INT))
+            ->executeQuery()
+            ->fetchAssociative();
+    }
+}
+```
+
+The page argument registry enables us once again to extend the argument of the root level query page node at any time.
+
+Finally, this is how we should do it, to keep all parts of our graphql config extendable.
+
+```php
+<?php
+
+namespace Your\Extension;
+
+use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Registry\PageArgumentRegistry;
+use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Registry\TypeRegistry;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
+use RozbehSharahi\Graphql3\Type\RegistryBasedPageType;
+use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+
+class GraphqlSetup implements SetupInterface
+{
+    public function __construct(
+        protected SchemaRegistry $schemaRegistry,
+        protected TypeRegistry $typeRegistry,
+        protected QueryFieldRegistry $queryFieldRegistry,
+        protected PageArgumentRegistry $pageArgumentRegistry,
+        protected ConnectionPool $connectionPool
+    ) {
+    }
+
+    public function setup(): void
+    {
+        $this->schemaRegistry->register(new Schema([
+            'query' => $this->typeRegistry->get(RegistryBasedQueryType::class),
+        ]));
+
+        $this->queryFieldRegistry
+            ->register(
+                GraphqlNode::create('page')
+                    ->withType($this->typeRegistry->get(RegistryBasedPageType::class))
+                    ->withArguments($this->pageArgumentRegistry->getArguments())
+                    ->withResolver(fn ($_, $args) => $this->getPage($args['uid']))
+            );
+    }
+
+    protected function getPage(int $id): array
+    {
+        $query = $this
+            ->connectionPool
+            ->getQueryBuilderForTable('page');
+
+        return $query
+            ->select('*')
+            ->from('pages')
+            ->where('uid='.$query->createNamedParameter($id, \PDO::PARAM_INT))
+            ->executeQuery()
+            ->fetchAssociative();
+    }
+}
+```
+
+In the last given example, most of the code is using in-house types and registries. By this, the schema definition stays
+extendable and lines of code are reduced.
 
 ## Contribution & known issues
 

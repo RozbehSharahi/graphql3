@@ -4,7 +4,7 @@ namespace RozbehSharahi\Graphql3\Domain\Model;
 
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 
-class GraphqlNodeCollection
+class GraphqlArgumentCollection
 {
     public static function create(array $items = []): self
     {
@@ -12,18 +12,18 @@ class GraphqlNodeCollection
     }
 
     /**
-     * @param GraphqlNode[] $items
+     * @param GraphqlArgument[] $items
      */
     public function __construct(protected array $items)
     {
         foreach ($this->items as $error) {
-            if (!$error instanceof GraphqlNode) {
-                throw new GraphqlException(self::class.' only allows '.GraphqlNode::class.' items.');
+            if (!$error instanceof GraphqlArgument) {
+                throw new GraphqlException(self::class.' only allows '.GraphqlArgument::class.' items.');
             }
         }
     }
 
-    public function add(GraphqlNode $item): self
+    public function add(GraphqlArgument $item): self
     {
         return $this->withItems([...$this->items, $item]);
     }

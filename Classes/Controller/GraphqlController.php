@@ -9,6 +9,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use RozbehSharahi\Graphql3\Builder\ErrorResponseBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlErrorCollection;
 use RozbehSharahi\Graphql3\Encoder\JsonEncoder;
+use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Executor\Executor;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 
@@ -40,7 +41,7 @@ class GraphqlController
                 ->withQuery($input['query'])
                 ->withVariables($input['variables'] ?? [])
                 ->execute();
-        } catch (Exception $e) {
+        } catch (Exception|GraphqlException $e) {
             return $this->errorResponseBuilder->withMessage($e->getMessage())->build();
         }
 
