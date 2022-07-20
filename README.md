@@ -268,9 +268,89 @@ For instance, you could extend the node to have an option to allow slug lookups.
 When extending one of the build-it nodes/type/... you will receive relevant schema parts in your extender which you are
 free to change. For instance a query type extender implementing the QueryTypeExtenderInterface, would receive the
 root-query nodes, which then can be edited. However, this will not be an array as you might expect. It will be
-a `GraphqlNodeCollection`. 
+a `GraphqlNodeCollection`.
 
 This chapter will give an intro on how `GraphqlNode` and `GraphqlNodeCollection` work.
+
+`GraphqlNode` is simply a representation of a `webonyx/graphql-php` array. It is used to have auto-complete and can
+simply be converted to an array.
+
+```php
+<?php
+
+namespace Your\Namespace;
+
+use GraphQL\Type\Definition\Type;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+
+$node = GraphqlNode::create('myNode')
+    ->withType(Type::int())
+    ->withArguments([
+        GraphqlArgument::create('myArgument')->withType(Type::string())
+    ])
+    ->withResolver(fn() => 123)
+    ->toArray();
+    
+// is equivalent to
+
+$node = [
+    'type' => Type::int(),
+    'args' => [
+        'myArgument' => [
+            'type' => Type::string()
+        ] 
+    ],
+    'resolve' => fn() => 123
+];
+
+```
+
+On the other hand you have `GraphqlNodeCollection`, which is a collection of `GraphqlNode`.
+
+```php
+<?php
+
+namespace Your\Namespace;
+
+use GraphQL\Type\Definition\Type;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+
+$nodes = new GraphqlNodeCollection()
+    ->add(GraphqlNode::create('myNode')->withType(Type::int()))
+    ->add(GraphqlNode::create('myOtherNode')->withType(Type::string()))
+    ->toArray();
+
+// is equivalent to
+
+$nodes = [
+    'myNode' => [
+        'type' => Type::int()
+    ],
+    'myOtherNode' => [
+        'type' => Type::string()
+    ]
+];
+```
+
+Be aware, that graphql-nodes and -collections are immutables. Therefore, when calling methods like `add` or `remove`
+you will need to use return value.
+
+```php
+<?php
+
+namespace Your\Namespace;
+
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+
+$nodes = GraphqlNodeCollection::create();
+$nodes = $nodes->add(GraphqlNode::create('aNewNode'));
+```
+
+The implementation of `GraphqlArgument` and `GraphqlArgumentCollection`, is pretty much the same. Checkout via
+auto-complete, which options you have.
 
 ## Contribution & known issues
 
