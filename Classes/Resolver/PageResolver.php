@@ -2,7 +2,7 @@
 
 namespace RozbehSharahi\Graphql3\Resolver;
 
-use RozbehSharahi\Graphql3\Domain\Model\PageResolverContext;
+use RozbehSharahi\Graphql3\Domain\Model\Context;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -10,23 +10,24 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class PageResolver
 {
+    protected Context $context;
+
     /**
      * @param iterable<PageNodeExtenderInterface> $extenders
      */
     public function __construct(
         protected ConnectionPool $connectionPool,
-        protected iterable $extenders,
-        protected ?PageResolverContext $context = null
+        protected iterable $extenders
     ) {
-        $this->context ??= (new PageResolverContext())->withTargetIdentifier('uid');
+        $this->context = new Context();
     }
 
-    public function getContext(): PageResolverContext
+    public function getContext(): Context
     {
         return $this->context;
     }
 
-    public function withContext(PageResolverContext $context): self
+    public function withContext(Context $context): self
     {
         $clone = clone $this;
         $clone->context = $context;
@@ -43,16 +44,20 @@ class PageResolver
 
     protected function resolve(array $arguments): array
     {
-        $identifier = $arguments[$this->context->getTargetIdentifier()] ?? null;
+        $identifierName = 'uid';
+
+        if ($this->context->hasTag(Context::TAG_PAGE_RESOLVE_BY_SLUG)) {
+            $identifierName = 'slug';
+        }
+
+        $identifier = $arguments[$identifierName] ?? null;
 
         if (!$identifier) {
             throw new GraphqlException('No identifier provided in order to resolve a page');
         }
 
         $query = $this->createQuery();
-        $query->where($query->expr()->eq(
-            $this->context->getTargetIdentifier(), $query->createNamedParameter($identifier)
-        ));
+        $query->where($query->expr()->eq($identifierName, $query->createNamedParameter($identifier)));
 
         foreach ($this->extenders as $extender) {
             if ($extender->supportsContext($this->context)) {

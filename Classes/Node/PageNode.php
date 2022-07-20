@@ -3,18 +3,18 @@
 namespace RozbehSharahi\Graphql3\Node;
 
 use GraphQL\Type\Definition\Type;
+use RozbehSharahi\Graphql3\Domain\Model\Context;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
-use RozbehSharahi\Graphql3\Domain\Model\PageResolverContext;
 use RozbehSharahi\Graphql3\Resolver\PageResolver;
 use RozbehSharahi\Graphql3\Type\PageType;
 
 class PageNode implements NodeInterface
 {
     protected string $name = 'page';
-    protected string $targetIdentifier = 'uid';
-    protected Type $targetIdentifierType;
+
+    protected Context $context;
 
     /**
      * @param iterable<PageNodeExtenderInterface> $extenders
@@ -24,15 +24,14 @@ class PageNode implements NodeInterface
         protected PageResolver $pageResolver,
         protected iterable $extenders
     ) {
-        $this->targetIdentifierType = Type::int();
+        $this->context = new Context();
     }
 
     public function forSlug(): self
     {
         return $this
             ->withName('pageBySlug')
-            ->withTargetIdentifier('slug')
-            ->withTargetIdentifierType(Type::string());
+            ->withContext(new Context([Context::TAG_PAGE_RESOLVE_BY_SLUG]));
     }
 
     public function getName(): string
@@ -48,36 +47,28 @@ class PageNode implements NodeInterface
         return $clone;
     }
 
-    public function getTargetIdentifier(): string
+    public function getContext(): Context
     {
-        return $this->targetIdentifier;
+        return $this->context;
     }
 
-    public function withTargetIdentifier(string $targetIdentifier): self
+    public function withContext(Context $context): self
     {
         $clone = clone $this;
-        $clone->targetIdentifier = $targetIdentifier;
-
-        return $clone;
-    }
-
-    public function getTargetIdentifierType(): Type
-    {
-        return $this->targetIdentifierType;
-    }
-
-    public function withTargetIdentifierType(Type $targetIdentifierType): self
-    {
-        $clone = clone $this;
-        $clone->targetIdentifierType = $targetIdentifierType;
+        $clone->context = $context;
 
         return $clone;
     }
 
     public function getGraphqlNode(): GraphqlNode
     {
+        $isPageBySlug = $this->context->hasTag(Context::TAG_PAGE_RESOLVE_BY_SLUG);
+
+        $identifier = !$isPageBySlug ? 'uid' : 'slug';
+        $identifierType = !$isPageBySlug ? Type::int() : Type::string();
+
         $arguments = GraphqlArgumentCollection::create([
-            GraphqlArgument::create($this->targetIdentifier)->withType(Type::nonNull($this->targetIdentifierType)),
+            GraphqlArgument::create($identifier)->withType(Type::nonNull($identifierType)),
         ]);
 
         foreach ($this->extenders as $extender) {
@@ -90,7 +81,7 @@ class PageNode implements NodeInterface
             ->withResolver(
                 $this
                     ->pageResolver
-                    ->withContext(new PageResolverContext($this->targetIdentifier))
+                    ->withContext($this->context)
                     ->getCallable()
             );
     }

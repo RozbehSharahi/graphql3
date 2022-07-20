@@ -6,9 +6,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use RozbehSharahi\Graphql3\Domain\Model\Context;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
-use RozbehSharahi\Graphql3\Domain\Model\PageResolverContext;
 use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Resolver\PageResolver;
@@ -65,7 +65,7 @@ class PageNodeTest extends TestCase
 
         $extenders = [
             new class() implements PageNodeExtenderInterface {
-                public function supportsContext(PageResolverContext $context): bool
+                public function supportsContext(Context $context): bool
                 {
                     return true;
                 }
