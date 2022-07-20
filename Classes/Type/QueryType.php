@@ -18,6 +18,7 @@ class QueryType extends ObjectType
             'fields' => function () {
                 $nodes = GraphqlNodeCollection::create([
                     $this->pageNode->getGraphqlNode(),
+                    $this->pageNode->forSlug()->getGraphqlNode(),
                 ]);
 
                 foreach ($this->extenders as $extender) {

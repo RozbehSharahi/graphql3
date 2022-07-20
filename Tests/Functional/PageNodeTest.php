@@ -8,6 +8,7 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
+use RozbehSharahi\Graphql3\Domain\Model\PageResolverContext;
 use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Resolver\PageResolver;
@@ -64,6 +65,11 @@ class PageNodeTest extends TestCase
 
         $extenders = [
             new class() implements PageNodeExtenderInterface {
+                public function supportsContext(PageResolverContext $context): bool
+                {
+                    return true;
+                }
+
                 public function extendArguments(GraphqlArgumentCollection $arguments
                 ): GraphqlArgumentCollection {
                     return $arguments
@@ -111,5 +117,42 @@ class PageNodeTest extends TestCase
         }');
 
         self::assertSame('Second level page', $response['data']['page']['title']);
+    }
+
+    public function testCanUseForPageBySlug(): void
+    {
+        $scope = $this
+            ->getFunctionalScopeBuilder()
+            ->withAutoCreateGraphqlSchema(false)
+            ->withAutoCreateHomepage(false)
+            ->build();
+
+        $scope->createRecord('pages', ['uid' => 1, 'pid' => 0, 'title' => 'Root page']);
+        $scope->createRecord('pages', ['uid' => 2, 'pid' => 1, 'title' => 'Second level page', 'slug' => 'my-page']);
+
+        $scope->getSchemaRegistry()->register(new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'pageBySlug' => $scope
+                        ->getPageNode()
+                        ->forSlug()
+                        ->getGraphqlNode()
+                        ->toArray(),
+                ],
+            ]),
+        ]));
+
+        $response = $scope->doGraphqlRequest('{
+            pageBySlug (slug: "my-page") {
+              title
+              parent {
+                title
+              }
+            }
+        }');
+
+        self::assertSame('Second level page', $response['data']['pageBySlug']['title']);
+        self::assertSame('Root page', $response['data']['pageBySlug']['parent']['title']);
     }
 }

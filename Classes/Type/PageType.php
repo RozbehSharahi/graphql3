@@ -30,6 +30,11 @@ class PageType extends ObjectType
                             ->withResolver(fn (array $page) => $page['title'])
                     )
                     ->add(
+                        GraphqlNode::create('slug')
+                            ->withType(Type::string())
+                            ->withResolver(fn (array $page) => $page['slug'])
+                    )
+                    ->add(
                         GraphqlNode::create('parent')
                             ->withType($this)
                             // @todo refactor this
