@@ -12,14 +12,18 @@ services:
     arguments:
       $setups: !tagged_iterator graphql3.setup
 
-  RozbehSharahi\Graphql3\Builder\:
-    resource: '../Classes/Builder/*'
-    public: true
+  RozbehSharahi\Graphql3\Type\QueryType:
+    arguments:
+      $extenders: !tagged_iterator graphql3.query_type_extender
 
-  RozbehSharahi\Graphql3\Type\:
-    resource: '../Classes/Type/*'
-    public: true
+  RozbehSharahi\Graphql3\Type\PageType:
+    arguments:
+      $extenders: !tagged_iterator graphql3.page_type_extender
 
-  RozbehSharahi\Graphql3\Registry\:
-    resource: '../Classes/Registry/*'
-    public: true
+  RozbehSharahi\Graphql3\Node\PageNode:
+    arguments:
+      $extenders: !tagged_iterator graphql3.page_node_extender
+
+  RozbehSharahi\Graphql3\Resolver\PageResolver:
+    arguments:
+      $extenders: !tagged_iterator graphql3.page_node_extender

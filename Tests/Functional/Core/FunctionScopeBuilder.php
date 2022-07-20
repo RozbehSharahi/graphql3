@@ -7,9 +7,10 @@
 namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use GraphQL\Type\Schema;
 use Psr\Container\ContainerInterface;
-use RozbehSharahi\Graphql3\Builder\NoopSchemaBuilder;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Type\NoopQueryType;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Bootstrap;
@@ -247,7 +248,7 @@ class FunctionScopeBuilder
         if ($this->autoCreateGraphqlSchema) {
             /** @var SchemaRegistry $schemaRegistry */
             $schemaRegistry = $container->get(SchemaRegistry::class);
-            $schemaRegistry->register((new NoopSchemaBuilder())->build());
+            $schemaRegistry->register(new Schema(['query' => new NoopQueryType()]));
         }
 
         /** @var SiteFinder $siteFinder */
