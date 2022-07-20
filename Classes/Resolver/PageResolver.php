@@ -45,7 +45,7 @@ class PageResolver
         $query->where($query->expr()->eq('uid', $query->createNamedParameter($uid, \PDO::PARAM_INT)));
 
         foreach ($this->extenders as $extender) {
-            $extender->extendQuery($query, $arguments);
+            $query = $extender->extendQuery($query, $arguments);
         }
 
         try {
@@ -55,7 +55,7 @@ class PageResolver
         }
 
         if (!$page) {
-            throw GraphqlException::createClientSafe('Could not fetch page with id: '.$uid);
+            throw GraphqlException::createClientSafe('Could not fetch page based on arguments given');
         }
 
         return $page;

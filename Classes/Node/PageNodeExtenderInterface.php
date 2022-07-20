@@ -9,5 +9,5 @@ interface PageNodeExtenderInterface
 {
     public function extendArguments(GraphqlArgumentCollection $arguments): GraphqlArgumentCollection;
 
-    public function extendQuery(QueryBuilder $queryBuilder, array $arguments): QueryBuilder;
+    public function extendQuery(QueryBuilder $query, array $arguments): QueryBuilder;
 }

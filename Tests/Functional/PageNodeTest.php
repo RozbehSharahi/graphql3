@@ -3,9 +3,16 @@
 namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
+use RozbehSharahi\Graphql3\Node\PageNode;
+use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
+use RozbehSharahi\Graphql3\Resolver\PageResolver;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class PageNodeTest extends TestCase
 {
@@ -42,5 +49,67 @@ class PageNodeTest extends TestCase
 
         self::assertSame('Second level page', $response['data']['page']['title']);
         self::assertSame('Root page', $response['data']['page']['parent']['title']);
+    }
+
+    public function testCanExtendPageNode(): void
+    {
+        $scope = $this
+            ->getFunctionalScopeBuilder()
+            ->withAutoCreateGraphqlSchema(false)
+            ->withAutoCreateHomepage(false)
+            ->build();
+
+        $scope->createRecord('pages', ['uid' => 1, 'pid' => 0, 'title' => 'Root page']);
+        $scope->createRecord('pages', ['uid' => 2, 'pid' => 1, 'title' => 'Second level page', 'slug' => 'my-page']);
+
+        $extenders = [
+            new class() implements PageNodeExtenderInterface {
+                public function extendArguments(GraphqlArgumentCollection $arguments
+                ): GraphqlArgumentCollection {
+                    return $arguments
+                        ->add(
+                            GraphqlArgument::create('uid')
+                                ->withDefaultValue(1)
+                        )
+                        ->add(
+                            GraphqlArgument::create('slug')
+                                ->withType(Type::nonNull(Type::string()))
+                        );
+                }
+
+                public function extendQuery(QueryBuilder $query, array $arguments): QueryBuilder
+                {
+                    return $query
+                        ->select('*')
+                        ->resetQueryParts(['where'])
+                        ->from('pages')
+                        ->where($query->expr()->eq('slug', $query->createNamedParameter($arguments['slug'])));
+                }
+            },
+        ];
+
+        $scope->getSchemaRegistry()->register(new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'page' => (new PageNode(
+                        $scope->getPageType(),
+                        new PageResolver($scope->getConnectionPool(), $extenders),
+                        $extenders
+                    ))->getGraphqlNode()->toArray(),
+                ],
+            ]),
+        ]));
+
+        $response = $scope->doGraphqlRequest('{
+            page (slug: "my-page") {
+              title
+              parent {
+                title
+              }
+            }
+        }');
+
+        self::assertSame('Second level page', $response['data']['page']['title']);
     }
 }
