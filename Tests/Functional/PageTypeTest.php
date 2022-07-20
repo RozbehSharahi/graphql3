@@ -7,7 +7,6 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
-use RozbehSharahi\Graphql3\Resolver\PageResolver;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 use RozbehSharahi\Graphql3\Type\PageType;
 use RozbehSharahi\Graphql3\Type\PageTypeExtenderInterface;
@@ -66,7 +65,7 @@ class PageTypeTest extends TestCase
                     'name' => 'Query',
                     'fields' => [
                         'page' => [
-                            'type' => new PageType($this->createMock(PageResolver::class), [
+                            'type' => new PageType($scope->getRecordResolver(), [
                                 new class() implements PageTypeExtenderInterface {
                                     public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
                                     {
@@ -77,7 +76,7 @@ class PageTypeTest extends TestCase
                                     }
                                 },
                             ]),
-                            'resolve' => fn () => ['uid' => 12345, 'pid' => 1, 'title' => 'My title'],
+                            'resolve' => fn () => ['uid' => 12345, 'pid' => 0, 'title' => 'My title'],
                         ],
                     ],
                 ]),

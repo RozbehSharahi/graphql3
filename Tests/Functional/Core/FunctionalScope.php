@@ -10,6 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 use RozbehSharahi\Graphql3\Type\PageType;
 use RozbehSharahi\Graphql3\Type\QueryType;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -70,6 +71,11 @@ class FunctionalScope
     public function getPageType(): PageType
     {
         return $this->getContainer()->get(PageType::class);
+    }
+
+    public function getRecordResolver(): RecordResolver
+    {
+        return $this->getContainer()->get(RecordResolver::class);
     }
 
     public function doServerRequest(ServerRequestInterface $request): ResponseInterface
