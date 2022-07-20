@@ -6,6 +6,11 @@ use RozbehSharahi\Graphql3\Exception\GraphqlException;
 
 class GraphqlNodeCollection
 {
+    /**
+     * @var array<string, GraphqlNode>
+     */
+    protected array $items = [];
+
     public static function create(array $items = []): self
     {
         return new self($items);
@@ -14,13 +19,9 @@ class GraphqlNodeCollection
     /**
      * @param GraphqlNode[] $items
      */
-    public function __construct(protected array $items)
+    public function __construct(array $items)
     {
-        foreach ($this->items as $error) {
-            if (!$error instanceof GraphqlNode) {
-                throw new GraphqlException(self::class.' only allows '.GraphqlNode::class.' items.');
-            }
-        }
+        $this->items = $this->createArrayByName($items);
     }
 
     public function add(GraphqlNode $item): self
@@ -28,26 +29,70 @@ class GraphqlNodeCollection
         return $this->withItems([...$this->items, $item]);
     }
 
+    public function remove(string $nodeName): self
+    {
+        $items = $this->items;
+
+        if ($items[$nodeName] ?? null) {
+            unset($items[$nodeName]);
+        }
+
+        return $this->withItems($items);
+    }
+
     public function getItems(): array
     {
         return $this->items;
     }
 
+    /**
+     * @param GraphqlNode[] $items
+     *
+     * @return $this
+     */
     public function withItems(array $items): self
     {
         $clone = clone $this;
-        $clone->items = $items;
+        $clone->items = $this->createArrayByName($items);
 
         return $clone;
     }
 
+    public function getLength(): int
+    {
+        return count($this->items);
+    }
+
     public function toArray(): array
     {
-        $array = [];
-        foreach ($this->items as $item) {
-            $array[$item->getName()] = $item->toArray();
+        return array_map(static fn ($item) => $item->toArray(), $this->items);
+    }
+
+    /**
+     * @param GraphqlNode[] $items
+     *
+     * @return array<string, GraphqlNode>
+     */
+    protected function createArrayByName(array $items): array
+    {
+        $this->assertAllGraphqlNodes($items);
+        $byName = [];
+
+        foreach ($items as $item) {
+            $byName[$item->getName()] = $item;
         }
 
-        return $array;
+        return $byName;
+    }
+
+    protected function assertAllGraphqlNodes(array $items): self
+    {
+        foreach ($items as $item) {
+            if (!$item instanceof GraphqlNode) {
+                throw new GraphqlException(self::class.' only allows '.GraphqlNode::class.' items.');
+            }
+        }
+
+        return $this;
     }
 }
