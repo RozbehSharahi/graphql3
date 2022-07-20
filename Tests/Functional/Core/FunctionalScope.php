@@ -8,10 +8,11 @@ use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RozbehSharahi\Graphql3\Registry\QueryFieldRegistry;
+use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Registry\TypeRegistry;
-use RozbehSharahi\Graphql3\Type\RegistryBasedQueryType;
+use RozbehSharahi\Graphql3\Type\PageType;
+use RozbehSharahi\Graphql3\Type\QueryType;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
 use TYPO3\CMS\Frontend\Http\Application;
@@ -46,24 +47,29 @@ class FunctionalScope
         return $this->container->get(Application::class);
     }
 
+    public function getConnectionPool(): ConnectionPool
+    {
+        return $this->getContainer()->get(ConnectionPool::class);
+    }
+
     public function getSchemaRegistry(): SchemaRegistry
     {
         return $this->getContainer()->get(SchemaRegistry::class);
     }
 
-    public function getRegistryBasedQueryType(): RegistryBasedQueryType
+    public function getQueryType(): QueryType
     {
-        return $this->getContainer()->get(RegistryBasedQueryType::class);
+        return $this->getContainer()->get(QueryType::class);
     }
 
-    public function getQueryFieldRegistry(): QueryFieldRegistry
+    public function getPageNode(): PageNode
     {
-        return $this->getContainer()->get(QueryFieldRegistry::class);
+        return $this->getContainer()->get(PageNode::class);
     }
 
-    public function getTypeRegistry(): TypeRegistry
+    public function getPageType(): PageType
     {
-        return $this->getContainer()->get(TypeRegistry::class);
+        return $this->getContainer()->get(PageType::class);
     }
 
     public function doServerRequest(ServerRequestInterface $request): ResponseInterface
@@ -88,5 +94,16 @@ class FunctionalScope
         } catch (Exception) {
             throw new \RuntimeException('Test failed since doGraphqlRequest return invalid graphql response');
         }
+    }
+
+    public function createRecord(string $table, array $data): self
+    {
+        $query = $this->getConnectionPool()->getQueryBuilderForTable($table);
+        $query
+            ->insert($table)
+            ->values($data)
+            ->executeStatement();
+
+        return $this;
     }
 }
