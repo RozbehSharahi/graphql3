@@ -5,6 +5,7 @@ namespace RozbehSharahi\Graphql3\Resolver;
 use RozbehSharahi\Graphql3\Domain\Model\Context;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
+use RozbehSharahi\Graphql3\Node\PageNodePostFetchFilterExtenderInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
@@ -17,7 +18,7 @@ class PageResolver
      */
     public function __construct(
         protected ConnectionPool $connectionPool,
-        protected iterable $extenders
+        protected iterable $extenders,
     ) {
         $this->context = new Context();
     }
@@ -42,7 +43,7 @@ class PageResolver
         };
     }
 
-    protected function resolve(array $arguments): array
+    protected function resolve(array $arguments): ?array
     {
         $identifierName = 'uid';
 
@@ -66,10 +67,25 @@ class PageResolver
         }
 
         try {
-            $page = $query->executeQuery()->fetchAssociative();
+            $pages = $query->executeQuery()->fetchAllAssociative();
         } catch (\Throwable $e) {
             throw new GraphqlException('Error on fetching page from database :'.$e->getMessage());
         }
+
+        if (empty($pages)) {
+            throw GraphqlException::createClientSafe('Could not fetch page based on identifier: '.$identifier);
+        }
+
+        foreach ($this->extenders as $extender) {
+            if (
+                $extender instanceof PageNodePostFetchFilterExtenderInterface
+                && $extender->supportsContext($this->context)
+            ) {
+                $pages = $extender->postFetchFilter($pages, $arguments);
+            }
+        }
+
+        $page = reset($pages);
 
         if (!$page) {
             throw GraphqlException::createClientSafe('Could not fetch page based on identifier: '.$identifier);

@@ -155,4 +155,43 @@ class PageNodeTest extends TestCase
         self::assertSame('Second level page', $response['data']['pageBySlug']['title']);
         self::assertSame('Root page', $response['data']['pageBySlug']['parent']['title']);
     }
+
+    public function testPageBySlugOnlyFindsInCurrentSite(): void
+    {
+        $scope = $this
+            ->getFunctionalScopeBuilder()
+            ->withAutoCreateGraphqlSchema(false)
+            ->withAutoCreateHomepage(false)
+            ->withSiteRootPageId(3)
+            ->build();
+
+        $scope
+            ->createRecord('pages', ['uid' => 1, 'pid' => 0, 'title' => 'Root page 1'])
+            ->createRecord('pages', ['uid' => 2, 'pid' => 1, 'title' => 'A page', 'slug' => '/a-page'])
+            ->createRecord('pages', ['uid' => 3, 'pid' => 0, 'title' => 'Root page 2'])
+            ->createRecord('pages', ['uid' => 4, 'pid' => 3, 'title' => 'Another page', 'slug' => '/a-page']);
+
+        $scope->getSchemaRegistry()->register(new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'pageBySlug' => $scope
+                        ->getPageNode()
+                        ->forSlug()
+                        ->getGraphqlNode()
+                        ->toArray(),
+                ],
+            ]),
+        ]));
+
+        $response = $scope->doGraphqlRequest('{
+            pageBySlug (slug: "/a-page") {
+              title
+              parent { title }
+            }
+        }');
+
+        self::assertSame('Another page', $response['data']['pageBySlug']['title']);
+        self::assertSame('Root page 2', $response['data']['pageBySlug']['parent']['title']);
+    }
 }

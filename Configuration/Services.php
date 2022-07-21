@@ -16,6 +16,7 @@ use RozbehSharahi\Graphql3\Type\QueryTypeExtenderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Site\SiteFinder;
 
 return static function (ContainerConfigurator $container, ContainerBuilder $containerBuilder) {
     $containerBuilder
@@ -41,5 +42,6 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         $containerBuilder->registerForAutoconfiguration(QueryType::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(PageType::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(RecordResolver::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(SiteFinder::class)->setPublic(true);
     }
 };

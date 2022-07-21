@@ -12,6 +12,7 @@ use Psr\Container\ContainerInterface;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Type\NoopQueryType;
 use Symfony\Component\Yaml\Yaml;
+use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Bootstrap;
 use TYPO3\CMS\Core\Core\Environment;
@@ -24,6 +25,7 @@ use TYPO3\CMS\Core\Database\Schema\SqlReader;
 use TYPO3\CMS\Core\Middleware\VerifyHostHeader;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\RootlineUtility;
 use TYPO3\CMS\Frontend\Http\Application;
 
 class FunctionScopeBuilder
@@ -41,6 +43,8 @@ class FunctionScopeBuilder
     public const DEFAULT_CONTEXT = 'Testing';
 
     public const DEFAULT_FRESH_DATABASE = false;
+
+    public const DEFAULT_SITE_ROOT_PAGE_ID = 1;
 
     public const DEFAULT_LOCAL_CONFIGURATION = [
         'SYS' => [
@@ -72,6 +76,8 @@ class FunctionScopeBuilder
 
     protected bool $freshDatabase = self::DEFAULT_FRESH_DATABASE;
 
+    protected int $siteRootPageId = self::DEFAULT_SITE_ROOT_PAGE_ID;
+
     protected string $context = self::DEFAULT_CONTEXT;
 
     protected ContainerInterface $container;
@@ -87,6 +93,19 @@ class FunctionScopeBuilder
     {
         $clone = clone $this;
         $clone->instanceName = $instanceName;
+
+        return $clone;
+    }
+
+    public function getSiteRootPageId(): int
+    {
+        return $this->siteRootPageId;
+    }
+
+    public function withSiteRootPageId(int $siteRootPageId): self
+    {
+        $clone = clone $this;
+        $clone->siteRootPageId = $siteRootPageId;
 
         return $clone;
     }
@@ -251,9 +270,7 @@ class FunctionScopeBuilder
             $schemaRegistry->register(new Schema(['query' => new NoopQueryType()]));
         }
 
-        /** @var SiteFinder $siteFinder */
-        $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
-        $siteFinder->getAllSites(false);
+        $this->clearSiteFinderCache();
 
         return new FunctionalScope($container);
     }
@@ -273,7 +290,7 @@ class FunctionScopeBuilder
     protected function createSite(): self
     {
         $configuration = [
-            'rootPageId' => 1,
+            'rootPageId' => $this->siteRootPageId,
             'base' => '/'.$this->instanceName,
             'languages' => [
                 [
@@ -356,5 +373,25 @@ class FunctionScopeBuilder
     protected function getPhpFile(array $configuration): string
     {
         return '<?php return '.var_export($configuration, true).';';
+    }
+
+    /** @noinspection PhpExpressionResultUnusedInspection */
+    protected function clearSiteFinderCache(): self
+    {
+        /** @var SiteFinder $siteFinder */
+        $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
+
+        // Typo3 BUG: does not empty mappingRootPageIdToIdentifier on useCache = false
+        $reflection = new \ReflectionClass($siteFinder);
+        $property = $reflection->getProperty('mappingRootPageIdToIdentifier');
+        $property->setAccessible(true);
+        $property->setValue($siteFinder, []);
+
+        $siteFinder->getAllSites(false);
+
+        RootlineUtility::purgeCaches();
+        GeneralUtility::makeInstance(CacheManager::class)->getCache('rootline')->flush();
+
+        return $this;
     }
 }

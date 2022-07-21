@@ -16,6 +16,7 @@ use RozbehSharahi\Graphql3\Type\QueryType;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
+use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Frontend\Http\Application;
 
 /**
@@ -76,6 +77,11 @@ class FunctionalScope
     public function getRecordResolver(): RecordResolver
     {
         return $this->getContainer()->get(RecordResolver::class);
+    }
+
+    public function getSiteFinder(): SiteFinder
+    {
+        return $this->getContainer()->get(SiteFinder::class);
     }
 
     public function doServerRequest(ServerRequestInterface $request): ResponseInterface

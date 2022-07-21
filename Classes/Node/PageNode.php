@@ -64,11 +64,11 @@ class PageNode implements NodeInterface
     {
         $isPageBySlug = $this->context->hasTag(Context::TAG_PAGE_RESOLVE_BY_SLUG);
 
-        $identifier = !$isPageBySlug ? 'uid' : 'slug';
+        $identifierName = !$isPageBySlug ? 'uid' : 'slug';
         $identifierType = !$isPageBySlug ? Type::int() : Type::string();
 
         $arguments = GraphqlArgumentCollection::create([
-            GraphqlArgument::create($identifier)->withType(Type::nonNull($identifierType)),
+            GraphqlArgument::create($identifierName)->withType(Type::nonNull($identifierType)),
         ]);
 
         foreach ($this->extenders as $extender) {
