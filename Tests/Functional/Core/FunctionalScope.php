@@ -8,6 +8,7 @@ use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RozbehSharahi\Graphql3\Node\PageListNode;
 use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
@@ -72,6 +73,11 @@ class FunctionalScope
     public function getPageType(): PageType
     {
         return $this->getContainer()->get(PageType::class);
+    }
+
+    public function getPageListNode(): PageListNode
+    {
+        return $this->getContainer()->get(PageListNode::class);
     }
 
     public function getRecordResolver(): RecordResolver

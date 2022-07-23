@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3;
 
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
+use RozbehSharahi\Graphql3\Node\PageListNode;
 use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
@@ -43,5 +44,6 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         $containerBuilder->registerForAutoconfiguration(PageType::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(RecordResolver::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(SiteFinder::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(PageListNode::class)->setPublic(true);
     }
 };

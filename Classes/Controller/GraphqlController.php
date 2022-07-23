@@ -2,7 +2,6 @@
 
 namespace RozbehSharahi\Graphql3\Controller;
 
-use Exception;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,6 +11,8 @@ use RozbehSharahi\Graphql3\Encoder\JsonEncoder;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Executor\Executor;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use Throwable;
+use TYPO3\CMS\Core\Core\Environment;
 
 class GraphqlController
 {
@@ -41,12 +42,18 @@ class GraphqlController
                 ->withQuery($input['query'])
                 ->withVariables($input['variables'] ?? [])
                 ->execute();
-        } catch (Exception|GraphqlException $e) {
-            return $this->errorResponseBuilder->withMessage($e->getMessage())->build();
+        } catch (Throwable|GraphqlException $e) {
+            return $this
+                ->throwIfTestingMode($e->getMessage())
+                ->errorResponseBuilder
+                ->withMessage($e->getMessage())
+                ->build();
         }
 
         if ($output['errors'] ?? null) {
-            return $this->errorResponseBuilder
+            return $this
+                ->throwIfTestingMode($output['errors'][0]['message'])
+                ->errorResponseBuilder
                 ->withErrors(GraphqlErrorCollection::createFromArray($output['errors']))
                 ->build();
         }
@@ -79,5 +86,18 @@ class GraphqlController
         $input = $this->encoder->decode($json);
 
         return !(!is_array($input) || !is_string($input['query'] ?? null));
+    }
+
+    protected function throwIfTestingMode(string $message): self
+    {
+        if ('Testing/Production' === (string) Environment::getContext()) {
+            return $this;
+        }
+
+        if (Environment::getContext()->isTesting()) {
+            throw new \RuntimeException($message);
+        }
+
+        return $this;
     }
 }

@@ -55,6 +55,7 @@ class GraphqlRequestTest extends TestCase
 
         $response = $this
             ->getFunctionalScopeBuilder()
+            ->withContext('Testing/Production')
             ->build()
             ->doServerRequest($request);
 
