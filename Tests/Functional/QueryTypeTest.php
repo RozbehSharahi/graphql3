@@ -38,7 +38,7 @@ class QueryTypeTest extends TestCase
         $scope = $this->getFunctionalScopeBuilder()->withAutoCreateGraphqlSchema(false)->build();
 
         $scope->getSchemaRegistry()->register(new Schema([
-            'query' => new QueryType($scope->getPageNode(), [
+            'query' => new QueryType($scope->getPageNode(), $scope->getPageListNode(), [
                 new class() implements QueryTypeExtenderInterface {
                     public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
                     {
