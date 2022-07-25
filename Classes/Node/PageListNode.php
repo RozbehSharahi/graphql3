@@ -6,11 +6,12 @@ use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
+use RozbehSharahi\Graphql3\Type\OrderItemInputType;
 use RozbehSharahi\Graphql3\Type\PageListType;
 
 class PageListNode implements NodeInterface
 {
-    public function __construct(protected PageListType $pageListType)
+    public function __construct(protected PageListType $pageListType, protected OrderItemInputType $orderFieldType)
     {
     }
 
@@ -20,6 +21,7 @@ class PageListNode implements NodeInterface
             ->withArguments([
                 GraphqlArgument::create('page')->withType(Type::nonNull(Type::int()))->withDefaultValue(1),
                 GraphqlArgument::create('pageSize')->withType(Type::nonNull(Type::int()))->withDefaultValue(10),
+                GraphqlArgument::create('orderBy')->withType(Type::listOf($this->orderFieldType)),
             ])
             ->withType($this->pageListType)
             ->withResolver(fn ($_, $args) => new ListRequest($args));

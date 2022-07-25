@@ -36,7 +36,7 @@ class PageListNodeTest extends TestCase
         ]));
 
         $response = $scope->doGraphqlRequest('{
-            pages(page: 1, pageSize:2) {
+            pages(page: 1, pageSize:2, orderBy: [{field: "title", direction: "desc"}]) {
               count
               items {
                 title
@@ -47,11 +47,11 @@ class PageListNodeTest extends TestCase
         self::assertArrayNotHasKey('errors', $response);
         self::assertCount(2, $response['data']['pages']['items']);
         self::assertEquals(4, $response['data']['pages']['count']);
-        self::assertEquals('Page 1', $response['data']['pages']['items'][0]['title']);
-        self::assertEquals('Page 2', $response['data']['pages']['items'][1]['title']);
+        self::assertEquals('Page 4', $response['data']['pages']['items'][0]['title']);
+        self::assertEquals('Page 3', $response['data']['pages']['items'][1]['title']);
 
         $response = $scope->doGraphqlRequest('{
-            pages(page: 2, pageSize:2) {
+            pages(page: 2, pageSize:2, orderBy: {field: "uid", direction: "desc"}) {
               count
               items {
                 title
@@ -59,7 +59,7 @@ class PageListNodeTest extends TestCase
             }
         }');
 
-        self::assertEquals('Page 3', $response['data']['pages']['items'][0]['title']);
-        self::assertEquals('Page 4', $response['data']['pages']['items'][1]['title']);
+        self::assertEquals('Page 2', $response['data']['pages']['items'][0]['title']);
+        self::assertEquals('Page 1', $response['data']['pages']['items'][1]['title']);
     }
 }

@@ -3,6 +3,7 @@
 namespace RozbehSharahi\Graphql3\Resolver;
 
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
+use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Trait\ExecuteQueryTrait;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -53,7 +54,23 @@ class PageListResolver
 
     private function applySorting(QueryBuilder $query, ListRequest $request): self
     {
-        $query->addOrderBy('uid', 'ASC');
+        foreach ($request->getOrderBy() as $orderItem) {
+            $this->assertOrderItemValid($orderItem);
+            $query->addOrderBy($orderItem['field'], $orderItem['direction']);
+        }
+
+        return $this;
+    }
+
+    private function assertOrderItemValid(array $orderItem): self
+    {
+        if (empty($orderItem['field'])) {
+            throw GraphqlException::createClientSafe('Order item is not valid.');
+        }
+
+        if (!empty($orderItem['direction']) && !in_array(strtolower($orderItem['direction']), ['desc', 'asc'])) {
+            throw GraphqlException::createClientSafe('Order item is not valid.');
+        }
 
         return $this;
     }
