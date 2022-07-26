@@ -7,14 +7,15 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class ApplyFilterArrayToQueryOperator
 {
-    protected array $types;
+    protected array $expressionCreators;
 
     public function __construct()
     {
-        $this->types = [
-            'equals' => [$this, 'applyEqualsType'],
-            'gte' => [$this, 'applyGreaterThanOrEqualType'],
-            'gt' => [$this, 'applyGreaterThanType'],
+        $this->expressionCreators = [
+            'equals' => [$this, 'createEqualsExpression'],
+            'gte' => [$this, 'createGreaterThanEqualsExpression'],
+            'gt' => [$this, 'createGreaterThanExpression'],
+            'or' => [$this, 'createOrExpression'],
         ];
     }
 
@@ -23,48 +24,52 @@ class ApplyFilterArrayToQueryOperator
         foreach ($filters as $filter) {
             $type = $filter['type'] ?? 'unknown';
 
-            if (!array_key_exists($type, $this->types)) {
-                throw GraphqlException::createClientSafe("Given filter type '{$type}' is not valid.");
-            }
+            $this->assertTypeIsValid($type);
 
-            // Call one of the operators
-            $this->types[$type]($query, $filter);
+            $query->andWhere(
+                $this->expressionCreators[$type]($query, $filter)
+            );
         }
 
         return $this;
     }
 
-    protected function applyEqualsType(QueryBuilder $query, array $filter): self
+    protected function createEqualsExpression(QueryBuilder $query, array $filter): string
     {
         $this->asserFieldAndValueIsSet('equals', $filter);
 
-        $query->andWhere(
-            $query->expr()->eq($filter['field'], $query->createNamedParameter($filter['value']))
-        );
-
-        return $this;
+        return $query->expr()->eq($filter['field'], $query->createNamedParameter($filter['value']));
     }
 
-    protected function applyGreaterThanOrEqualType(QueryBuilder $query, array $filter): self
+    protected function createGreaterThanEqualsExpression(QueryBuilder $query, array $filter): string
     {
         $this->asserFieldAndValueIsSet('gte', $filter);
 
-        $query->andWhere(
-            $query->expr()->gte($filter['field'], $query->createNamedParameter($filter['value']))
-        );
-
-        return $this;
+        return $query->expr()->gte($filter['field'], $query->createNamedParameter($filter['value']));
     }
 
-    protected function applyGreaterThanType(QueryBuilder $query, array $filter): self
+    protected function createGreaterThanExpression(QueryBuilder $query, array $filter): string
     {
         $this->asserFieldAndValueIsSet('gt', $filter);
 
-        $query->andWhere(
-            $query->expr()->gt($filter['field'], $query->createNamedParameter($filter['value']))
-        );
+        return $query->expr()->gt($filter['field'], $query->createNamedParameter($filter['value']));
+    }
 
-        return $this;
+    protected function createOrExpression(QueryBuilder $query, array $filter): string
+    {
+        $this->assertChildrenAreSet('or', $filter);
+
+        $expressions = [];
+        foreach ($filter['children'] as $childFilter) {
+            $type = $childFilter['type'] ?? 'unknown';
+
+            $this->assertTypeIsValid($type);
+
+            // Call one of the operators
+            $expressions[] = $this->expressionCreators[$type]($query, $childFilter);
+        }
+
+        return $query->expr()->or(...$expressions);
     }
 
     protected function asserFieldAndValueIsSet(string $type, array $filter): self
@@ -75,6 +80,24 @@ class ApplyFilterArrayToQueryOperator
 
         if (!isset($filter['value'])) {
             throw GraphqlException::createClientSafe("'value' is mandatory on filters of type '{$type}'");
+        }
+
+        return $this;
+    }
+
+    protected function assertChildrenAreSet(string $type, array $filter): self
+    {
+        if (empty($filter['children'])) {
+            throw GraphqlException::createClientSafe("'children' are mandatory on filters of type '{$type}'");
+        }
+
+        return $this;
+    }
+
+    protected function assertTypeIsValid(string $type): self
+    {
+        if (!array_key_exists($type, $this->expressionCreators)) {
+            throw GraphqlException::createClientSafe("Given filter type '{$type}' is not valid.");
         }
 
         return $this;
