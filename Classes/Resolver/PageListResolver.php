@@ -4,6 +4,7 @@ namespace RozbehSharahi\Graphql3\Resolver;
 
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Operator\ApplyFilterArrayToQueryOperator;
 use RozbehSharahi\Graphql3\Trait\ExecuteQueryTrait;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -12,8 +13,10 @@ class PageListResolver
 {
     use ExecuteQueryTrait;
 
-    public function __construct(protected ConnectionPool $connectionPool)
-    {
+    public function __construct(
+        protected ConnectionPool $connectionPool,
+        protected ApplyFilterArrayToQueryOperator $applyFilterArrayToQueryOperator
+    ) {
     }
 
     public function resolveItems(ListRequest $request): array
@@ -21,6 +24,7 @@ class PageListResolver
         $query = $this->createQuery($request);
 
         return $this
+            ->applyFilters($query, $request)
             ->applyPagination($query, $request)
             ->applySorting($query, $request)
             ->fetchAll($query);
@@ -30,7 +34,9 @@ class PageListResolver
     {
         $query = $this->createQuery($request);
 
-        return $this->fetchRowCount($query);
+        return $this
+            ->applyFilters($query, $request)
+            ->fetchRowCount($query);
     }
 
     protected function createQuery(ListRequest $request): QueryBuilder
@@ -40,6 +46,17 @@ class PageListResolver
             ->getQueryBuilderForTable('pages')
             ->select('*')
             ->from('pages');
+    }
+
+    private function applyFilters(QueryBuilder $query, ListRequest $request): self
+    {
+        if (empty($request->getFilters())) {
+            return $this;
+        }
+
+        ($this->applyFilterArrayToQueryOperator)($query, $request->getFilters());
+
+        return $this;
     }
 
     private function applyPagination(QueryBuilder $query, ListRequest $request): self
