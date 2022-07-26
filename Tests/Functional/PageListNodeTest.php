@@ -89,7 +89,7 @@ class PageListNodeTest extends TestCase
         ]));
 
         $response = $scope->doGraphqlRequest('{
-            pages(filters: [{field: "subtitle", value: "red"}]) {
+            pages(filters: [{field: "subtitle", value: "red"}, {type: "gte", field: "uid", value: "4"}]) {
               count
               items {
                 title
@@ -97,9 +97,8 @@ class PageListNodeTest extends TestCase
             }
         }');
 
-        self::assertCount(2, $response['data']['pages']['items']);
-        self::assertEquals(2, $response['data']['pages']['count']);
-        self::assertEquals('Page 1', $response['data']['pages']['items'][0]['title']);
-        self::assertEquals('Page 4', $response['data']['pages']['items'][1]['title']);
+        self::assertCount(1, $response['data']['pages']['items']);
+        self::assertEquals(1, $response['data']['pages']['count']);
+        self::assertEquals('Page 4', $response['data']['pages']['items'][0]['title']);
     }
 }
