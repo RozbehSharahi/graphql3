@@ -17,6 +17,7 @@ class FilterInputType extends InputObjectType
                 GraphqlArgument::create('type')->withDefaultValue('eq'),
                 GraphqlArgument::create('field'),
                 GraphqlArgument::create('value'),
+                GraphqlArgument::create('values')->withType(Type::listOf(Type::string())),
                 GraphqlArgument::create('children')->withType(Type::listOf($this)),
             ])->toArray(),
         ]);

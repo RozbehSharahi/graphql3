@@ -7,9 +7,23 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class ApplyFilterArrayToQueryOperator
 {
-    protected array $expressions = ['eq', 'gte', 'gt', 'lt', 'lte', 'neq'];
+    protected array $typeToExpressionCreatorMap;
 
-    protected array $nestedExpressions = ['or', 'and'];
+    public function __construct()
+    {
+        $this->typeToExpressionCreatorMap = [
+            'eq' => [$this, 'createExpression'],
+            'neq' => [$this, 'createExpression'],
+            'gt' => [$this, 'createExpression'],
+            'gte' => [$this, 'createExpression'],
+            'lt' => [$this, 'createExpression'],
+            'lte' => [$this, 'createExpression'],
+            'or' => [$this, 'createNestedExpression'],
+            'and' => [$this, 'createNestedExpression'],
+            'in' => [$this, 'createListExpression'],
+            'notIn' => [$this, 'createListExpression'],
+        ];
+    }
 
     public function operate(QueryBuilder $query, array $filters): self
     {
@@ -18,11 +32,7 @@ class ApplyFilterArrayToQueryOperator
 
             $this->assertTypeIsValid($type);
 
-            if (in_array($type, $this->expressions, true)) {
-                $query->andWhere($this->createExpression($type, $query, $filter));
-            } else {
-                $query->andWhere($this->createNestedExpression($type, $query, $filter));
-            }
+            $query->andWhere($this->typeToExpressionCreatorMap[$type]($type, $query, $filter));
         }
 
         return $this;
@@ -35,7 +45,7 @@ class ApplyFilterArrayToQueryOperator
         return $query->expr()->{$type}($filter['field'], $query->createNamedParameter($filter['value']));
     }
 
-    private function createNestedExpression(mixed $type, QueryBuilder $query, mixed $filter): string
+    private function createNestedExpression(string $type, QueryBuilder $query, array $filter): string
     {
         $this->assertChildrenAreSet($type, $filter);
 
@@ -43,14 +53,24 @@ class ApplyFilterArrayToQueryOperator
         foreach ($filter['children'] as $childFilter) {
             $type = $childFilter['type'] ?? 'unknown';
 
-            if (in_array($type, $this->expressions, true)) {
-                $expressions[] = $this->createExpression($type, $query, $childFilter);
-            } else {
-                $expressions[] = $this->createNestedExpression($type, $query, $childFilter);
-            }
+            $this->assertTypeIsValid($type);
+
+            $expressions[] = $this->typeToExpressionCreatorMap[$type]($type, $query, $childFilter);
         }
 
         return $query->expr()->{$filter['type']}(...$expressions);
+    }
+
+    private function createListExpression(string $type, QueryBuilder $query, array $filter): string
+    {
+        $this->assertValuesAreSet($type, $filter);
+
+        $valueParameters = array_map(
+            static fn (string $value) => $query->createNamedParameter($value),
+            $filter['values']
+        );
+
+        return $query->expr()->{$filter['type']}($filter['field'], $valueParameters);
     }
 
     protected function asserFieldAndValueIsSet(string $type, array $filter): self
@@ -75,9 +95,18 @@ class ApplyFilterArrayToQueryOperator
         return $this;
     }
 
+    protected function assertValuesAreSet(string $type, array $filter): self
+    {
+        if (empty($filter['values'])) {
+            throw GraphqlException::createClientSafe("'values' are mandatory on filters of type '{$type}'");
+        }
+
+        return $this;
+    }
+
     protected function assertTypeIsValid(string $type): self
     {
-        if (!in_array($type, $this->expressions, true) && !in_array($type, $this->nestedExpressions, true)) {
+        if (!isset($this->typeToExpressionCreatorMap[$type])) {
             throw GraphqlException::createClientSafe("Given filter type '{$type}' is not valid.");
         }
 

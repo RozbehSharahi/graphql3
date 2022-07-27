@@ -100,5 +100,13 @@ class PageListNodeTest extends TestCase
         self::assertCount(1, $response['data']['pages']['items']);
         self::assertEquals(1, $response['data']['pages']['count']);
         self::assertEquals('Page 4', $response['data']['pages']['items'][0]['title']);
+
+        $response = $scope->doGraphqlRequest('{
+            pages(filters: {type: "in", field: "subtitle", values: ["red","green"]}) {
+              count
+            }
+        }');
+
+        self::assertEquals(3, $response['data']['pages']['count']);
     }
 }

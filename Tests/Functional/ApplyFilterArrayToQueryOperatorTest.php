@@ -46,6 +46,22 @@ class ApplyFilterArrayToQueryOperatorTest extends TestCase
         self::assertStringContainsString('("uid" = "123") OR ("uid" = "1000")', $sql);
     }
 
+    public function testCanApplyInTypeToQueryBuilder(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+        $query = $scope->getConnectionPool()->getQueryBuilderForTable('pages');
+
+        $this->createOperator()->operate($query, [
+            ['type' => 'in', 'field' => 'uid', 'values' => ['10', '20', '30']],
+            ['type' => 'notIn', 'field' => 'uid', 'values' => ['100', '200', '300']],
+        ]);
+
+        $sql = $this->getTestableSql($query);
+
+        self::assertStringContainsString('"uid" IN ("10", "20", "30")', $sql);
+        self::assertStringContainsString('"uid" NOT IN ("100", "200", "300")', $sql);
+    }
+
     private function getTestableSql(QueryBuilder $query): string
     {
         $sql = $query->getSQL();
