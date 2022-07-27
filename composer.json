@@ -20,8 +20,7 @@
     "require-dev": {
         "roave/security-advisories": "dev-latest",
         "typo3/cms-install": "^12.0.x-dev",
-        "phpunit/phpunit": "^9",
-        "friendsofphp/php-cs-fixer": "dev-master"
+        "phpunit/phpunit": "^9"
     },
     "minimum-stability": "dev",
     "config": {
@@ -53,7 +52,8 @@
         ],
         "tests": [
             "@cache-clear",
-            "vendor/bin/php-cs-fixer fix && vendor/bin/phpunit"
+            "Tools/php-cs-fixer fix",
+            "vendor/bin/phpunit"
         ]
     }
 }
