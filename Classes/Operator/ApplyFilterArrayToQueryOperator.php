@@ -7,17 +7,9 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class ApplyFilterArrayToQueryOperator
 {
-    protected array $expressionCreators;
+    protected array $expressions = ['eq', 'gte', 'gt', 'lt', 'lte', 'neq'];
 
-    public function __construct()
-    {
-        $this->expressionCreators = [
-            'eq' => [$this, 'createEqualsExpression'],
-            'gte' => [$this, 'createGreaterThanEqualsExpression'],
-            'gt' => [$this, 'createGreaterThanExpression'],
-            'or' => [$this, 'createOrExpression'],
-        ];
-    }
+    protected array $nestedExpressions = ['or', 'and'];
 
     public function __invoke(QueryBuilder $query, array $filters): self
     {
@@ -26,50 +18,39 @@ class ApplyFilterArrayToQueryOperator
 
             $this->assertTypeIsValid($type);
 
-            $query->andWhere(
-                $this->expressionCreators[$type]($query, $filter)
-            );
+            if (in_array($type, $this->expressions, true)) {
+                $query->andWhere($this->createExpression($type, $query, $filter));
+            } else {
+                $query->andWhere($this->createNestedExpression($type, $query, $filter));
+            }
         }
 
         return $this;
     }
 
-    protected function createEqualsExpression(QueryBuilder $query, array $filter): string
+    protected function createExpression(string $type, QueryBuilder $query, array $filter): string
     {
-        $this->asserFieldAndValueIsSet('eq', $filter);
+        $this->asserFieldAndValueIsSet($type, $filter);
 
-        return $query->expr()->eq($filter['field'], $query->createNamedParameter($filter['value']));
+        return $query->expr()->{$type}($filter['field'], $query->createNamedParameter($filter['value']));
     }
 
-    protected function createGreaterThanEqualsExpression(QueryBuilder $query, array $filter): string
+    private function createNestedExpression(mixed $type, QueryBuilder $query, mixed $filter): string
     {
-        $this->asserFieldAndValueIsSet('gte', $filter);
-
-        return $query->expr()->gte($filter['field'], $query->createNamedParameter($filter['value']));
-    }
-
-    protected function createGreaterThanExpression(QueryBuilder $query, array $filter): string
-    {
-        $this->asserFieldAndValueIsSet('gt', $filter);
-
-        return $query->expr()->gt($filter['field'], $query->createNamedParameter($filter['value']));
-    }
-
-    protected function createOrExpression(QueryBuilder $query, array $filter): string
-    {
-        $this->assertChildrenAreSet('or', $filter);
+        $this->assertChildrenAreSet($type, $filter);
 
         $expressions = [];
         foreach ($filter['children'] as $childFilter) {
             $type = $childFilter['type'] ?? 'unknown';
 
-            $this->assertTypeIsValid($type);
-
-            // Call one of the operators
-            $expressions[] = $this->expressionCreators[$type]($query, $childFilter);
+            if (in_array($type, $this->expressions, true)) {
+                $expressions[] = $this->createExpression($type, $query, $childFilter);
+            } else {
+                $expressions[] = $this->createNestedExpression($type, $query, $childFilter);
+            }
         }
 
-        return $query->expr()->or(...$expressions);
+        return $query->expr()->{$filter['type']}(...$expressions);
     }
 
     protected function asserFieldAndValueIsSet(string $type, array $filter): self
@@ -96,7 +77,7 @@ class ApplyFilterArrayToQueryOperator
 
     protected function assertTypeIsValid(string $type): self
     {
-        if (!array_key_exists($type, $this->expressionCreators)) {
+        if (!in_array($type, $this->expressions, true) && !in_array($type, $this->nestedExpressions, true)) {
             throw GraphqlException::createClientSafe("Given filter type '{$type}' is not valid.");
         }
 

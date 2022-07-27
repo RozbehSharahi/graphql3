@@ -3,6 +3,7 @@
 namespace RozbehSharahi\Graphql3\Type;
 
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 
@@ -16,6 +17,7 @@ class FilterInputType extends InputObjectType
                 GraphqlArgument::create('type')->withDefaultValue('eq'),
                 GraphqlArgument::create('field'),
                 GraphqlArgument::create('value'),
+                GraphqlArgument::create('children')->withType(Type::listOf($this)),
             ])->toArray(),
         ]);
     }
