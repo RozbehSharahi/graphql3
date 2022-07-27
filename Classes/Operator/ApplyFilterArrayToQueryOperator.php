@@ -12,7 +12,7 @@ class ApplyFilterArrayToQueryOperator
     public function __construct()
     {
         $this->expressionCreators = [
-            'equals' => [$this, 'createEqualsExpression'],
+            'eq' => [$this, 'createEqualsExpression'],
             'gte' => [$this, 'createGreaterThanEqualsExpression'],
             'gt' => [$this, 'createGreaterThanExpression'],
             'or' => [$this, 'createOrExpression'],
@@ -36,7 +36,7 @@ class ApplyFilterArrayToQueryOperator
 
     protected function createEqualsExpression(QueryBuilder $query, array $filter): string
     {
-        $this->asserFieldAndValueIsSet('equals', $filter);
+        $this->asserFieldAndValueIsSet('eq', $filter);
 
         return $query->expr()->eq($filter['field'], $query->createNamedParameter($filter['value']));
     }

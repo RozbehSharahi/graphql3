@@ -13,7 +13,7 @@ class FilterInputType extends InputObjectType
         parent::__construct([
             'name' => 'FilterInput',
             'fields' => fn () => GraphqlArgumentCollection::create([
-                GraphqlArgument::create('type')->withDefaultValue('equals'),
+                GraphqlArgument::create('type')->withDefaultValue('eq'),
                 GraphqlArgument::create('field'),
                 GraphqlArgument::create('value'),
             ])->toArray(),

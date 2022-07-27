@@ -17,7 +17,7 @@ class ApplyFilterArrayToQueryOperatorTest extends TestCase
         $query = $scope->getConnectionPool()->getQueryBuilderForTable('pages');
 
         (new ApplyFilterArrayToQueryOperator())($query, [
-            ['type' => 'equals', 'field' => 'uid', 'value' => 123],
+            ['type' => 'eq', 'field' => 'uid', 'value' => 123],
             ['type' => 'gt', 'field' => 'uid', 'value' => 100],
         ]);
 
@@ -35,8 +35,8 @@ class ApplyFilterArrayToQueryOperatorTest extends TestCase
             [
                 'type' => 'or',
                 'children' => [
-                    ['type' => 'equals', 'field' => 'uid', 'value' => 123],
-                    ['type' => 'equals', 'field' => 'uid', 'value' => 1000],
+                    ['type' => 'eq', 'field' => 'uid', 'value' => 123],
+                    ['type' => 'eq', 'field' => 'uid', 'value' => 1000],
                 ],
             ],
         ]);
