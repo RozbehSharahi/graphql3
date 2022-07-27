@@ -11,7 +11,7 @@ class ApplyFilterArrayToQueryOperator
 
     protected array $nestedExpressions = ['or', 'and'];
 
-    public function __invoke(QueryBuilder $query, array $filters): self
+    public function operate(QueryBuilder $query, array $filters): self
     {
         foreach ($filters as $filter) {
             $type = $filter['type'] ?? 'unknown';

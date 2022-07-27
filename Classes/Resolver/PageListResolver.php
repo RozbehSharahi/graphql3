@@ -54,7 +54,7 @@ class PageListResolver
             return $this;
         }
 
-        ($this->applyFilterArrayToQueryOperator)($query, $request->getFilters());
+        $this->applyFilterArrayToQueryOperator->operate($query, $request->getFilters());
 
         return $this;
     }

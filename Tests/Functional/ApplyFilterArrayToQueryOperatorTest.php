@@ -16,7 +16,7 @@ class ApplyFilterArrayToQueryOperatorTest extends TestCase
         $scope = $this->getFunctionalScopeBuilder()->build();
         $query = $scope->getConnectionPool()->getQueryBuilderForTable('pages');
 
-        (new ApplyFilterArrayToQueryOperator())($query, [
+        $this->createOperator()->operate($query, [
             ['type' => 'eq', 'field' => 'uid', 'value' => 123],
             ['type' => 'gt', 'field' => 'uid', 'value' => 100],
         ]);
@@ -31,7 +31,7 @@ class ApplyFilterArrayToQueryOperatorTest extends TestCase
         $scope = $this->getFunctionalScopeBuilder()->build();
         $query = $scope->getConnectionPool()->getQueryBuilderForTable('pages');
 
-        (new ApplyFilterArrayToQueryOperator())($query, [
+        $this->createOperator()->operate($query, [
             [
                 'type' => 'or',
                 'children' => [
@@ -56,5 +56,10 @@ class ApplyFilterArrayToQueryOperatorTest extends TestCase
         }
 
         return $sql;
+    }
+
+    private function createOperator(): ApplyFilterArrayToQueryOperator
+    {
+        return new ApplyFilterArrayToQueryOperator();
     }
 }
