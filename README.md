@@ -367,7 +367,7 @@ In order to modify/add access control to your project, you can simply create a c
 implements `\RozbehSharahi\Graphql3\Security\Voter\VoterInterface`. When implementing the interface, your voter will be
 automatically added to the stack of voters, no matter where you place it.
 
-> Make sure not to implement the Graphql3 variant of VoterInterface, instead of the Symfony VoterInterface.
+> Make sure to implement the `Graphql3` variant of `VoterInterface`, instead of the `Symfony` `VoterInterface`.
 
 ```php
 <?php
