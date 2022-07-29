@@ -100,7 +100,7 @@ class PageNodeTest extends TestCase
                 'fields' => [
                     'page' => (new PageNode(
                         $scope->getPageType(),
-                        new PageResolver($scope->getConnectionPool(), $extenders),
+                        new PageResolver($scope->getConnectionPool(), $scope->getAccessChecker(), $extenders),
                         $extenders
                     ))->getGraphqlNode()->toArray(),
                 ],

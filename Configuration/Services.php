@@ -9,6 +9,8 @@ use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
+use RozbehSharahi\Graphql3\Security\AccessChecker;
+use RozbehSharahi\Graphql3\Security\Voter\VoterInterface;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
 use RozbehSharahi\Graphql3\Type\PageType;
 use RozbehSharahi\Graphql3\Type\PageTypeExtenderInterface;
@@ -36,6 +38,10 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         ->registerForAutoconfiguration(PageTypeExtenderInterface::class)
         ->addTag('graphql3.page_type_extender');
 
+    $containerBuilder
+        ->registerForAutoconfiguration(VoterInterface::class)
+        ->addTag('graphql3.voter');
+
     if(Environment::getContext()->isTesting()) {
         $containerBuilder->registerForAutoconfiguration(GraphqlController::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(SchemaRegistry::class)->setPublic(true);
@@ -45,5 +51,6 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         $containerBuilder->registerForAutoconfiguration(RecordResolver::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(SiteFinder::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(PageListNode::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(AccessChecker::class)->setPublic(true);
     }
 };

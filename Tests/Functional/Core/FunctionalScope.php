@@ -12,6 +12,7 @@ use RozbehSharahi\Graphql3\Node\PageListNode;
 use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
+use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Type\PageType;
 use RozbehSharahi\Graphql3\Type\QueryType;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -88,6 +89,11 @@ class FunctionalScope
     public function getSiteFinder(): SiteFinder
     {
         return $this->getContainer()->get(SiteFinder::class);
+    }
+
+    public function getAccessChecker(): AccessChecker
+    {
+        return $this->get(AccessChecker::class);
     }
 
     public function doServerRequest(ServerRequestInterface $request): ResponseInterface

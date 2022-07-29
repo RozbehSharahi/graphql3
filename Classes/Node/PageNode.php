@@ -78,11 +78,6 @@ class PageNode implements NodeInterface
         return GraphqlNode::create($this->name)
             ->withType($this->pageType)
             ->withArguments($arguments)
-            ->withResolver(
-                $this
-                    ->pageResolver
-                    ->withContext($this->context)
-                    ->getCallable()
-            );
+            ->withResolver($this->pageResolver->withContext($this->context)->getCallable());
     }
 }

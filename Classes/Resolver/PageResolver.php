@@ -3,9 +3,11 @@
 namespace RozbehSharahi\Graphql3\Resolver;
 
 use RozbehSharahi\Graphql3\Domain\Model\Context;
+use RozbehSharahi\Graphql3\Domain\Model\Page;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Node\PageNodePostFetchFilterExtenderInterface;
+use RozbehSharahi\Graphql3\Security\AccessChecker;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
@@ -18,6 +20,7 @@ class PageResolver
      */
     public function __construct(
         protected ConnectionPool $connectionPool,
+        protected AccessChecker $accessChecker,
         protected iterable $extenders,
     ) {
         $this->context = new Context();
@@ -43,7 +46,7 @@ class PageResolver
         };
     }
 
-    protected function resolve(array $arguments): ?array
+    public function resolve(array $arguments): ?array
     {
         $identifierName = 'uid';
 
@@ -90,6 +93,8 @@ class PageResolver
         if (!$page) {
             throw GraphqlException::createClientSafe('Could not fetch page based on identifier: '.$identifier);
         }
+
+        $this->accessChecker->assert(['VIEW'], new Page($page));
 
         return $page;
     }

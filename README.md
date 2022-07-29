@@ -352,6 +352,54 @@ $nodes = $nodes->add(GraphqlNode::create('aNewNode'));
 The implementation of `GraphqlArgument` and `GraphqlArgumentCollection`, is pretty much the same. Checkout via
 auto-complete, which options you have.
 
+### Access control
+
+The access control of `graphql3` is implemented on top of `symfony/security-core` package.
+
+Under the hood, `PageNode` is using an in-house `PageResolver`, which is responsible to resolve a page based on the
+uid/slug given. However, the page-resolver does a bit more than that. For instance providing access control, which can
+be controlled on project level via `Voters`.
+
+Whenever a page is resolved, it is passed to `AccessDecisionManager` of the symfony package `symfony/security-core`.
+This is also the case inside of `PageListNode`, where every loaded page is checked for access.
+
+In order to modify/add access control to your project, you can simply create a class which
+implements `\RozbehSharahi\Graphql3\Security\Voter\VoterInterface`. When implementing the interface, your voter will be
+automatically added to the stack of voters, no matter where you place it.
+
+> Make sure not to implement the Graphql3 variant of VoterInterface, instead of the Symfony VoterInterface.
+
+```php
+<?php
+
+namespace RozbehSharahi\Graphql3\Security\Voter;
+
+use RozbehSharahi\Graphql3\Domain\Model\Page;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+
+class PageVoter implements VoterInterface
+{
+    public function vote(TokenInterface $token, mixed $subject, array $attributes): int
+    {
+        if (!$subject instanceof Page) {
+            return self::ACCESS_ABSTAIN;
+        }
+
+        // do your access check here
+        $allowed = true;
+        
+        return $allowed ? self::ACCESS_GRANTED : self::ACCESS_DENIED;
+    }
+}
+```
+
+The access-decision-manager is configured to use the `UnanimousStrategy`. This means all voters must grant or abstain
+access. If all voters abstain, access is denied. (not sure if this is smart, might change soon)
+Checkout `symfony/security` documentation for further understanding.
+
+Modifying the existing `\RozbehSharahi\Graphql3\Security\Voter\PageVoter` can be done via symfony's dependency injection
+container in any extension's `Configuration/Services.yaml`.
+
 ## Contribution & known issues
 
 [Continue here](contributing.md)

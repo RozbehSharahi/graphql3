@@ -3,8 +3,10 @@
 namespace RozbehSharahi\Graphql3\Resolver;
 
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
+use RozbehSharahi\Graphql3\Domain\Model\Page;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Operator\ApplyFilterArrayToQueryOperator;
+use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Trait\ExecuteQueryTrait;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -15,7 +17,8 @@ class PageListResolver
 
     public function __construct(
         protected ConnectionPool $connectionPool,
-        protected ApplyFilterArrayToQueryOperator $applyFilterArrayToQueryOperator
+        protected ApplyFilterArrayToQueryOperator $applyFilterArrayToQueryOperator,
+        protected AccessChecker $accessChecker,
     ) {
     }
 
@@ -23,11 +26,17 @@ class PageListResolver
     {
         $query = $this->createQuery($request);
 
-        return $this
+        $pages = $this
             ->applyFilters($query, $request)
             ->applyPagination($query, $request)
             ->applySorting($query, $request)
             ->fetchAll($query);
+
+        foreach ($pages as $page) {
+            $this->accessChecker->assert(['VIEW'], new Page($page));
+        }
+
+        return $pages;
     }
 
     public function resolveCount(ListRequest $request): int
