@@ -6,6 +6,9 @@ namespace RozbehSharahi\Graphql3\Type;
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use RozbehSharahi\Graphql3\Domain\Model\FormattedTimestamp;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
@@ -30,6 +33,8 @@ class PageType extends ObjectType
                 ->add(GraphqlNode::create('uid')->withType(Type::int())->withResolver(fn (array $page) => $page['uid']))
                 ->add(GraphqlNode::create('title')->withResolver(fn (array $page) => $page['title']))
                 ->add(GraphqlNode::create('slug')->withResolver(fn (array $page) => $page['slug']))
+                ->add($this->createDateTimeNode('updatedAt', 'tstamp'))
+                ->add($this->createDateTimeNode('createdAt', 'crdate'))
                 ->add(
                     GraphqlNode::create('parent')->withType($this)->withResolver(
                         fn (array $page) => $this->recordResolver->resolve('pages', $page['pid'])
@@ -48,5 +53,17 @@ class PageType extends ObjectType
 
             return $nodes->toArray();
         };
+    }
+
+    protected function createDateTimeNode(string $name, string $property): GraphqlNode
+    {
+        return GraphqlNode::create($name)
+            ->withArguments(
+                GraphqlArgumentCollection::create([GraphqlArgument::create('format')->withDefaultValue('Y-m-d h:i')])
+            )
+            ->withResolver(
+                fn (array $page, array $args) => new FormattedTimestamp($page[$property], $args['format'])
+            )
+        ;
     }
 }

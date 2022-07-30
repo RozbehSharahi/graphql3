@@ -45,6 +45,7 @@ class PageNodeTest extends TestCase
         $response = $scope->doGraphqlRequest('{
             page (uid: 2) {
               title
+              createdAt(format: "Y")
               parent {
                 title
               }
@@ -52,6 +53,7 @@ class PageNodeTest extends TestCase
         }');
 
         self::assertSame('Second level page', $response['data']['page']['title']);
+        self::assertSame('1970', $response['data']['page']['createdAt']);
         self::assertSame('Root page', $response['data']['page']['parent']['title']);
     }
 
