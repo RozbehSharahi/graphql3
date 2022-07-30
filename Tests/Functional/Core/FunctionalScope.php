@@ -8,6 +8,7 @@ use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RozbehSharahi\Graphql3\Middleware\GraphqlRequestMiddleware;
 use RozbehSharahi\Graphql3\Node\PageListNode;
 use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
@@ -26,7 +27,7 @@ use TYPO3\CMS\Frontend\Http\Application;
  */
 class FunctionalScope
 {
-    public function __construct(protected ContainerInterface $container)
+    public function __construct(protected ContainerInterface $container, protected ?array $loggedInUser)
     {
     }
 
@@ -98,6 +99,12 @@ class FunctionalScope
 
     public function doServerRequest(ServerRequestInterface $request): ResponseInterface
     {
+        $user = $this->loggedInUser ?? [];
+
+        $request = $request->withQueryParams([
+            GraphqlRequestMiddleware::PARAMETER_LOGGED_IN_TEST_USER => $user['uid'] ?? null,
+        ]);
+
         return $this->getApplication()->handle($request);
     }
 
@@ -111,11 +118,15 @@ class FunctionalScope
         }
 
         $request = new ServerRequest('/test-app/graphql', 'POST', $bodyStream);
-        $response = $this->getApplication()->handle($request);
+        $response = $this->doServerRequest($request);
+
+        if (404 === $response->getStatusCode()) {
+            throw new \RuntimeException('Graphql request returned 404 page.');
+        }
 
         try {
             return json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (Exception) {
+        } catch (Exception $e) {
             throw new \RuntimeException('Test failed since doGraphqlRequest return invalid graphql response');
         }
     }

@@ -8,10 +8,12 @@ class ListRequest
     public const DEFAULT_PAGE_SIZE = 10;
     public const DEFAULT_ORDER_BY = [['field' => 'uid', 'direction' => 'ASC']];
     public const DEFAULT_FILTERS = [];
+    public const DEFAULT_PUBLIC_REQUEST = true;
     public const PARAMETER_PAGE = 'page';
     public const PARAMETER_PAGE_SIZE = 'pageSize';
     public const PARAMETER_ORDER_BY = 'orderBy';
     public const PARAMETER_FILTERS = 'filters';
+    public const PARAMETER_PUBLIC_REQUEST = 'publicRequest';
 
     public function __construct(protected array $arguments)
     {
@@ -40,5 +42,10 @@ class ListRequest
     public function getFilters(): array
     {
         return $this->arguments[self::PARAMETER_FILTERS] ?? self::DEFAULT_FILTERS;
+    }
+
+    public function isPublicRequest(): bool
+    {
+        return $this->arguments[self::PARAMETER_PUBLIC_REQUEST] ?? self::DEFAULT_PUBLIC_REQUEST;
     }
 }

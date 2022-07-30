@@ -80,6 +80,8 @@ class FunctionScopeBuilder
 
     protected string $context = self::DEFAULT_CONTEXT;
 
+    protected ?array $loggedInUser = null;
+
     protected ContainerInterface $container;
 
     protected Application $application;
@@ -188,6 +190,19 @@ class FunctionScopeBuilder
         return $clone;
     }
 
+    public function getLoggedInUser(): ?array
+    {
+        return $this->loggedInUser;
+    }
+
+    public function withLoggedInUser(?array $loggedInUser): self
+    {
+        $clone = clone $this;
+        $clone->loggedInUser = $loggedInUser;
+
+        return $clone;
+    }
+
     public function getContext(): string
     {
         return $this->context;
@@ -272,7 +287,13 @@ class FunctionScopeBuilder
 
         $this->clearSiteFinderCache();
 
-        return new FunctionalScope($container);
+        $scope = new FunctionalScope($container, $this->loggedInUser);
+
+        if ($this->loggedInUser) {
+            $scope->createRecord('fe_users', $this->loggedInUser);
+        }
+
+        return $scope;
     }
 
     protected function createHomepage(): self

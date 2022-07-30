@@ -13,6 +13,10 @@ class PageVoter implements VoterInterface
             return self::ACCESS_ABSTAIN;
         }
 
+        if ($subject->isShowAtAnyLogin()) {
+            return $token->getUser() ? self::ACCESS_GRANTED : self::ACCESS_DENIED;
+        }
+
         // Currently, pages are always allowed
         return self::ACCESS_GRANTED;
     }

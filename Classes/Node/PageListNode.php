@@ -27,6 +27,7 @@ class PageListNode implements NodeInterface
                 GraphqlArgument::create('pageSize')->withType(Type::nonNull(Type::int()))->withDefaultValue(10),
                 GraphqlArgument::create('orderBy')->withType(Type::listOf($this->orderFieldType)),
                 GraphqlArgument::create('filters')->withType(Type::listOf($this->filterInputType)),
+                GraphqlArgument::create('publicRequest')->withType(Type::boolean())->withDefaultValue(true),
             ])
             ->withType($this->pageListType)
             ->withResolver(fn ($_, $args) => new ListRequest($args));

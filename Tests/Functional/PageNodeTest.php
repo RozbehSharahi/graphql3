@@ -194,4 +194,27 @@ class PageNodeTest extends TestCase
         self::assertSame('Another page', $response['data']['pageBySlug']['title']);
         self::assertSame('Root page 2', $response['data']['pageBySlug']['parent']['title']);
     }
+
+    public function skippedTestPublicRequestCausesNullInsteadOfAccessDeniedOnRestrictedPage(): void
+    {
+        // $this->markTestSkipped('Not yet implemented but important');
+
+        $scope = $this
+            ->getFunctionalScopeBuilder()
+            ->withAutoCreateGraphqlSchema(false)
+            ->withAutoCreateHomepage(false)
+            ->withSiteRootPageId(1)
+            ->build();
+
+        $scope->createRecord('pages', ['uid' => 1, 'title' => 'Restricted page', 'fe_group' => '-2']);
+
+        $response = $scope->doGraphqlRequest('{
+            page (uid: 1) {
+              title
+              parent { title }
+            }
+        }');
+
+        self::assertNull($response['data']['page']);
+    }
 }

@@ -76,7 +76,7 @@ class PageResolver
         }
 
         if (empty($pages)) {
-            throw GraphqlException::createClientSafe('Could not fetch page based on identifier: '.$identifier);
+            return null;
         }
 
         foreach ($this->extenders as $extender) {

@@ -28,6 +28,7 @@ class PageListResolver
 
         $pages = $this
             ->applyFilters($query, $request)
+            ->applyPublicRequestFilters($query, $request)
             ->applyPagination($query, $request)
             ->applySorting($query, $request)
             ->fetchAll($query);
@@ -45,6 +46,7 @@ class PageListResolver
 
         return $this
             ->applyFilters($query, $request)
+            ->applyPublicRequestFilters($query, $request)
             ->fetchRowCount($query);
     }
 
@@ -55,6 +57,17 @@ class PageListResolver
             ->getQueryBuilderForTable('pages')
             ->select('*')
             ->from('pages');
+    }
+
+    private function applyPublicRequestFilters(QueryBuilder $query, ListRequest $request): self
+    {
+        if (!$request->isPublicRequest()) {
+            return $this;
+        }
+
+        $query->andWhere('(fe_group="" OR fe_group = 0 OR fe_group IS NULL)');
+
+        return $this;
     }
 
     private function applyFilters(QueryBuilder $query, ListRequest $request): self
