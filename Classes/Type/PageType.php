@@ -12,14 +12,19 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
+use RozbehSharahi\Graphql3\Site\CurrentSite;
 
 class PageType extends ObjectType
 {
     /**
      * @param iterable<PageTypeExtenderInterface> $extenders
      */
-    public function __construct(protected RecordResolver $recordResolver, protected iterable $extenders)
-    {
+    public function __construct(
+        protected RecordResolver $recordResolver,
+        protected LanguageType $languageType,
+        protected CurrentSite $currentSite,
+        protected iterable $extenders
+    ) {
         parent::__construct([
             'name' => 'Page',
             'fields' => $this->getFieldClosure(),
@@ -42,6 +47,7 @@ class PageType extends ObjectType
                 ->add($this->createIntNode('sorting', 'sorting'))
                 ->add($this->createPageNode('parent', 'pid'))
                 ->add($this->createPageChildrenNode('children', 'uid'))
+                ->add($this->createLanguageNode())
             ;
 
             foreach ($this->extenders as $extender) {
@@ -99,6 +105,13 @@ class PageType extends ObjectType
     {
         return GraphqlNode::create($name)->withType(Type::listOf($this))->withResolver(
             fn (array $page) => $this->recordResolver->resolveManyByPid('pages', $page[$parentPageProperty])
+        );
+    }
+
+    private function createLanguageNode(): GraphqlNode
+    {
+        return GraphqlNode::create('language')->withType($this->languageType)->withResolver(
+            fn (array $page) => $this->currentSite->get()->getLanguageById($page['sys_language_uid'] ?? 0)
         );
     }
 }

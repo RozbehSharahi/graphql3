@@ -9,7 +9,9 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Site\CurrentSite;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
+use RozbehSharahi\Graphql3\Type\LanguageType;
 use RozbehSharahi\Graphql3\Type\PageType;
 use RozbehSharahi\Graphql3\Type\PageTypeExtenderInterface;
 
@@ -41,6 +43,10 @@ class PageTypeTest extends TestCase
             page {
                 uid
                 title
+                language {
+                  id
+                  title
+                }
                 parent {
                   title
                 }
@@ -53,6 +59,8 @@ class PageTypeTest extends TestCase
         self::assertSame(12345, $response['data']['page']['uid']);
         self::assertSame('My title', $response['data']['page']['title']);
         self::assertSame('root page', $response['data']['page']['parent']['title']);
+        self::assertSame(0, $response['data']['page']['language']['id']);
+        self::assertSame('English', $response['data']['page']['language']['title']);
         self::assertSame('Page', $response['data']['page']['__typename']);
     }
 
@@ -68,17 +76,22 @@ class PageTypeTest extends TestCase
                     'name' => 'Query',
                     'fields' => [
                         'page' => [
-                            'type' => new PageType($scope->getRecordResolver(), [
-                                new class() implements PageTypeExtenderInterface {
-                                    public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
-                                    {
-                                        return $nodes->add(
-                                            GraphqlNode::create('titleHash')
-                                                ->withResolver(fn ($page) => md5($page['title']))
-                                        );
-                                    }
-                                },
-                            ]),
+                            'type' => new PageType(
+                                $scope->getRecordResolver(),
+                                $scope->get(LanguageType::class),
+                                $scope->get(CurrentSite::class),
+                                [
+                                    new class() implements PageTypeExtenderInterface {
+                                        public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
+                                        {
+                                            return $nodes->add(
+                                                GraphqlNode::create('titleHash')
+                                                    ->withResolver(fn ($page) => md5($page['title']))
+                                            );
+                                        }
+                                    },
+                                ]
+                            ),
                             'resolve' => fn () => ['uid' => 12345, 'pid' => 0, 'title' => 'My title'],
                         ],
                     ],

@@ -14,6 +14,8 @@ use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Security\Voter\VoterInterface;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
+use RozbehSharahi\Graphql3\Site\CurrentSite;
+use RozbehSharahi\Graphql3\Type\LanguageType;
 use RozbehSharahi\Graphql3\Type\PageType;
 use RozbehSharahi\Graphql3\Type\PageTypeExtenderInterface;
 use RozbehSharahi\Graphql3\Type\QueryType;
@@ -56,5 +58,7 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         $containerBuilder->registerForAutoconfiguration(AccessChecker::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(LanguageListNode::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(LanguageNode::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(LanguageType::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(CurrentSite::class)->setPublic(true);
     }
 };
