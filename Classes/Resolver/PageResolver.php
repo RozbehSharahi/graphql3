@@ -3,6 +3,7 @@
 namespace RozbehSharahi\Graphql3\Resolver;
 
 use RozbehSharahi\Graphql3\Domain\Model\Context;
+use RozbehSharahi\Graphql3\Domain\Model\ItemRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Page;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
@@ -42,11 +43,11 @@ class PageResolver
     public function getCallable(): callable
     {
         return function ($_, $arguments) {
-            return $this->resolve($arguments);
+            return $this->resolve(new ItemRequest($arguments));
         };
     }
 
-    public function resolve(array $arguments): ?array
+    public function resolve(ItemRequest $request): ?array
     {
         $identifierName = 'uid';
 
@@ -54,7 +55,7 @@ class PageResolver
             $identifierName = 'slug';
         }
 
-        $identifier = $arguments[$identifierName] ?? null;
+        $identifier = $request->get($identifierName);
 
         if (!$identifier) {
             throw new GraphqlException('No identifier provided in order to resolve a page');
@@ -62,10 +63,11 @@ class PageResolver
 
         $query = $this->createQuery();
         $query->where($query->expr()->eq($identifierName, $query->createNamedParameter($identifier)));
+        $this->applyPublicRequestFilters($query, $request);
 
         foreach ($this->extenders as $extender) {
             if ($extender->supportsContext($this->context)) {
-                $query = $extender->extendQuery($query, $arguments);
+                $query = $extender->extendQuery($query, $request->getArguments());
             }
         }
 
@@ -84,7 +86,7 @@ class PageResolver
                 $extender instanceof PageNodePostFetchFilterExtenderInterface
                 && $extender->supportsContext($this->context)
             ) {
-                $pages = $extender->postFetchFilter($pages, $arguments);
+                $pages = $extender->postFetchFilter($pages, $request->getArguments());
             }
         }
 
@@ -106,5 +108,16 @@ class PageResolver
             ->getQueryBuilderForTable('page')
             ->select('*')
             ->from('pages');
+    }
+
+    protected function applyPublicRequestFilters(QueryBuilder $query, ItemRequest $request): self
+    {
+        if (!$request->isPublicRequest()) {
+            return $this;
+        }
+
+        $query->andWhere('(fe_group="" OR fe_group = 0 OR fe_group IS NULL)');
+
+        return $this;
     }
 }

@@ -69,6 +69,7 @@ class PageNode implements NodeInterface
 
         $arguments = GraphqlArgumentCollection::create([
             GraphqlArgument::create($identifierName)->withType(Type::nonNull($identifierType)),
+            GraphqlArgument::create('publicRequest')->withType(Type::boolean())->withDefaultValue(true),
         ]);
 
         foreach ($this->extenders as $extender) {

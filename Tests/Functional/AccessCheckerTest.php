@@ -21,7 +21,7 @@ class AccessCheckerTest extends TestCase
 
         $this->assertThrowsException(function () use ($scope) {
             $scope->doGraphqlRequest('{
-                page(uid: 1) {
+                page(uid: 1, publicRequest: false) {
                     title
                 }
             }');
@@ -33,7 +33,7 @@ class AccessCheckerTest extends TestCase
         );
 
         $response = $scope->doGraphqlRequest('{
-            page(uid: 1) {
+            page(uid: 1, publicRequest: false) {
                 title
             }
         }');
