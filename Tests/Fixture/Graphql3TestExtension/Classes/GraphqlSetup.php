@@ -1,5 +1,9 @@
 <?php
 
+/** @noinspection PhpIllegalPsrClassPathInspection */
+
+declare(strict_types=1);
+
 namespace RozbehSharahi\Graphql3TestExtension;
 
 use GraphQL\Type\Schema;

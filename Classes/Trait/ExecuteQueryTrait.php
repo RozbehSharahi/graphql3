@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RozbehSharahi\Graphql3\Trait;
 
 use Doctrine\DBAL\Exception;

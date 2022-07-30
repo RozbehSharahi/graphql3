@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RozbehSharahi\Graphql3\Operator;
 
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
@@ -58,7 +60,7 @@ class ApplyFilterArrayToQueryOperator
             $expressions[] = $this->typeToExpressionCreatorMap[$type]($type, $query, $childFilter);
         }
 
-        return $query->expr()->{$filter['type']}(...$expressions);
+        return (string) $query->expr()->{$filter['type']}(...$expressions);
     }
 
     private function createListExpression(string $type, QueryBuilder $query, array $filter): string

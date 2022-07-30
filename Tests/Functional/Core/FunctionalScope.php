@@ -1,6 +1,6 @@
 <?php
 
-/** @noinspection PhpUnhandledExceptionInspection */
+declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 
@@ -126,7 +126,7 @@ class FunctionalScope
         }
 
         try {
-            return json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+            return json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         } catch (Exception $e) {
             throw new \RuntimeException('Test failed since doGraphqlRequest return invalid graphql response');
         }
