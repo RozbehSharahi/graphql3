@@ -61,6 +61,9 @@ class GraphqlArgument
         return $clone;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         $array = [

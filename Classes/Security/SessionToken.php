@@ -26,6 +26,9 @@ class SessionToken implements TokenInterface
         return $this->frontendUser->getUserIdentifier() ?: 'anonymous';
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getRoleNames(): array
     {
         return $this->frontendUser->isLoggedIn() ? $this->frontendUser->getGroupNames() : [];
@@ -52,11 +55,17 @@ class SessionToken implements TokenInterface
         throw new GraphqlException('Not implemented');
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getAttributes(): array
     {
         throw new GraphqlException('Not implemented');
     }
 
+    /**
+     * @param array<string, mixed> $attributes
+     */
     public function setAttributes(array $attributes): self
     {
         throw new GraphqlException('Not implemented');
@@ -77,11 +86,17 @@ class SessionToken implements TokenInterface
         throw new GraphqlException('Not implemented');
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function __serialize(): array
     {
         throw new GraphqlException('Not implemented');
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __unserialize(array $data): void
     {
         throw new GraphqlException('Not implemented');

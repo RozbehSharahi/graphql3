@@ -9,16 +9,22 @@ class ItemRequest
     public const DEFAULT_PUBLIC_REQUEST = true;
     public const PARAMETER_PUBLIC_REQUEST = 'publicRequest';
 
+    /**
+     * @param array<string, mixed> $arguments
+     */
     public function __construct(protected array $arguments)
     {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getArguments(): array
     {
         return $this->arguments;
     }
 
-    public function get(string $argumentName, $default = null)
+    public function get(string $argumentName, mixed $default = null): mixed
     {
         return $this->arguments[$argumentName] ?? $default;
     }

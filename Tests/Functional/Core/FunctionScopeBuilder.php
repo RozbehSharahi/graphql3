@@ -64,6 +64,9 @@ class FunctionScopeBuilder
 
     protected string $instanceName = self::DEFAULT_INSTANCE_NAME;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $configuration = self::DEFAULT_LOCAL_CONFIGURATION;
 
     protected bool $autoCreateSchema = self::DEFAULT_AUTO_CREATE_SCHEMA;
@@ -80,6 +83,9 @@ class FunctionScopeBuilder
 
     protected string $context = self::DEFAULT_CONTEXT;
 
+    /**
+     * @var array<string,int|boolean|string|null>|null
+     */
     protected ?array $loggedInUser = null;
 
     protected ContainerInterface $container;
@@ -112,11 +118,17 @@ class FunctionScopeBuilder
         return $clone;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfiguration(): array
     {
         return $this->configuration;
     }
 
+    /**
+     * @param array<string, mixed> $configuration
+     */
     public function withAdditionalConfiguration(array $configuration): self
     {
         $clone = clone $this;
@@ -190,11 +202,17 @@ class FunctionScopeBuilder
         return $clone;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getLoggedInUser(): ?array
     {
         return $this->loggedInUser;
     }
 
+    /**
+     * @param array<string, string|int|boolean|null>|null $loggedInUser
+     */
     public function withLoggedInUser(?array $loggedInUser): self
     {
         $clone = clone $this;
@@ -392,6 +410,9 @@ class FunctionScopeBuilder
         return $this->getConnection()->createSchemaManager();
     }
 
+    /**
+     * @param array<string, mixed> $configuration
+     */
     protected function getPhpFile(array $configuration): string
     {
         return '<?php return '.var_export($configuration, true).';';

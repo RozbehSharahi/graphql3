@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Site;
 
-use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 
 class CurrentSite
 {
-    protected Site $site;
+    protected SiteInterface $site;
 
     public function __construct()
     {
     }
 
-    public function set(Site $site): self
+    public function set(SiteInterface $site): self
     {
         $this->site = $site;
 
         return $this;
     }
 
-    public function get(): Site
+    public function get(): SiteInterface
     {
         return $this->site;
     }

@@ -25,6 +25,11 @@ class ErrorResponseBuilder
         return $this->errors;
     }
 
+    /**
+     * @param GraphqlError[]|GraphqlErrorCollection $errors
+     *
+     * @return $this
+     */
     public function withErrors(array|GraphqlErrorCollection $errors): self
     {
         $clone = clone $this;

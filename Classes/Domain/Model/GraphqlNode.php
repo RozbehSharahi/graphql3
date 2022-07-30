@@ -55,8 +55,6 @@ class GraphqlNode
 
     /**
      * @param GraphqlArgumentCollection|GraphqlArgument[] $arguments
-     *
-     * @return $this
      */
     public function withArguments(GraphqlArgumentCollection|array $arguments): self
     {
@@ -83,6 +81,9 @@ class GraphqlNode
         return $clone;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

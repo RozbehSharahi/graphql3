@@ -22,11 +22,11 @@ use TYPO3\CMS\Core\Http\StreamFactory;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Frontend\Http\Application;
 
-/**
- * @template T
- */
 class FunctionalScope
 {
+    /**
+     * @param array<string|mixed>|null $loggedInUser
+     */
     public function __construct(protected ContainerInterface $container, protected ?array $loggedInUser)
     {
     }
@@ -37,10 +37,13 @@ class FunctionalScope
     }
 
     /**
-     * @param T $class
+     * @template T of object
+     *
+     * @param class-string<T> $class
      *
      * @return T
      * @noinspection PhpDocMissingThrowsInspection
+     * @noinspection PhpUnhandledExceptionInspection
      */
     public function get(string $class)
     {
@@ -49,47 +52,47 @@ class FunctionalScope
 
     public function getApplication(): Application
     {
-        return $this->container->get(Application::class);
+        return $this->get(Application::class);
     }
 
     public function getConnectionPool(): ConnectionPool
     {
-        return $this->getContainer()->get(ConnectionPool::class);
+        return $this->get(ConnectionPool::class);
     }
 
     public function getSchemaRegistry(): SchemaRegistry
     {
-        return $this->getContainer()->get(SchemaRegistry::class);
+        return $this->get(SchemaRegistry::class);
     }
 
     public function getQueryType(): QueryType
     {
-        return $this->getContainer()->get(QueryType::class);
+        return $this->get(QueryType::class);
     }
 
     public function getPageNode(): PageNode
     {
-        return $this->getContainer()->get(PageNode::class);
+        return $this->get(PageNode::class);
     }
 
     public function getPageType(): PageType
     {
-        return $this->getContainer()->get(PageType::class);
+        return $this->get(PageType::class);
     }
 
     public function getPageListNode(): PageListNode
     {
-        return $this->getContainer()->get(PageListNode::class);
+        return $this->get(PageListNode::class);
     }
 
     public function getRecordResolver(): RecordResolver
     {
-        return $this->getContainer()->get(RecordResolver::class);
+        return $this->get(RecordResolver::class);
     }
 
     public function getSiteFinder(): SiteFinder
     {
-        return $this->getContainer()->get(SiteFinder::class);
+        return $this->get(SiteFinder::class);
     }
 
     public function getAccessChecker(): AccessChecker
@@ -108,6 +111,9 @@ class FunctionalScope
         return $this->getApplication()->handle($request);
     }
 
+    /**
+     * @return array<string, mixed>>
+     */
     public function doGraphqlRequest(string $graphql): array
     {
         try {
@@ -127,11 +133,14 @@ class FunctionalScope
 
         try {
             return json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (Exception $e) {
+        } catch (Exception) {
             throw new \RuntimeException('Test failed since doGraphqlRequest return invalid graphql response');
         }
     }
 
+    /**
+     * @param array<string, int|string|boolean> $data
+     */
     public function createRecord(string $table, array $data): self
     {
         $query = $this->getConnectionPool()->getQueryBuilderForTable($table);

@@ -17,10 +17,16 @@ class ListRequest
     public const PARAMETER_FILTERS = 'filters';
     public const PARAMETER_PUBLIC_REQUEST = 'publicRequest';
 
+    /**
+     * @param array<string, mixed> $arguments
+     */
     public function __construct(protected array $arguments)
     {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getArguments(): array
     {
         return $this->arguments;
@@ -36,11 +42,17 @@ class ListRequest
         return $this->arguments[self::PARAMETER_PAGE_SIZE] ?? self::DEFAULT_PAGE_SIZE;
     }
 
+    /**
+     * @return array<int, array<string, string>>
+     */
     public function getOrderBy(): array
     {
         return $this->arguments[self::PARAMETER_ORDER_BY] ?? self::DEFAULT_ORDER_BY;
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function getFilters(): array
     {
         return $this->arguments[self::PARAMETER_FILTERS] ?? self::DEFAULT_FILTERS;

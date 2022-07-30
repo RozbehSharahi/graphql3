@@ -16,10 +16,16 @@ namespace RozbehSharahi\Graphql3\Domain\Model;
  */
 class Page
 {
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(protected array $data)
     {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getData(): array
     {
         return $this->data;
@@ -30,6 +36,9 @@ class Page
         return in_array('-2', $this->getFrontendGroups(), false);
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getFrontendGroups(): array
     {
         $groupList = $this->data['fe_group'] ?? null;

@@ -13,6 +13,9 @@ class GraphqlNodeCollection
      */
     protected array $items = [];
 
+    /**
+     * @param array<int, GraphqlNode> $items
+     */
     public static function create(array $items = []): self
     {
         return new self($items);
@@ -39,18 +42,19 @@ class GraphqlNodeCollection
             unset($items[$nodeName]);
         }
 
-        return $this->withItems($items);
+        return $this->withItems(array_values($items));
     }
 
+    /**
+     * @return array<string, GraphqlNode>
+     */
     public function getItems(): array
     {
         return $this->items;
     }
 
     /**
-     * @param GraphqlNode[] $items
-     *
-     * @return $this
+     * @param array<int, GraphqlNode> $items
      */
     public function withItems(array $items): self
     {
@@ -65,13 +69,16 @@ class GraphqlNodeCollection
         return count($this->items);
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function toArray(): array
     {
         return array_map(static fn ($item) => $item->toArray(), $this->items);
     }
 
     /**
-     * @param GraphqlNode[] $items
+     * @param array<int, GraphqlNode> $items
      *
      * @return array<string, GraphqlNode>
      */
@@ -87,6 +94,9 @@ class GraphqlNodeCollection
         return $byName;
     }
 
+    /**
+     * @param GraphqlNode[] $items
+     */
     protected function assertAllGraphqlNodes(array $items): self
     {
         foreach ($items as $item) {

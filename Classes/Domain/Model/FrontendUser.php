@@ -32,6 +32,9 @@ class FrontendUser implements UserInterface
         }
     }
 
+    /**
+     * @param array<int, string> $groupNames
+     */
     public function __construct(
         protected ?int $id,
         protected string $userName,
@@ -60,6 +63,9 @@ class FrontendUser implements UserInterface
         return $this->groupNames;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function getGroupNames(): array
     {
         return $this->groupNames;

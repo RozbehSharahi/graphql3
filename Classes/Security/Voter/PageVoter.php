@@ -9,6 +9,9 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class PageVoter implements VoterInterface
 {
+    /**
+     * @param array<int, string> $attributes
+     */
     public function vote(TokenInterface $token, mixed $subject, array $attributes): int
     {
         if (!$subject instanceof Page) {

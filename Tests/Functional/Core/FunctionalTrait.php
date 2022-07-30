@@ -27,12 +27,12 @@ trait FunctionalTrait
     protected function decode(string $json): mixed
     {
         try {
-            $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+            return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         } catch (Exception) {
             $this->fail('wrong json given in test '.self::class);
-        }
 
-        return $data;
+            return null;
+        }
     }
 
     protected function createGraphqlRequest(string $graphqlBody, string $url = '/test-app/graphql'): ServerRequest

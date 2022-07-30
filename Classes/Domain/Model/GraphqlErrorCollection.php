@@ -13,6 +13,9 @@ class GraphqlErrorCollection
         return new self([new GraphqlError($message)]);
     }
 
+    /**
+     * @param GraphqlError[] $errors
+     */
     public static function createFromArray(array $errors): self
     {
         return new self(array_map(static fn ($v) => new GraphqlError($v['message']), $errors));
@@ -38,6 +41,9 @@ class GraphqlErrorCollection
         return $this->errors;
     }
 
+    /**
+     * @return array<int, array<string, string>>
+     */
     public function toArray(): array
     {
         return array_map(static fn ($error) => $error->toArray(), $this->errors);

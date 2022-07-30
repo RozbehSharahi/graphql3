@@ -9,6 +9,9 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class ApplyFilterArrayToQueryOperator
 {
+    /**
+     * @var array<string, callable>
+     */
     protected array $typeToExpressionCreatorMap;
 
     public function __construct()
@@ -27,6 +30,9 @@ class ApplyFilterArrayToQueryOperator
         ];
     }
 
+    /**
+     * @param array<int, array<string, mixed>> $filters
+     */
     public function operate(QueryBuilder $query, array $filters): self
     {
         foreach ($filters as $filter) {
@@ -40,6 +46,9 @@ class ApplyFilterArrayToQueryOperator
         return $this;
     }
 
+    /**
+     * @param array<string, mixed> $filter
+     */
     protected function createExpression(string $type, QueryBuilder $query, array $filter): string
     {
         $this->asserFieldAndValueIsSet($type, $filter);
@@ -47,6 +56,9 @@ class ApplyFilterArrayToQueryOperator
         return $query->expr()->{$type}($filter['field'], $query->createNamedParameter($filter['value']));
     }
 
+    /**
+     * @param array<string, mixed> $filter
+     */
     private function createNestedExpression(string $type, QueryBuilder $query, array $filter): string
     {
         $this->assertChildrenAreSet($type, $filter);
@@ -63,6 +75,9 @@ class ApplyFilterArrayToQueryOperator
         return (string) $query->expr()->{$filter['type']}(...$expressions);
     }
 
+    /**
+     * @param array<string, mixed> $filter
+     */
     private function createListExpression(string $type, QueryBuilder $query, array $filter): string
     {
         $this->assertValuesAreSet($type, $filter);
@@ -75,6 +90,9 @@ class ApplyFilterArrayToQueryOperator
         return $query->expr()->{$filter['type']}($filter['field'], $valueParameters);
     }
 
+    /**
+     * @param array<string, mixed> $filter
+     */
     protected function asserFieldAndValueIsSet(string $type, array $filter): self
     {
         if (empty($filter['field'])) {
@@ -88,6 +106,9 @@ class ApplyFilterArrayToQueryOperator
         return $this;
     }
 
+    /**
+     * @param array<string, mixed> $filter
+     */
     protected function assertChildrenAreSet(string $type, array $filter): self
     {
         if (empty($filter['children'])) {
@@ -97,6 +118,9 @@ class ApplyFilterArrayToQueryOperator
         return $this;
     }
 
+    /**
+     * @param array<string, mixed> $filter
+     */
     protected function assertValuesAreSet(string $type, array $filter): self
     {
         if (empty($filter['values'])) {

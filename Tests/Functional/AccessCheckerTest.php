@@ -55,6 +55,10 @@ class AccessCheckerTest extends TestCase
         return $this;
     }
 
+    /**
+     * @param array<string, mixed>      $rootPage
+     * @param array<string, mixed>|null $frontendUser
+     */
     protected function createScope(array $rootPage, ?array $frontendUser = null): FunctionalScope
     {
         $scope = $this->getFunctionalScopeBuilder()

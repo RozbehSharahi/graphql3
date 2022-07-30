@@ -12,6 +12,9 @@ class Executor
 {
     protected string $query;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $variables = [];
 
     protected Schema $schema;
@@ -29,11 +32,19 @@ class Executor
         return $clone;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getVariables(): array
     {
         return $this->variables;
     }
 
+    /**
+     * @param array<string, mixed> $variables
+     *
+     * @return $this
+     */
     public function withVariables(array $variables): self
     {
         $clone = clone $this;
@@ -55,6 +66,9 @@ class Executor
         return $clone;
     }
 
+    /**
+     * @return array<string,mixed>
+     */
     public function execute(): array
     {
         if (empty($this->query)) {

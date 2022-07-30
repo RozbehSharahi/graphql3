@@ -10,6 +10,9 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 trait ExecuteQueryTrait
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function fetch(QueryBuilder $query): array
     {
         try {
@@ -19,6 +22,9 @@ trait ExecuteQueryTrait
         }
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function fetchAll(QueryBuilder $query): array
     {
         try {

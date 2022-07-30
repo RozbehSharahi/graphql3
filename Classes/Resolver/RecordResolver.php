@@ -13,6 +13,9 @@ class RecordResolver
     {
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function resolve(string $table, ?int $uid): ?array
     {
         if (!$uid) {
@@ -34,6 +37,9 @@ class RecordResolver
         }
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function resolveManyByPid(string $table, int $parentPageId): array
     {
         $query = $this->connectionPool->getQueryBuilderForTable($table);

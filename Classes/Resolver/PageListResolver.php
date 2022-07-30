@@ -24,6 +24,9 @@ class PageListResolver
     ) {
     }
 
+    /**
+     * @return array<int, array<string, mixed>>
+     */
     public function resolveItems(ListRequest $request): array
     {
         $query = $this->createQuery($request);
@@ -106,6 +109,11 @@ class PageListResolver
         return $this;
     }
 
+    /**
+     * @param array<string, string> $orderItem
+     *
+     * @return $this
+     */
     private function assertOrderItemValid(array $orderItem): self
     {
         if (empty($orderItem['field'])) {

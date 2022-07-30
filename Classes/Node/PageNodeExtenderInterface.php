@@ -14,5 +14,8 @@ interface PageNodeExtenderInterface
 
     public function extendArguments(GraphqlArgumentCollection $arguments): GraphqlArgumentCollection;
 
+    /**
+     * @param array<string, mixed> $arguments
+     */
     public function extendQuery(QueryBuilder $query, array $arguments): QueryBuilder;
 }

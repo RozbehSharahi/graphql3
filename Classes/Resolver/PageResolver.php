@@ -49,6 +49,9 @@ class PageResolver
         };
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function resolve(ItemRequest $request): ?array
     {
         $identifierName = 'uid';

@@ -9,6 +9,9 @@ use RozbehSharahi\Graphql3\Exception\GraphqlException;
 
 class JsonEncoder
 {
+    /**
+     * @param array<int|string, mixed> $data
+     */
     public function encode(array $data): string
     {
         try {

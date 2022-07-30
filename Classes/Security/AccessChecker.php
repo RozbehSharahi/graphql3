@@ -21,11 +21,17 @@ class AccessChecker
         $this->decisionManager = new AccessDecisionManager($voters, new UnanimousStrategy());
     }
 
+    /**
+     * @param array<int, string> $attributes
+     */
     public function check(array $attributes, mixed $object = null): bool
     {
         return $this->decisionManager->decide(new SessionToken(), $attributes, $object, true);
     }
 
+    /**
+     * @param array<int, string> $attributes
+     */
     public function assert(array $attributes, mixed $object = null): self
     {
         if (!$this->check($attributes, $object)) {

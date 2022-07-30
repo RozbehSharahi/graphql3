@@ -15,6 +15,9 @@ class GraphqlError
         return $this->message;
     }
 
+    /**
+     * @return string[]
+     */
     public function toArray(): array
     {
         return [

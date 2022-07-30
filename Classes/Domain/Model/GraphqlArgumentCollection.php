@@ -13,6 +13,9 @@ class GraphqlArgumentCollection
      */
     protected array $items;
 
+    /**
+     * @param GraphqlArgument[] $items
+     */
     public static function create(array $items = []): self
     {
         return new self($items);
@@ -42,11 +45,17 @@ class GraphqlArgumentCollection
         return $clone;
     }
 
+    /**
+     * @return array<string, GraphqlArgument>
+     */
     public function getItems(): array
     {
         return $this->items;
     }
 
+    /**
+     * @param GraphqlArgument[] $items
+     */
     public function withItems(array $items): self
     {
         $clone = clone $this;
@@ -60,6 +69,9 @@ class GraphqlArgumentCollection
         return count($this->items);
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function toArray(): array
     {
         return array_map(static fn ($item) => $item->toArray(), $this->items);
@@ -82,6 +94,9 @@ class GraphqlArgumentCollection
         return $byName;
     }
 
+    /**
+     * @param GraphqlArgument[] $items
+     */
     protected function assertAllGraphqlArguments(array $items): self
     {
         foreach ($items as $item) {
