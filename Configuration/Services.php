@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3;
 
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
+use RozbehSharahi\Graphql3\Node\LanguageListNode;
+use RozbehSharahi\Graphql3\Node\LanguageNode;
 use RozbehSharahi\Graphql3\Node\PageListNode;
 use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
@@ -52,5 +54,7 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         $containerBuilder->registerForAutoconfiguration(SiteFinder::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(PageListNode::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(AccessChecker::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(LanguageListNode::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(LanguageNode::class)->setPublic(true);
     }
 };

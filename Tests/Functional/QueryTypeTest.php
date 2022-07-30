@@ -38,16 +38,21 @@ class QueryTypeTest extends TestCase
         $scope = $this->getFunctionalScopeBuilder()->withAutoCreateGraphqlSchema(false)->build();
 
         $scope->getSchemaRegistry()->register(new Schema([
-            'query' => new QueryType($scope->getPageNode(), $scope->getPageListNode(), [
-                new class() implements QueryTypeExtenderInterface {
-                    public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
-                    {
-                        return $nodes
-                            ->add(GraphqlNode::create('extraNode')->withResolver(fn () => 'Hello World'))
-                        ;
-                    }
-                },
-            ]),
+            'query' => new QueryType(
+                $scope->getPageNode(),
+                $scope->getPageListNode(),
+                $scope->getLanguageNode(),
+                $scope->getLanguageListNode(),
+                [
+                    new class() implements QueryTypeExtenderInterface {
+                        public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
+                        {
+                            return $nodes
+                                ->add(GraphqlNode::create('extraNode')->withResolver(fn () => 'Hello World'))
+                            ;
+                        }
+                    },
+                ]),
         ]));
 
         $response = $scope->doGraphqlRequest('{

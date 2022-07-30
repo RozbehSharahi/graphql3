@@ -18,7 +18,7 @@ class AccessChecker
      */
     public function __construct(protected iterable $voters)
     {
-        $this->decisionManager = new AccessDecisionManager($voters, new UnanimousStrategy());
+        $this->decisionManager = new AccessDecisionManager($voters, new UnanimousStrategy(true));
     }
 
     /**

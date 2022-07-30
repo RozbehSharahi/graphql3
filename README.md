@@ -395,8 +395,7 @@ class PageVoter implements VoterInterface
 ```
 
 The access-decision-manager is configured to use the `UnanimousStrategy`. This means all voters must grant or abstain
-access. If all voters abstain, access is denied. (not sure if this is smart, might change soon)
-Checkout `symfony/security` documentation for further understanding.
+access. If all voters abstain, access is given. Checkout `symfony/security` documentation for further understanding.
 
 Modifying the existing `\RozbehSharahi\Graphql3\Security\Voter\PageVoter` can be done via symfony's dependency injection
 container in any extension's `Configuration/Services.yaml`.

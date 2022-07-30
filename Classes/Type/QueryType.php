@@ -6,6 +6,8 @@ namespace RozbehSharahi\Graphql3\Type;
 
 use GraphQL\Type\Definition\ObjectType;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Node\LanguageListNode;
+use RozbehSharahi\Graphql3\Node\LanguageNode;
 use RozbehSharahi\Graphql3\Node\PageListNode;
 use RozbehSharahi\Graphql3\Node\PageNode;
 
@@ -17,6 +19,8 @@ class QueryType extends ObjectType
     public function __construct(
         protected PageNode $pageNode,
         protected PageListNode $pageListNode,
+        protected LanguageNode $languageNode,
+        protected LanguageListNode $languageListNode,
         protected iterable $extenders
     ) {
         parent::__construct([
@@ -26,6 +30,8 @@ class QueryType extends ObjectType
                     $this->pageNode->getGraphqlNode(),
                     $this->pageNode->forSlug()->getGraphqlNode(),
                     $this->pageListNode->getGraphqlNode(),
+                    $this->languageNode->getGraphqlNode(),
+                    $this->languageListNode->getGraphqlNode(),
                 ]);
 
                 foreach ($this->extenders as $extender) {

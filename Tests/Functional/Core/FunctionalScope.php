@@ -9,6 +9,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RozbehSharahi\Graphql3\Middleware\GraphqlRequestMiddleware;
+use RozbehSharahi\Graphql3\Node\LanguageListNode;
+use RozbehSharahi\Graphql3\Node\LanguageNode;
 use RozbehSharahi\Graphql3\Node\PageListNode;
 use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
@@ -98,6 +100,16 @@ class FunctionalScope
     public function getAccessChecker(): AccessChecker
     {
         return $this->get(AccessChecker::class);
+    }
+
+    public function getLanguageNode(): LanguageNode
+    {
+        return $this->get(LanguageNode::class);
+    }
+
+    public function getLanguageListNode(): LanguageListNode
+    {
+        return $this->get(LanguageListNode::class);
     }
 
     public function doServerRequest(ServerRequestInterface $request): ResponseInterface
