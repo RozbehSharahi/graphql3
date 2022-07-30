@@ -41,13 +41,15 @@ class GraphqlController
                 ->withSchema($this->schemaRegistry->getSchema())
                 ->withQuery($input['query'])
                 ->withVariables($input['variables'] ?? [])
-                ->execute();
+                ->execute()
+            ;
         } catch (Throwable|GraphqlException $e) {
             return $this
                 ->throwIfTestingMode($e->getMessage())
                 ->errorResponseBuilder
                 ->withMessage($e->getMessage())
-                ->build();
+                ->build()
+            ;
         }
 
         if ($output['errors'] ?? null) {
@@ -55,12 +57,14 @@ class GraphqlController
                 ->throwIfTestingMode($output['errors'][0]['message'])
                 ->errorResponseBuilder
                 ->withErrors(GraphqlErrorCollection::createFromArray($output['errors']))
-                ->build();
+                ->build()
+            ;
         }
 
         $response = $this->responseFactory
             ->createResponse()
-            ->withHeader('Content-Type', 'application/json');
+            ->withHeader('Content-Type', 'application/json')
+        ;
 
         $response->getBody()->write($this->encoder->encode($output));
 

@@ -25,7 +25,8 @@ class PageNodeTest extends TestCase
             ->getFunctionalScopeBuilder()
             ->withAutoCreateGraphqlSchema(false)
             ->withAutoCreateHomepage(false)
-            ->build();
+            ->build()
+        ;
 
         $scope->createRecord('pages', ['uid' => 1, 'pid' => 0, 'title' => 'Root page']);
         $scope->createRecord('pages', ['uid' => 2, 'pid' => 1, 'title' => 'Second level page']);
@@ -58,7 +59,8 @@ class PageNodeTest extends TestCase
             ->getFunctionalScopeBuilder()
             ->withAutoCreateGraphqlSchema(false)
             ->withAutoCreateHomepage(false)
-            ->build();
+            ->build()
+        ;
 
         $scope->createRecord('pages', ['uid' => 1, 'pid' => 0, 'title' => 'Root page']);
         $scope->createRecord('pages', ['uid' => 2, 'pid' => 1, 'title' => 'Second level page', 'slug' => 'my-page']);
@@ -80,7 +82,8 @@ class PageNodeTest extends TestCase
                         ->add(
                             GraphqlArgument::create('slug')
                                 ->withType(Type::nonNull(Type::string()))
-                        );
+                        )
+                    ;
                 }
 
                 public function extendQuery(QueryBuilder $query, array $arguments): QueryBuilder
@@ -89,7 +92,8 @@ class PageNodeTest extends TestCase
                         ->select('*')
                         ->resetQueryParts(['where'])
                         ->from('pages')
-                        ->where($query->expr()->eq('slug', $query->createNamedParameter($arguments['slug'])));
+                        ->where($query->expr()->eq('slug', $query->createNamedParameter($arguments['slug'])))
+                    ;
                 }
             },
         ];
@@ -125,7 +129,8 @@ class PageNodeTest extends TestCase
             ->getFunctionalScopeBuilder()
             ->withAutoCreateGraphqlSchema(false)
             ->withAutoCreateHomepage(false)
-            ->build();
+            ->build()
+        ;
 
         $scope->createRecord('pages', ['uid' => 1, 'pid' => 0, 'title' => 'Root page']);
         $scope->createRecord('pages', ['uid' => 2, 'pid' => 1, 'title' => 'Second level page', 'slug' => 'my-page']);
@@ -163,13 +168,15 @@ class PageNodeTest extends TestCase
             ->withAutoCreateGraphqlSchema(false)
             ->withAutoCreateHomepage(false)
             ->withSiteRootPageId(3)
-            ->build();
+            ->build()
+        ;
 
         $scope
             ->createRecord('pages', ['uid' => 1, 'pid' => 0, 'title' => 'Root page 1'])
             ->createRecord('pages', ['uid' => 2, 'pid' => 1, 'title' => 'A page', 'slug' => '/a-page'])
             ->createRecord('pages', ['uid' => 3, 'pid' => 0, 'title' => 'Root page 2'])
-            ->createRecord('pages', ['uid' => 4, 'pid' => 3, 'title' => 'Another page', 'slug' => '/a-page']);
+            ->createRecord('pages', ['uid' => 4, 'pid' => 3, 'title' => 'Another page', 'slug' => '/a-page'])
+        ;
 
         $scope->getSchemaRegistry()->register(new Schema([
             'query' => new ObjectType([
@@ -204,7 +211,8 @@ class PageNodeTest extends TestCase
             ->withAutoCreateGraphqlSchema(false)
             ->withAutoCreateHomepage(false)
             ->withSiteRootPageId(1)
-            ->build();
+            ->build()
+        ;
 
         $scope->createRecord('pages', ['uid' => 1, 'title' => 'Restricted page', 'fe_group' => '-2']);
 

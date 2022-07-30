@@ -61,7 +61,8 @@ class AccessCheckerTest extends TestCase
             ->withAutoCreateSite(true)
             ->withAutoCreateGraphqlSchema(false)
             ->withLoggedInUser($frontendUser)
-            ->build();
+            ->build()
+        ;
 
         $scope->createRecord('pages', $rootPage);
 
@@ -78,6 +79,7 @@ class AccessCheckerTest extends TestCase
             ->withAutoCreateHomepage(false)
             ->withAutoCreateSchema(true)
             ->withAutoCreateSite(true)
-            ->withAutoCreateGraphqlSchema(false);
+            ->withAutoCreateGraphqlSchema(false)
+        ;
     }
 }

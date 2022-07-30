@@ -31,7 +31,8 @@ class PageNode implements NodeInterface
     {
         return $this
             ->withName('pageBySlug')
-            ->withContext(new Context([Context::TAG_PAGE_RESOLVE_BY_SLUG]));
+            ->withContext(new Context([Context::TAG_PAGE_RESOLVE_BY_SLUG]))
+        ;
     }
 
     public function getName(): string
@@ -79,6 +80,7 @@ class PageNode implements NodeInterface
         return GraphqlNode::create($this->name)
             ->withType($this->pageType)
             ->withArguments($arguments)
-            ->withResolver($this->pageResolver->withContext($this->context)->getCallable());
+            ->withResolver($this->pageResolver->withContext($this->context)->getCallable())
+        ;
     }
 }

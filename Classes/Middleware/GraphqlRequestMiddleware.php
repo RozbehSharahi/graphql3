@@ -108,7 +108,8 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
                 ->from('fe_users')
                 ->where('uid='.$query->createNamedParameter($testUserId, \PDO::PARAM_INT))
                 ->executeQuery()
-                ->fetchAssociative();
+                ->fetchAssociative()
+            ;
         } catch (Exception) {
             return $this;
         }

@@ -34,7 +34,8 @@ class PageListType extends ObjectType
                         ->withType(Type::listOf($this->pageType))
                         ->withResolver(fn (ListRequest $request) => $this->listResolver->resolveItems($request))
                 )
-                ->toArray();
+                ->toArray()
+            ;
         };
     }
 }

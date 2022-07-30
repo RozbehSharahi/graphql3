@@ -30,6 +30,7 @@ class PageListNode implements NodeInterface
                 GraphqlArgument::create('publicRequest')->withType(Type::boolean())->withDefaultValue(true),
             ])
             ->withType($this->pageListType)
-            ->withResolver(fn ($_, $args) => new ListRequest($args));
+            ->withResolver(fn ($_, $args) => new ListRequest($args))
+        ;
     }
 }

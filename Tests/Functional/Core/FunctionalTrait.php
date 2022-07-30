@@ -18,7 +18,8 @@ trait FunctionalTrait
             ->withAutoCreateHomepage(true)
             ->withAutoCreateSchema(true)
             ->withAutoCreateSite(true)
-            ->withAutoCreateGraphqlSchema(true);
+            ->withAutoCreateGraphqlSchema(true)
+        ;
     }
 
     protected function decode(string $json): mixed

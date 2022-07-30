@@ -43,7 +43,8 @@ class QueryTypeTest extends TestCase
                     public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
                     {
                         return $nodes
-                            ->add(GraphqlNode::create('extraNode')->withResolver(fn () => 'Hello World'));
+                            ->add(GraphqlNode::create('extraNode')->withResolver(fn () => 'Hello World'))
+                        ;
                     }
                 },
             ]),

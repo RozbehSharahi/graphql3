@@ -53,7 +53,8 @@ class ErrorResponseBuilder
             ->responseFactory
             ->createResponse()
             ->withStatus(Response::HTTP_BAD_REQUEST)
-            ->withHeader('Content-Type', 'application/json');
+            ->withHeader('Content-Type', 'application/json')
+        ;
 
         $response->getBody()->write($this->encoder->encode(['errors' => $this->errors->toArray()]));
 

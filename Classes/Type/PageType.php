@@ -37,7 +37,8 @@ class PageType extends ObjectType
                     GraphqlNode::create('children')->withType(Type::listOf($this))->withResolver(
                         fn (array $page) => $this->recordResolver->resolveManyByPid('pages', $page['uid'])
                     )
-                );
+                )
+            ;
 
             foreach ($this->extenders as $extender) {
                 $nodes = $extender->extendNodes($nodes);

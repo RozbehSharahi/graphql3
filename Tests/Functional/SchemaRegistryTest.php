@@ -21,7 +21,8 @@ class SchemaRegistryTest extends TestCase
         $scope = $this
             ->getFunctionalScopeBuilder()
             ->withAutoCreateGraphqlSchema(false)
-            ->build();
+            ->build()
+        ;
 
         $scope->getSchemaRegistry()->register(new Schema([
             'query' => new ObjectType([

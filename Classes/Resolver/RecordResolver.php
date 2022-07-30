@@ -22,7 +22,8 @@ class RecordResolver
         $query
             ->select('*')
             ->from($table)
-            ->where($query->expr()->eq('uid', $query->createNamedParameter($uid, \PDO::PARAM_INT)));
+            ->where($query->expr()->eq('uid', $query->createNamedParameter($uid, \PDO::PARAM_INT)))
+        ;
 
         try {
             return $query->executeQuery()->fetchAssociative();
@@ -38,7 +39,8 @@ class RecordResolver
         $query
             ->select('*')
             ->from($table)
-            ->where($query->expr()->eq('pid', $query->createNamedParameter($parentPageId, \PDO::PARAM_INT)));
+            ->where($query->expr()->eq('pid', $query->createNamedParameter($parentPageId, \PDO::PARAM_INT)))
+        ;
 
         try {
             return $query->executeQuery()->fetchAllAssociative();

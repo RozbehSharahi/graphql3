@@ -18,7 +18,8 @@ class GraphqlArgumentCollectionTest extends TestCase
         $collection = $collection
             ->add(GraphqlArgument::create('myArgument1')->withType(Type::string()))
             ->add(GraphqlArgument::create('myArgument2')->withType(Type::boolean()))
-            ->add(GraphqlArgument::create('myArgument3')->withType(Type::int()));
+            ->add(GraphqlArgument::create('myArgument3')->withType(Type::int()))
+        ;
 
         // Remove node 2
         $collection = $collection->remove('myArgument2');

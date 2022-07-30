@@ -22,7 +22,8 @@ class GraphqlNodeTest extends TestCase
                 ])
             )
             ->withResolver(fn () => 'Hey')
-            ->withType(Type::nonNull(Type::string()));
+            ->withType(Type::nonNull(Type::string()))
+        ;
 
         $nodeArray = $node->toArray();
 

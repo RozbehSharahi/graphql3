@@ -112,7 +112,8 @@ class FunctionalScope
     {
         try {
             $bodyStream = (new StreamFactory())
-                ->createStream(json_encode(['query' => $graphql], JSON_THROW_ON_ERROR));
+                ->createStream(json_encode(['query' => $graphql], JSON_THROW_ON_ERROR))
+            ;
         } catch (Exception) {
             throw new \RuntimeException('Could not create graphql request in test.');
         }
@@ -137,7 +138,8 @@ class FunctionalScope
         $query
             ->insert($table)
             ->values($data)
-            ->executeStatement();
+            ->executeStatement()
+        ;
 
         return $this;
     }

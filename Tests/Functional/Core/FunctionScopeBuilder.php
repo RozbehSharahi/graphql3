@@ -303,7 +303,8 @@ class FunctionScopeBuilder
         $query
             ->insert('pages')
             ->values(['uid' => 1, 'pid' => 0, 'title' => 'root page'])
-            ->executeStatement();
+            ->executeStatement()
+        ;
 
         return $this;
     }

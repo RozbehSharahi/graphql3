@@ -18,7 +18,8 @@ class GraphqlNodeCollectionTest extends TestCase
         $collection = $collection
             ->add(GraphqlNode::create('myNode1')->withType(Type::string()))
             ->add(GraphqlNode::create('myNode2')->withType(Type::boolean()))
-            ->add(GraphqlNode::create('myNode3')->withType(Type::int()));
+            ->add(GraphqlNode::create('myNode3')->withType(Type::int()))
+        ;
 
         // Remove node 2
         $collection = $collection->remove('myNode2');

@@ -32,7 +32,8 @@ class PageTypeTest extends TestCase
                         ],
                     ],
                 ]),
-            ]));
+            ]))
+        ;
 
         $response = $scope->doGraphqlRequest('{ 
             page {
@@ -80,7 +81,8 @@ class PageTypeTest extends TestCase
                         ],
                     ],
                 ]),
-            ]));
+            ]))
+        ;
 
         $response = $scope->doGraphqlRequest('{ 
             page {

@@ -33,7 +33,8 @@ class GraphqlRequestTest extends TestCase
             ->getFunctionalScopeBuilder()
             ->withContext('Production')
             ->build()
-            ->doServerRequest(new ServerRequest('/test-app/graphiql'));
+            ->doServerRequest(new ServerRequest('/test-app/graphiql'))
+        ;
 
         self::assertEquals(404, (string) $response->getStatusCode());
 
@@ -41,7 +42,8 @@ class GraphqlRequestTest extends TestCase
             ->getFunctionalScopeBuilder()
             ->withContext('Development/SomeDeveloper')
             ->build()
-            ->doServerRequest(new ServerRequest('/test-app/graphiql'));
+            ->doServerRequest(new ServerRequest('/test-app/graphiql'))
+        ;
 
         self::assertEquals(200, (string) $response->getStatusCode());
         self::assertStringContainsString('graphQLFetcher', (string) $response->getBody());
@@ -57,7 +59,8 @@ class GraphqlRequestTest extends TestCase
             ->getFunctionalScopeBuilder()
             ->withContext('Testing/Production')
             ->build()
-            ->doServerRequest($request);
+            ->doServerRequest($request)
+        ;
 
         self::assertEquals(400, (string) $response->getStatusCode());
         self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
@@ -74,7 +77,8 @@ class GraphqlRequestTest extends TestCase
         $response = $this
             ->getFunctionalScopeBuilder()
             ->build()
-            ->doServerRequest(new ServerRequest('/test-app/graphql', 'POST'));
+            ->doServerRequest(new ServerRequest('/test-app/graphql', 'POST'))
+        ;
 
         self::assertEquals(400, (string) $response->getStatusCode());
         self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
@@ -93,7 +97,8 @@ class GraphqlRequestTest extends TestCase
             ->build()
             ->doServerRequest(
                 new ServerRequest('/test-app/graphql', 'POST', (new StreamFactory())->createStream('"bla"'))
-            );
+            )
+        ;
 
         self::assertEquals(400, (string) $response->getStatusCode());
         self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
@@ -111,7 +116,8 @@ class GraphqlRequestTest extends TestCase
             ->getFunctionalScopeBuilder()
             ->withAutoCreateGraphqlSchema(false)
             ->build()
-            ->doServerRequest(new ServerRequest('/test-app/graphql', 'POST'));
+            ->doServerRequest(new ServerRequest('/test-app/graphql', 'POST'))
+        ;
 
         self::assertEquals(404, $response->getStatusCode());
     }

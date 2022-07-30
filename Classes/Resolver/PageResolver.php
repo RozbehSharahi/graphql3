@@ -107,7 +107,8 @@ class PageResolver
             ->connectionPool
             ->getQueryBuilderForTable('page')
             ->select('*')
-            ->from('pages');
+            ->from('pages')
+        ;
     }
 
     protected function applyPublicRequestFilters(QueryBuilder $query, ItemRequest $request): self

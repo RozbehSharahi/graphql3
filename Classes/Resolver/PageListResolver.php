@@ -31,7 +31,8 @@ class PageListResolver
             ->applyPublicRequestFilters($query, $request)
             ->applyPagination($query, $request)
             ->applySorting($query, $request)
-            ->fetchAll($query);
+            ->fetchAll($query)
+        ;
 
         foreach ($pages as $page) {
             $this->accessChecker->assert(['VIEW'], new Page($page));
@@ -47,7 +48,8 @@ class PageListResolver
         return $this
             ->applyFilters($query, $request)
             ->applyPublicRequestFilters($query, $request)
-            ->fetchRowCount($query);
+            ->fetchRowCount($query)
+        ;
     }
 
     protected function createQuery(ListRequest $request): QueryBuilder
@@ -56,7 +58,8 @@ class PageListResolver
             ->connectionPool
             ->getQueryBuilderForTable('pages')
             ->select('*')
-            ->from('pages');
+            ->from('pages')
+        ;
     }
 
     private function applyPublicRequestFilters(QueryBuilder $query, ListRequest $request): self
