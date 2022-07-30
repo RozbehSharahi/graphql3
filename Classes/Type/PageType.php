@@ -40,8 +40,8 @@ class PageType extends ObjectType
                 ->add($this->createDateTimeNode('startTime', 'starttime'))
                 ->add($this->createDateTimeNode('endTime', 'endtime'))
                 ->add($this->createIntNode('sorting', 'sorting'))
-                ->add($this->createRecordNode('parent', 'pages', 'pid'))
-                ->add($this->createRecordsNodeByPid('children', 'pages', 'uid'))
+                ->add($this->createPageNode('parent', 'pid'))
+                ->add($this->createPageChildrenNode('children', 'uid'))
             ;
 
             foreach ($this->extenders as $extender) {
@@ -88,17 +88,17 @@ class PageType extends ObjectType
         ;
     }
 
-    protected function createRecordNode(string $name, string $table, string $property): GraphqlNode
+    protected function createPageNode(string $name, string $property): GraphqlNode
     {
         return GraphqlNode::create($name)->withType($this)->withResolver(
-            fn (array $page) => $this->recordResolver->resolve($table, $page[$property])
+            fn (array $page) => $this->recordResolver->resolve('pages', $page[$property])
         );
     }
 
-    protected function createRecordsNodeByPid(string $name, string $table, string $parentPageProperty): GraphqlNode
+    protected function createPageChildrenNode(string $name, string $parentPageProperty): GraphqlNode
     {
         return GraphqlNode::create($name)->withType(Type::listOf($this))->withResolver(
-            fn (array $page) => $this->recordResolver->resolveManyByPid($table, $page[$parentPageProperty])
+            fn (array $page) => $this->recordResolver->resolveManyByPid('pages', $page[$parentPageProperty])
         );
     }
 }
