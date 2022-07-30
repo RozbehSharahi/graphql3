@@ -30,21 +30,18 @@ class PageType extends ObjectType
     {
         return function () {
             $nodes = GraphqlNodeCollection::create()
-                ->add(GraphqlNode::create('uid')->withType(Type::int())->withResolver(fn (array $page) => $page['uid']))
-                ->add(GraphqlNode::create('title')->withResolver(fn (array $page) => $page['title']))
-                ->add(GraphqlNode::create('slug')->withResolver(fn (array $page) => $page['slug']))
+                ->add($this->createIntNode('uid', 'uid'))
+                ->add($this->createStringNode('title', 'title'))
+                ->add($this->createStringNode('title', 'title'))
                 ->add($this->createDateTimeNode('updatedAt', 'tstamp'))
                 ->add($this->createDateTimeNode('createdAt', 'crdate'))
-                ->add(
-                    GraphqlNode::create('parent')->withType($this)->withResolver(
-                        fn (array $page) => $this->recordResolver->resolve('pages', $page['pid'])
-                    )
-                )
-                ->add(
-                    GraphqlNode::create('children')->withType(Type::listOf($this))->withResolver(
-                        fn (array $page) => $this->recordResolver->resolveManyByPid('pages', $page['uid'])
-                    )
-                )
+                ->add($this->createBoolNode('deleted', 'deleted'))
+                ->add($this->createBoolNode('hidden', 'hidden'))
+                ->add($this->createDateTimeNode('startTime', 'starttime'))
+                ->add($this->createDateTimeNode('endTime', 'endtime'))
+                ->add($this->createIntNode('sorting', 'sorting'))
+                ->add($this->createRecordNode('parent', 'pages', 'pid'))
+                ->add($this->createRecordsNodeByPid('children', 'pages', 'uid'))
             ;
 
             foreach ($this->extenders as $extender) {
@@ -55,15 +52,53 @@ class PageType extends ObjectType
         };
     }
 
-    protected function createDateTimeNode(string $name, string $property): GraphqlNode
+    protected function createStringNode(string $name, string $property): GraphqlNode
     {
         return GraphqlNode::create($name)
-            ->withArguments(
-                GraphqlArgumentCollection::create([GraphqlArgument::create('format')->withDefaultValue('Y-m-d h:i')])
-            )
-            ->withResolver(
-                fn (array $page, array $args) => new FormattedTimestamp($page[$property], $args['format'])
-            )
+            ->withType(Type::string())
+            ->withResolver(fn (array $page) => $page[$property])
         ;
+    }
+
+    protected function createIntNode(string $name, string $property): GraphqlNode
+    {
+        return GraphqlNode::create($name)
+            ->withType(Type::int())
+            ->withResolver(fn (array $page) => $page[$property])
+        ;
+    }
+
+    protected function createDateTimeNode(string $name, string $property): GraphqlNode
+    {
+        $arguments = GraphqlArgumentCollection::create([
+            GraphqlArgument::create('format')->withDefaultValue('Y-m-d h:i'),
+        ]);
+
+        return GraphqlNode::create($name)
+            ->withArguments($arguments)
+            ->withResolver(fn (array $page, array $args) => new FormattedTimestamp($page[$property], $args['format']))
+        ;
+    }
+
+    protected function createBoolNode(string $name, string $property): GraphqlNode
+    {
+        return GraphqlNode::create($name)
+            ->withType(Type::boolean())
+            ->withResolver(fn (array $page) => $page[$property])
+        ;
+    }
+
+    protected function createRecordNode(string $name, string $table, string $property): GraphqlNode
+    {
+        return GraphqlNode::create($name)->withType($this)->withResolver(
+            fn (array $page) => $this->recordResolver->resolve($table, $page[$property])
+        );
+    }
+
+    protected function createRecordsNodeByPid(string $name, string $table, string $parentPageProperty): GraphqlNode
+    {
+        return GraphqlNode::create($name)->withType(Type::listOf($this))->withResolver(
+            fn (array $page) => $this->recordResolver->resolveManyByPid($table, $page[$parentPageProperty])
+        );
     }
 }

@@ -282,13 +282,14 @@ namespace Your\Namespace;
 
 use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 
 $node = GraphqlNode::create('myNode')
     ->withType(Type::int())
-    ->withArguments([
+    ->withArguments(GraphqlArgumentCollection::create()[
         GraphqlArgument::create('myArgument')->withType(Type::string())
-    ])
+    ]))
     ->withResolver(fn() => 123)
     ->toArray();
     

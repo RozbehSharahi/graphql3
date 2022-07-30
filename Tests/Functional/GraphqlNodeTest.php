@@ -18,11 +18,9 @@ class GraphqlNodeTest extends TestCase
     {
         $node = GraphqlNode::create('will-be-replaced')
             ->withName('myNodeName')
-            ->withArguments(
-                GraphqlArgumentCollection::create([
-                    GraphqlArgument::create('myArgument')->withType(Type::int()),
-                ])
-            )
+            ->withArguments(GraphqlArgumentCollection::create([
+                GraphqlArgument::create('myArgument')->withType(Type::int()),
+            ]))
             ->withResolver(fn () => 'Hey')
             ->withType(Type::nonNull(Type::string()))
         ;

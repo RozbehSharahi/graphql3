@@ -53,15 +53,8 @@ class GraphqlNode
         return $this->arguments;
     }
 
-    /**
-     * @param GraphqlArgumentCollection|GraphqlArgument[] $arguments
-     */
-    public function withArguments(GraphqlArgumentCollection|array $arguments): self
+    public function withArguments(GraphqlArgumentCollection $arguments): self
     {
-        if (is_array($arguments)) {
-            $arguments = GraphqlArgumentCollection::create($arguments);
-        }
-
         $clone = clone $this;
         $clone->arguments = $arguments;
 
