@@ -108,9 +108,9 @@ class PageType extends ObjectType
         return $this
             ->nestedNodeRegistry
             ->get(NestedPageNode::class)
+            ->withName($name)
             ->withIdResolver(fn ($page) => $page[$property])
             ->getGraphqlNode()
-            ->withName($name)
         ;
     }
 
@@ -119,9 +119,9 @@ class PageType extends ObjectType
         return $this
             ->nestedNodeRegistry
             ->get(NestedPageNode::class)
+            ->withName($name)
             ->withIdResolver(fn ($page) => $page['uid'])
             ->getChildrenGraphqlNode()
-            ->withName($name)
         ;
     }
 
@@ -130,7 +130,8 @@ class PageType extends ObjectType
         return $this
             ->nestedNodeRegistry
             ->get(NestedLanguageNode::class)
-            ->withLanguageIdResolver(fn ($page) => $page['sys_language_uid'] ?? 0)
+            ->withName('language')
+            ->withIdResolver(fn ($page) => $page['sys_language_uid'] ?? 0)
             ->getGraphqlNode()
         ;
     }

@@ -13,52 +13,37 @@ use RozbehSharahi\Graphql3\Type\LanguageType;
 
 class NestedLanguageNode implements NodeInterface
 {
-    protected string $name = 'language';
+    use NestedNodeTrait;
 
-    protected \Closure $languageIdResolver;
+    protected \Closure $idResolver;
 
     public function __construct(protected LanguageType $languageType, protected LanguageResolver $languageResolver)
     {
     }
 
-    public function getName(): string
+    public function getIdResolver(): \Closure
     {
-        return $this->name;
+        return $this->idResolver;
     }
 
-    public function withName(string $name): self
+    public function withIdResolver(\Closure $languageIdResolver): self
     {
         $clone = clone $this;
-        $clone->name = $name;
-
-        return $clone;
-    }
-
-    public function getLanguageIdResolver(): \Closure
-    {
-        return $this->languageIdResolver;
-    }
-
-    public function withLanguageIdResolver(\Closure $languageIdResolver): self
-    {
-        $clone = clone $this;
-        $clone->languageIdResolver = $languageIdResolver;
+        $clone->idResolver = $languageIdResolver;
 
         return $clone;
     }
 
     public function getGraphqlNode(): GraphqlNode
     {
-        if (empty($this->languageIdResolver)) {
+        if (empty($this->idResolver)) {
             throw new GraphqlException('Did you forget to define a language id resolver?');
         }
 
         return GraphqlNode::create($this->name)
             ->withType($this->languageType)
             ->withResolver(
-                fn ($value) => $this->languageResolver->resolve(
-                    new ItemRequest(['id' => ($this->languageIdResolver)($value)])
-                )
+                fn ($value) => $this->languageResolver->resolve(new ItemRequest(['id' => ($this->idResolver)($value)]))
             )
         ;
     }

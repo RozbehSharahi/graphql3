@@ -13,6 +13,8 @@ use RozbehSharahi\Graphql3\Type\PageType;
 
 class NestedPageNode implements NodeInterface
 {
+    use NestedNodeTrait;
+
     protected \Closure $idResolver;
 
     public function __construct(protected RecordResolver $recordResolver, protected PageType $pageType)
@@ -38,7 +40,7 @@ class NestedPageNode implements NodeInterface
             throw new GraphqlException('Did you forget to define a id resolver?');
         }
 
-        return GraphqlNode::create('page')->withType($this->pageType)->withResolver(
+        return GraphqlNode::create($this->name)->withType($this->pageType)->withResolver(
             fn ($input) => $this->recordResolver->resolve('pages', ($this->idResolver)($input))
         );
     }
@@ -49,7 +51,7 @@ class NestedPageNode implements NodeInterface
             throw new GraphqlException('Did you forget to define a id resolver?');
         }
 
-        return GraphqlNode::create('children')->withType(Type::listOf($this->pageType))->withResolver(
+        return GraphqlNode::create($this->name)->withType(Type::listOf($this->pageType))->withResolver(
             fn ($input) => $this->recordResolver->resolveManyByPid('pages', ($this->idResolver)($input))
         );
     }
