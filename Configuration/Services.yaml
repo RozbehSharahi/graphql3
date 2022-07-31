@@ -8,6 +8,10 @@ services:
     resource: '../Classes/*'
     exclude: '../Classes/Domain/Model/*'
 
+  RozbehSharahi\Graphql3\Node\Nested\:
+    resource: '../Classes/Node/Nested/*'
+    public: true
+
   RozbehSharahi\Graphql3\Middleware\GraphqlRequestMiddleware:
     arguments:
       $setups: !tagged_iterator graphql3.setup

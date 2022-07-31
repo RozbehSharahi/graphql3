@@ -9,9 +9,8 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
-use RozbehSharahi\Graphql3\Site\CurrentSite;
+use RozbehSharahi\Graphql3\Node\Nested\NestedNodeRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
-use RozbehSharahi\Graphql3\Type\LanguageType;
 use RozbehSharahi\Graphql3\Type\PageType;
 use RozbehSharahi\Graphql3\Type\PageTypeExtenderInterface;
 
@@ -68,6 +67,20 @@ class PageTypeTest extends TestCase
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
 
+        $pageType = new PageType($scope->get(NestedNodeRegistry::class), [
+            new class() implements PageTypeExtenderInterface {
+                public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
+                {
+                    return $nodes->add(
+                        GraphqlNode::create('titleHash')
+                            ->withResolver(fn ($page) => md5($page['title']))
+                    );
+                }
+            },
+        ]);
+
+        $scope->set(PageType::class, $pageType);
+
         // Register schema
         $scope
             ->getSchemaRegistry()
@@ -76,22 +89,7 @@ class PageTypeTest extends TestCase
                     'name' => 'Query',
                     'fields' => [
                         'page' => [
-                            'type' => new PageType(
-                                $scope->getRecordResolver(),
-                                $scope->get(LanguageType::class),
-                                $scope->get(CurrentSite::class),
-                                [
-                                    new class() implements PageTypeExtenderInterface {
-                                        public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
-                                        {
-                                            return $nodes->add(
-                                                GraphqlNode::create('titleHash')
-                                                    ->withResolver(fn ($page) => md5($page['title']))
-                                            );
-                                        }
-                                    },
-                                ]
-                            ),
+                            'type' => $pageType,
                             'resolve' => fn () => ['uid' => 12345, 'pid' => 0, 'title' => 'My title'],
                         ],
                     ],

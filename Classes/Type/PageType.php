@@ -11,8 +11,9 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
-use RozbehSharahi\Graphql3\Resolver\RecordResolver;
-use RozbehSharahi\Graphql3\Site\CurrentSite;
+use RozbehSharahi\Graphql3\Node\Nested\NestedLanguageNode;
+use RozbehSharahi\Graphql3\Node\Nested\NestedNodeRegistry;
+use RozbehSharahi\Graphql3\Node\Nested\NestedPageNode;
 
 class PageType extends ObjectType
 {
@@ -20,9 +21,7 @@ class PageType extends ObjectType
      * @param iterable<PageTypeExtenderInterface> $extenders
      */
     public function __construct(
-        protected RecordResolver $recordResolver,
-        protected LanguageType $languageType,
-        protected CurrentSite $currentSite,
+        protected NestedNodeRegistry $nestedNodeRegistry,
         protected iterable $extenders
     ) {
         parent::__construct([
@@ -55,7 +54,8 @@ class PageType extends ObjectType
                 ->add($this->createIntNode('sorting', 'sorting'))
                 ->add($this->createPageNode('parent', 'pid'))
                 ->add($this->createPageNode('languageParent', 'l10n_parent'))
-                ->add($this->createPageChildrenNode('children', 'uid'))
+                ->add($this->createPageChildrenNode('children'))
+                ->add($this->createMediaNode())
                 ->add($this->createLanguageNode())
             ;
 
@@ -105,22 +105,38 @@ class PageType extends ObjectType
 
     protected function createPageNode(string $name, string $property): GraphqlNode
     {
-        return GraphqlNode::create($name)->withType($this)->withResolver(
-            fn (array $page) => $this->recordResolver->resolve('pages', $page[$property])
-        );
+        return $this
+            ->nestedNodeRegistry
+            ->get(NestedPageNode::class)
+            ->withIdResolver(fn ($page) => $page[$property])
+            ->getGraphqlNode()
+            ->withName($name)
+        ;
     }
 
-    protected function createPageChildrenNode(string $name, string $parentPageProperty): GraphqlNode
+    protected function createPageChildrenNode(string $name): GraphqlNode
     {
-        return GraphqlNode::create($name)->withType(Type::listOf($this))->withResolver(
-            fn (array $page) => $this->recordResolver->resolveManyByPid('pages', $page[$parentPageProperty])
-        );
+        return $this
+            ->nestedNodeRegistry
+            ->get(NestedPageNode::class)
+            ->withIdResolver(fn ($page) => $page['uid'])
+            ->getChildrenGraphqlNode()
+            ->withName($name)
+        ;
     }
 
-    private function createLanguageNode(): GraphqlNode
+    protected function createLanguageNode(): GraphqlNode
     {
-        return GraphqlNode::create('language')->withType($this->languageType)->withResolver(
-            fn (array $page) => $this->currentSite->get()->getLanguageById($page['sys_language_uid'] ?? 0)
-        );
+        return $this
+            ->nestedNodeRegistry
+            ->get(NestedLanguageNode::class)
+            ->withLanguageIdResolver(fn ($page) => $page['sys_language_uid'] ?? 0)
+            ->getGraphqlNode()
+        ;
+    }
+
+    protected function createMediaNode(): GraphqlNode
+    {
+        return GraphqlNode::create('media')->withType(Type::string())->withResolver(fn ($v) => $v['media']);
     }
 }

@@ -6,6 +6,9 @@ namespace RozbehSharahi\Graphql3;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
 use RozbehSharahi\Graphql3\Node\LanguageListNode;
 use RozbehSharahi\Graphql3\Node\LanguageNode;
+use RozbehSharahi\Graphql3\Node\Nested\NestedLanguageNode;
+use RozbehSharahi\Graphql3\Node\Nested\NestedNodeRegistry;
+use RozbehSharahi\Graphql3\Node\Nested\NestedPageNode;
 use RozbehSharahi\Graphql3\Node\PageListNode;
 use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
@@ -60,5 +63,8 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         $containerBuilder->registerForAutoconfiguration(LanguageNode::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(LanguageType::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(CurrentSite::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(NestedLanguageNode::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(NestedPageNode::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(NestedNodeRegistry::class)->setPublic(true);
     }
 };

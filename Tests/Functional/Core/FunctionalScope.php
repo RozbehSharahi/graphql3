@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 
 use Exception;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RozbehSharahi\Graphql3\Middleware\GraphqlRequestMiddleware;
@@ -18,6 +17,7 @@ use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Type\PageType;
 use RozbehSharahi\Graphql3\Type\QueryType;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
@@ -44,12 +44,17 @@ class FunctionalScope
      * @param class-string<T> $class
      *
      * @return T
-     * @noinspection PhpDocMissingThrowsInspection
-     * @noinspection PhpUnhandledExceptionInspection
      */
-    public function get(string $class)
+    public function get(string $class): object
     {
         return $this->container->get($class);
+    }
+
+    public function set(string $serviceName, mixed $service): self
+    {
+        $this->container->set($serviceName, $service);
+
+        return $this;
     }
 
     public function getApplication(): Application

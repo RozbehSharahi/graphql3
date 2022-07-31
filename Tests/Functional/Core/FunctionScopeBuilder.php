@@ -305,6 +305,10 @@ class FunctionScopeBuilder
 
         $this->clearSiteFinderCache();
 
+        if (!$container instanceof \Symfony\Component\DependencyInjection\ContainerInterface) {
+            throw new \RuntimeException('Expected to have symfony container interface, but didnt');
+        }
+
         $scope = new FunctionalScope($container, $this->loggedInUser);
 
         if ($this->loggedInUser) {

@@ -17,7 +17,7 @@ class QueryType extends ObjectType
      * @param iterable<QueryTypeExtenderInterface> $extenders
      */
     public function __construct(
-        protected PageNode $pageNode,
+        protected PageNode $pageNestedNode,
         protected PageListNode $pageListNode,
         protected LanguageNode $languageNode,
         protected LanguageListNode $languageListNode,
@@ -27,8 +27,8 @@ class QueryType extends ObjectType
             'name' => 'Query',
             'fields' => function () {
                 $nodes = GraphqlNodeCollection::create([
-                    $this->pageNode->getGraphqlNode(),
-                    $this->pageNode->forSlug()->getGraphqlNode(),
+                    $this->pageNestedNode->getGraphqlNode(),
+                    $this->pageNestedNode->forSlug()->getGraphqlNode(),
                     $this->pageListNode->getGraphqlNode(),
                     $this->languageNode->getGraphqlNode(),
                     $this->languageListNode->getGraphqlNode(),

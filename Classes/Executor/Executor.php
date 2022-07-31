@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Executor;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use TYPO3\CMS\Core\Core\Environment;
 
 class Executor
 {
@@ -75,6 +77,8 @@ class Executor
             throw new GraphqlException('No query provided to execute');
         }
 
-        return GraphQL::executeQuery($this->schema, $this->query, null, null, $this->variables)->toArray();
+        $debugFlag = Environment::getContext()->isTesting() ? DebugFlag::INCLUDE_DEBUG_MESSAGE : DebugFlag::NONE;
+
+        return GraphQL::executeQuery($this->schema, $this->query, null, null, $this->variables)->toArray($debugFlag);
     }
 }
