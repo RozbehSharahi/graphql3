@@ -3,24 +3,22 @@
 declare(strict_types=1);
 namespace RozbehSharahi\Graphql3;
 
+use RozbehSharahi\Graphql3\Builder\FieldCreator\FieldCreatorInterface;
+use RozbehSharahi\Graphql3\Builder\Node\LanguageListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\Node\LanguageNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\Node\RecordListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\Node\RecordNodeExtenderInterface;
+use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
+use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
-use RozbehSharahi\Graphql3\Node\LanguageListNode;
-use RozbehSharahi\Graphql3\Node\LanguageNode;
-use RozbehSharahi\Graphql3\Node\Nested\NestedLanguageNode;
-use RozbehSharahi\Graphql3\Node\Nested\NestedNodeRegistry;
-use RozbehSharahi\Graphql3\Node\Nested\NestedPageNode;
-use RozbehSharahi\Graphql3\Node\PageListNode;
-use RozbehSharahi\Graphql3\Node\PageNode;
-use RozbehSharahi\Graphql3\Node\PageNodeExtenderInterface;
+use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Security\Voter\VoterInterface;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
 use RozbehSharahi\Graphql3\Site\CurrentSite;
-use RozbehSharahi\Graphql3\Type\LanguageType;
-use RozbehSharahi\Graphql3\Type\PageType;
-use RozbehSharahi\Graphql3\Type\PageTypeExtenderInterface;
 use RozbehSharahi\Graphql3\Type\QueryType;
 use RozbehSharahi\Graphql3\Type\QueryTypeExtenderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -34,37 +32,38 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         ->addTag('graphql3.setup');
 
     $containerBuilder
-        ->registerForAutoconfiguration(PageNodeExtenderInterface::class)
-        ->addTag('graphql3.page_node_extender');
+        ->registerForAutoconfiguration(RecordNodeExtenderInterface::class)
+        ->addTag('graphql3.record_node_extender');
 
     $containerBuilder
         ->registerForAutoconfiguration(QueryTypeExtenderInterface::class)
         ->addTag('graphql3.query_type_extender');
 
     $containerBuilder
-        ->registerForAutoconfiguration(PageTypeExtenderInterface::class)
-        ->addTag('graphql3.page_type_extender');
-
-    $containerBuilder
         ->registerForAutoconfiguration(VoterInterface::class)
         ->addTag('graphql3.voter');
 
+    $containerBuilder
+        ->registerForAutoconfiguration(FieldCreatorInterface::class)
+        ->addTag('graphql3.field_creator');
+
+    $containerBuilder
+        ->registerForAutoconfiguration(RecordTypeBuilderExtenderInterface::class)
+        ->addTag('graphql3.record_type_builder_extender');
+
     if(Environment::getContext()->isTesting()) {
+        $containerBuilder->registerForAutoconfiguration(RecordTypeBuilder::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(GraphqlController::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(SchemaRegistry::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(PageNode::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(QueryType::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(PageType::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(RecordResolver::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(SiteFinder::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(PageListNode::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(AccessChecker::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(LanguageListNode::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(LanguageNode::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(LanguageType::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(LanguageListNodeBuilder::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(LanguageNodeBuilder::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(CurrentSite::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(NestedLanguageNode::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(NestedPageNode::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(NestedNodeRegistry::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(RecordNodeBuilder::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(RecordListNodeBuilder::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(RecordResolver::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(CaseConverter::class)->setPublic(true);
     }
 };

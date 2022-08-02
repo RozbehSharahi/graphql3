@@ -56,7 +56,10 @@ class GraphqlController
 
         if ($output['errors'] ?? null) {
             return $this
-                ->throwIfTestingMode($output['errors'][0]['message'])
+                ->throwIfTestingMode(
+                    $output['errors'][0]['message'],
+                    $output['errors'][0]['extensions']['debugMessage'] ?? null
+                )
                 ->errorResponseBuilder
                 ->withErrors(GraphqlErrorCollection::createFromArray($output['errors']))
                 ->build()
@@ -94,14 +97,14 @@ class GraphqlController
         return !(!is_array($input) || !is_string($input['query'] ?? null));
     }
 
-    protected function throwIfTestingMode(string $message): self
+    protected function throwIfTestingMode(string $message, ?string $details = null): self
     {
         if ('Testing/Production' === (string) Environment::getContext()) {
             return $this;
         }
 
         if (Environment::getContext()->isTesting()) {
-            throw new \RuntimeException($message);
+            throw new \RuntimeException($message.($details ? ': '.$details : ''));
         }
 
         return $this;

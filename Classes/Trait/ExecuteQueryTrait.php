@@ -17,8 +17,8 @@ trait ExecuteQueryTrait
     {
         try {
             return $query->executeQuery()->fetchAssociative();
-        } catch (Exception) {
-            throw new GraphqlException('Fetch failed.');
+        } catch (Exception $e) {
+            throw new GraphqlException('Fetch failed: '.$e->getMessage());
         }
     }
 
@@ -29,8 +29,8 @@ trait ExecuteQueryTrait
     {
         try {
             return $query->executeQuery()->fetchAllAssociative();
-        } catch (Exception) {
-            throw new GraphqlException('Fetch all failed.');
+        } catch (Exception $e) {
+            throw new GraphqlException('Fetch all failed: '.$e->getMessage());
         }
     }
 
@@ -38,8 +38,8 @@ trait ExecuteQueryTrait
     {
         try {
             return $query->selectLiteral('count(*) as count')->executeQuery()->fetchAssociative()['count'];
-        } catch (Exception) {
-            throw new GraphqlException('Row count failed.');
+        } catch (Exception $e) {
+            throw new GraphqlException('Row count failed: '.$e->getMessage());
         }
     }
 }

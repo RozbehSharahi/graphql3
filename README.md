@@ -37,7 +37,7 @@ After that you should already be able to access your graphql endpoint.
 The method `register` expects a schema of `webonyx/graphql-php` package, so you are free to do whatever you wish from
 here on.
 
-However, the main focus of `graphql3` is providing extendable types/nodes/resolvers, which will facilitate the
+However, the main focus of `graphql3` is providing extendable builders/types/nodes/resolvers, which will facilitate the
 introduction of GraphQL on TYPO3 sites.
 
 For instance the following code is completely equivalent, but uses one of the in-house types.
@@ -114,8 +114,8 @@ which will be explained in the following chapter `Documentation`.
 
 ## Documentation
 
-Graphql3 brings a couple of handy types, nodes & resolvers, which shall facilitate the introduction of GraphQL on TYPO3
-projects. However, without you telling `graphql3` what you want, nothing will happen.
+Graphql3 brings a couple of handy builders, types, nodes & resolvers, which shall facilitate the introduction of GraphQL
+on TYPO3 projects. However, without you telling `graphql3` what you want, nothing will happen.
 
 First step every project should take, is creating a setup class which registers a schema.
 
@@ -165,8 +165,7 @@ Let's start off with the `QueryType`.
 ### QueryType
 
 Query type is basic query configuration, which you can use to start off. It already provides a couple of root-nodes,
-like `page`. However, it is possible to extend the query at run-time, which enables any extension to hook in. Extension
-of query type will be covered in an extra chapter.
+like `page`. However, it is possible to extend the query at run-time, which enables any extension to hook in.
 
 ```php
 <?php
@@ -197,33 +196,88 @@ class GraphqlSetup implements SetupInterface
 
 `QueryType` exposes the configuration of root nodes/fields by `QueryTypeExtenderInterface`.
 
-You might already checkout your `/graphiql` route and for instance send a query as following:
+You might already check out your `/graphiql` route and for instance send a query as following:
 
 ```
 {
   page(uid: 1) {
     uid
     title
-    parent { title }
+    parentPage { title }
   }
 }
 ```
 
-### PageNode
+### Record Type Builder
 
-`QueryType` already comes with a pack of predefined root-nodes. It makes assumptions on how a typical TYPO3 schema needs
-to look like.
-
-However, this might be not the case in all business logics. In order to have more control, we will go a layer deeper and
-configure our query manually by using the `PageNode`. Using `PageNode` also shows how `graphql3` is structured.
+In order to expose a TYPO3 table, a record graphql type is needed. Graphql3 provides a TCA based record type builder.
+The builder will generate `webonyx/graphql` object types based on TCA configuration.
 
 ```php
 <?php
 
-namespace Yout\Extension;
+namespace Your\Code;
 
+use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
+$recordTypeBuilder = GeneralUtility::makeInstance(RecordTypeBuilder::class);
+
+// Build page type full automatically
+$pageObjectType = $recordTypeBuilder->for('pages')->build();
+```
+
+Apart from just creating the record type on the fly, the builder will also provide extendability and type caching.
+
+Any extension can hook into the type creation of any table by
+implementing `\RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface`.
+
+The following code shows how the pages type can be extended by an additional node `md5`.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Your\Extension;
+
+use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+
+class Md5PageTypeExtender implements RecordTypeBuilderExtenderInterface
+{
+    public function supportsTable(string $table): bool
+    {
+        return 'pages' === $table;
+    }
+
+    public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
+    {
+        return $nodes->add(
+            GraphqlNode::create('md5')->withResolver(fn ($page) => md5(json_encode($page, JSON_THROW_ON_ERROR)))
+        );
+    }
+}
+```
+
+As long as the class implements `\RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface` the position
+does not matter. Symfony dependency injection will take care of loading the extender.
+
+It is also possible to remove or edit existing fields by extenders. For this check out `GraphqlNodeCollection`
+and `GraphqlNode`, which will be explained in chapter `GraphqlNode and GraphqlNodeCollection`.
+
+In the following example a page node on root query is created with the help of record-type-builder.
+
+```php
+<?php
+
+namespace Your\Extension;
+
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
-use RozbehSharahi\Graphql3\Node\PageNode;
+use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
 
@@ -231,42 +285,104 @@ class GraphqlSetup implements SetupInterface
 {
     public function __construct(
         protected SchemaRegistry $schemaRegistry,
-        protected PageNode $pageNode
+        protected RecordTypeBuilder $recordTypeBuilder
     ) {
     }
 
     public function setup(): void
     {
-        // Register schema
         $this->schemaRegistry->register(new Schema([
-           'query' => new ObjectType([
-                'page' => $this->pageNode->getGraphqlNode()
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'page' => [
+                        'type' => $this->recordTypeBuilder->for('pages')->build(),
+                        'resolve' => fn () => [
+                            'uid' => 1, 
+                            'title' => 'A hard coded page, which should be loaded by a resolver'
+                        ],
+                    ],
+                ],
             ]),
         ]));
     }
 }
 ```
 
-With the shown example, you are already able to do following query.
+The given example only passes a hard-coded page array to the type.
 
-```
+It does make a lot of sense to have a `uid` parameter and a resolver which loads the page by that `uid`.
+
+### Node builders
+
+Graphql3 provides node builders in order to facilitate the creation of whole nodes. This includes type, resolver &
+arguments.
+
+Every node builder implements `NodeBuilderInterface` which by definition means it provides a build method which returns
+an instance of `GraphqlNode`.
+
+In following sections the record-type-builder is taken as an example.
+
+When creating a meaningful page node we most likely need:
+
+- A resolver to load a page
+- An uid argument which defines which pages should be loaded
+- A type which describes the fields of the page.
+
+The `RecordNodeBuilder` can be used as following:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Your\Extension;
+
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Setup\SetupInterface;
+
+class GraphqlSetup implements SetupInterface
 {
-  page(uid: 1) {
-    uid
-    title
-  }
+    public function __construct(
+        protected SchemaRegistry $schemaRegistry,
+        protected RecordNodeBuilder $recordNodeBuilder
+    ) {
+    }
+
+    public function setup(): void
+    {
+        $this->schemaRegistry->register(new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'page' => $this->recordNodeBuilder->for('pages')->build()->toArray()
+                ],
+            ]),
+        ]));
+    }
 }
 ```
 
-The page node is extendable in terms of arguments and resolving though. By implementing the `PageNodeExtenderInterface`.
-If you lack patients just checkout the interface to see what options you have.
+Under the hood this will:
 
-For instance, you could extend the node to have an option to allow slug lookups.
+- [x] Create an argument `uid`
+- [x] Create a resolver via `\RozbehSharahi\Graphql3\Resolver\RecordResolver`
+- [x] Create the page type via `\RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder`
+
+There is a lot of features which will be activated by this. For instance:
+
+- [x] Access check
+- [x] Extendability via Extenders
+
+Check out `vendor/rozbehsharahi/graphql3/Classes/Builder/Node` to see which builders exist and can be used.
 
 ### GraphqlNode and GraphqlNodeCollection
 
-When extending one of the build-it nodes/type/... you will receive relevant schema parts in your extender which you are
-free to change. For instance a query type extender implementing the QueryTypeExtenderInterface, would receive the
+When extending one of the build-in nodes/type/... you will receive relevant schema parts in your extender, which you are
+free to change. For instance a query type extender implementing the `QueryTypeExtenderInterface`, would receive the
 root-query nodes, which then can be edited. However, this will not be an array as you might expect. It will be
 a `GraphqlNodeCollection`.
 
@@ -280,34 +396,22 @@ simply be converted to an array.
 
 namespace Your\Namespace;
 
-use GraphQL\Type\Definition\Type;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use GraphQL\Type\Definition\Type;use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 
-$node = GraphqlNode::create('myNode')
-    ->withType(Type::int())
-    ->withArguments(GraphqlArgumentCollection::create()[
-        GraphqlArgument::create('myArgument')->withType(Type::string())
-    ]))
-    ->withResolver(fn() => 123)
+$graphqlNode = GraphqlNode::create()
+    ->withType(Type::string())
+    ->withResolver(fn() => 'hey')
     ->toArray();
-    
+
 // is equivalent to
 
-$node = [
-    'type' => Type::int(),
-    'args' => [
-        'myArgument' => [
-            'type' => Type::string()
-        ] 
-    ],
-    'resolve' => fn() => 123
+$graphqlNode = [
+    'type' => Type::string(),
+    'resolve' => fn() => 'hey'
 ];
-
 ```
 
-On the other hand you have `GraphqlNodeCollection`, which is a collection of `GraphqlNode`.
+On the other hand you have `GraphqlNodeCollection`, which is a collection of `GraphqlNode` objects.
 
 ```php
 <?php
@@ -318,7 +422,7 @@ use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 
-$nodes = new GraphqlNodeCollection()
+$nodes = (new GraphqlNodeCollection())
     ->add(GraphqlNode::create('myNode')->withType(Type::int()))
     ->add(GraphqlNode::create('myOtherNode')->withType(Type::string()))
     ->toArray();
@@ -375,14 +479,14 @@ automatically added to the stack of voters, no matter where you place it.
 
 namespace RozbehSharahi\Graphql3\Security\Voter;
 
-use RozbehSharahi\Graphql3\Domain\Model\Page;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class PageVoter implements VoterInterface
 {
     public function vote(TokenInterface $token, mixed $subject, array $attributes): int
     {
-        if (!$subject instanceof Page) {
+        if (!$subject instanceof Record || $subject->getTable() !== 'pages') {
             return self::ACCESS_ABSTAIN;
         }
 

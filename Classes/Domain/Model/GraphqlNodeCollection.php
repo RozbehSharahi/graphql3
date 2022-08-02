@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class GraphqlNodeCollection
 {
@@ -18,7 +19,10 @@ class GraphqlNodeCollection
      */
     public static function create(array $items = []): self
     {
-        return new self($items);
+        return GeneralUtility::makeInstance(
+            self::class,
+            $items
+        );
     }
 
     /**

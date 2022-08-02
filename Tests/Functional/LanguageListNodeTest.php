@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpRedundantVariableDocTypeInspection */
+
 declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional;
@@ -7,7 +9,8 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-use RozbehSharahi\Graphql3\Node\LanguageListNode;
+use RozbehSharahi\Graphql3\Builder\Node\LanguageListNodeBuilder;
+use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 
 class LanguageListNodeTest extends TestCase
@@ -16,6 +19,7 @@ class LanguageListNodeTest extends TestCase
 
     public function testCanListLanguages(): void
     {
+        /** @var FunctionalScope $scope */
         $scope = $this
             ->getFunctionalScopeBuilder()
             ->withAutoCreateHomepage(true)
@@ -27,7 +31,7 @@ class LanguageListNodeTest extends TestCase
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [
-                    'languages' => $scope->get(LanguageListNode::class)->getGraphqlNode()->toArray(),
+                    'languages' => $scope->get(LanguageListNodeBuilder::class)->build()->toArray(),
                 ],
             ]),
         ]));

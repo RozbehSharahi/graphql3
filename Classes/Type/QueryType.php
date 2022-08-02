@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Type;
 
 use GraphQL\Type\Definition\ObjectType;
+use RozbehSharahi\Graphql3\Builder\Node\LanguageListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\Node\LanguageNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\Node\RecordListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
-use RozbehSharahi\Graphql3\Node\LanguageListNode;
-use RozbehSharahi\Graphql3\Node\LanguageNode;
-use RozbehSharahi\Graphql3\Node\PageListNode;
-use RozbehSharahi\Graphql3\Node\PageNode;
 
 class QueryType extends ObjectType
 {
@@ -17,21 +17,20 @@ class QueryType extends ObjectType
      * @param iterable<QueryTypeExtenderInterface> $extenders
      */
     public function __construct(
-        protected PageNode $pageNestedNode,
-        protected PageListNode $pageListNode,
-        protected LanguageNode $languageNode,
-        protected LanguageListNode $languageListNode,
+        protected RecordNodeBuilder $recordNodeBuilder,
+        protected RecordListNodeBuilder $recordListNodeBuilder,
+        protected LanguageNodeBuilder $languageNodeBuilder,
+        protected LanguageListNodeBuilder $languageListNodeBuilder,
         protected iterable $extenders
     ) {
         parent::__construct([
             'name' => 'Query',
             'fields' => function () {
                 $nodes = GraphqlNodeCollection::create([
-                    $this->pageNestedNode->getGraphqlNode(),
-                    $this->pageNestedNode->forSlug()->getGraphqlNode(),
-                    $this->pageListNode->getGraphqlNode(),
-                    $this->languageNode->getGraphqlNode(),
-                    $this->languageListNode->getGraphqlNode(),
+                    $this->recordNodeBuilder->for('pages')->build(),
+                    $this->recordListNodeBuilder->for('pages')->build(),
+                    $this->languageNodeBuilder->build(),
+                    $this->languageListNodeBuilder->build(),
                 ]);
 
                 foreach ($this->extenders as $extender) {

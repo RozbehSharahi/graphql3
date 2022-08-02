@@ -102,9 +102,9 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
         }
 
         $context = GeneralUtility::makeInstance(Context::class);
-        $query = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_users');
 
         try {
+            $query = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_users');
             $user = $query
                 ->select('*')
                 ->from('fe_users')
@@ -116,8 +116,26 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
             return $this;
         }
 
+        try {
+            $query = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('fe_groups');
+            $userGroups = !empty($user['usergroup']) ? $query
+                ->select('*')
+                ->from('fe_groups')
+                ->where('uid IN ('.$user['usergroup'].')')
+                ->executeQuery()
+                ->fetchAllAssociative() : [];
+        } catch (Exception) {
+            return $this;
+        }
+
         $frontendUserAuthentication = new FrontendUserAuthentication();
         $frontendUserAuthentication->user = $user;
+        $frontendUserAuthentication->userGroups = [];
+
+        foreach ($userGroups as $userGroup) {
+            $frontendUserAuthentication->userGroups[$userGroup['uid']] = $userGroup;
+        }
+
         $context->setAspect('frontend.user', new UserAspect($frontendUserAuthentication));
 
         return $this;

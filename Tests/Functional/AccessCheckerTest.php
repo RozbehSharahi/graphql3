@@ -43,14 +43,48 @@ class AccessCheckerTest extends TestCase
         self::assertEquals('Root', $response['data']['page']['title']);
     }
 
+    public function testFeGroupProtectedPageIsAccessChecked(): void
+    {
+        $scope = $this->createScope(
+            rootPage: ['uid' => 1, 'title' => 'Root', 'fe_group' => '1'],
+            frontendUser: ['uid' => 1, 'username' => 'test-user']
+        );
+
+        $this->assertThrowsException(function () use ($scope) {
+            $scope->doGraphqlRequest('{
+                page(uid: 1, publicRequest: false) {
+                    title
+                }
+            }');
+        });
+
+        $scope = $this->createScope(
+            rootPage: ['uid' => 1, 'title' => 'Root', 'fe_group' => '1'],
+            frontendUser: ['uid' => 1, 'username' => 'test-user', 'usergroup' => 1]
+        );
+
+        $scope->createRecord('fe_groups', ['uid' => 1, 'title' => 'Some group']);
+
+        $response = $scope->doGraphqlRequest('{
+            page(uid: 1, publicRequest: false) {
+                title
+            }
+        }');
+
+        self::assertEquals('Root', $response['data']['page']['title']);
+    }
+
     protected function assertThrowsException(\Closure $closure): self
     {
         try {
             $closure();
-            $this->fail('Exception expected, but was never thrown.');
         } catch (\Throwable $e) {
             self::assertInstanceOf(\Throwable::class, $e);
+
+            return $this;
         }
+
+        $this->fail('Exception expected, but was never thrown.');
 
         return $this;
     }

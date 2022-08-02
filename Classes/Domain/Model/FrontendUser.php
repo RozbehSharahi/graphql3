@@ -25,6 +25,7 @@ class FrontendUser implements UserInterface
                 $userAspect->get('id'),
                 $userAspect->get('username'),
                 $userAspect->getGroupNames(),
+                $userAspect->getGroupIds(),
                 $userAspect->isLoggedIn()
             );
         } catch (AspectNotFoundException|AspectPropertyNotFoundException) {
@@ -34,11 +35,13 @@ class FrontendUser implements UserInterface
 
     /**
      * @param array<int, string> $groupNames
+     * @param array<int, int>    $groupIds
      */
     public function __construct(
         protected ?int $id,
         protected string $userName,
         protected array $groupNames,
+        protected array $groupIds,
         protected bool $loggedIn
     ) {
     }
@@ -69,6 +72,14 @@ class FrontendUser implements UserInterface
     public function getGroupNames(): array
     {
         return $this->groupNames;
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    public function getGroupIds(): array
+    {
+        return $this->groupIds;
     }
 
     public function isLoggedIn(): bool

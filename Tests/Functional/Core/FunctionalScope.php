@@ -7,15 +7,11 @@ namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RozbehSharahi\Graphql3\Builder\Node\LanguageListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\Node\LanguageNodeBuilder;
 use RozbehSharahi\Graphql3\Middleware\GraphqlRequestMiddleware;
-use RozbehSharahi\Graphql3\Node\LanguageListNode;
-use RozbehSharahi\Graphql3\Node\LanguageNode;
-use RozbehSharahi\Graphql3\Node\PageListNode;
-use RozbehSharahi\Graphql3\Node\PageNode;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
-use RozbehSharahi\Graphql3\Type\PageType;
 use RozbehSharahi\Graphql3\Type\QueryType;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -77,26 +73,6 @@ class FunctionalScope
         return $this->get(QueryType::class);
     }
 
-    public function getPageNode(): PageNode
-    {
-        return $this->get(PageNode::class);
-    }
-
-    public function getPageType(): PageType
-    {
-        return $this->get(PageType::class);
-    }
-
-    public function getPageListNode(): PageListNode
-    {
-        return $this->get(PageListNode::class);
-    }
-
-    public function getRecordResolver(): RecordResolver
-    {
-        return $this->get(RecordResolver::class);
-    }
-
     public function getSiteFinder(): SiteFinder
     {
         return $this->get(SiteFinder::class);
@@ -107,14 +83,14 @@ class FunctionalScope
         return $this->get(AccessChecker::class);
     }
 
-    public function getLanguageNode(): LanguageNode
+    public function getLanguageNode(): LanguageNodeBuilder
     {
-        return $this->get(LanguageNode::class);
+        return $this->get(LanguageNodeBuilder::class);
     }
 
-    public function getLanguageListNode(): LanguageListNode
+    public function getLanguageListNode(): LanguageListNodeBuilder
     {
-        return $this->get(LanguageListNode::class);
+        return $this->get(LanguageListNodeBuilder::class);
     }
 
     public function doServerRequest(ServerRequestInterface $request): ResponseInterface
@@ -168,5 +144,20 @@ class FunctionalScope
         ;
 
         return $this;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getRecord(string $table, int $uid): array
+    {
+        $query = $this->getConnectionPool()->getQueryBuilderForTable($table);
+        $query->from($table)->select('*')->where('uid='.$uid);
+
+        try {
+            return $query->executeQuery()->fetchAssociative();
+        } catch (\Throwable) {
+            throw new \RuntimeException('Could not fetch page with ID: '.$uid.' in test scope.');
+        }
     }
 }
