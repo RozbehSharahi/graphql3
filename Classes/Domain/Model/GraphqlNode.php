@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\Type;
 
 class GraphqlNode
 {
-    public static function create(string $name): self
+    public static function create(string $name = 'unnamed'): self
     {
         return new self($name, Type::string(), fn () => null, GraphqlArgumentCollection::create());
     }

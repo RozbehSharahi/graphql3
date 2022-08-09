@@ -9,6 +9,9 @@ namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use GraphQL\Type\Schema;
 use Psr\Container\ContainerInterface;
+use RozbehSharahi\Graphql3\Builder\Type\LanguageTypeBuilder;
+use RozbehSharahi\Graphql3\Builder\Type\RecordListTypeBuilder;
+use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Type\NoopQueryType;
 use Symfony\Component\Yaml\Yaml;
@@ -284,6 +287,10 @@ class FunctionScopeBuilder
 
         $container = Bootstrap::init($classLoader, false);
         ob_end_clean();
+
+        RecordTypeBuilder::flushCache();
+        RecordListTypeBuilder::flushCache();
+        LanguageTypeBuilder::flushCache();
 
         if ($this->autoCreateSchema) {
             $this->createDatabaseStructure();

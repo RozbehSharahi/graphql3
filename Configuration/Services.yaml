@@ -8,10 +8,6 @@ services:
     resource: '../Classes/*'
     exclude: '../Classes/Domain/Model/*'
 
-  RozbehSharahi\Graphql3\Node\Nested\:
-    resource: '../Classes/Node/Nested/*'
-    public: true
-
   RozbehSharahi\Graphql3\Middleware\GraphqlRequestMiddleware:
     arguments:
       $setups: !tagged_iterator graphql3.setup
@@ -20,18 +16,19 @@ services:
     arguments:
       $extenders: !tagged_iterator graphql3.query_type_extender
 
-  RozbehSharahi\Graphql3\Type\PageType:
+  RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder:
     arguments:
-      $extenders: !tagged_iterator graphql3.page_type_extender
+      $extenders: !tagged_iterator graphql3.record_node_extender
 
-  RozbehSharahi\Graphql3\Node\PageNode:
+  RozbehSharahi\Graphql3\Resolver\RecordResolver:
     arguments:
-      $extenders: !tagged_iterator graphql3.page_node_extender
-
-  RozbehSharahi\Graphql3\Resolver\PageResolver:
-    arguments:
-      $extenders: !tagged_iterator graphql3.page_node_extender
+      $extenders: !tagged_iterator graphql3.record_node_extender
 
   RozbehSharahi\Graphql3\Security\AccessChecker:
     arguments:
       $voters: !tagged_iterator graphql3.voter
+
+  RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder:
+    arguments:
+      $fieldCreators: !tagged_iterator { tag: graphql3.field_creator, default_priority_method: getPriority }
+      $extenders: !tagged_iterator graphql3.record_type_builder_extender
