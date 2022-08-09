@@ -316,7 +316,7 @@ out `vendor/rozbehsharahi/graphql3/Classes/Builder/Node` to see which other buil
 When creating a meaningful page node we most likely need:
 
 - A resolver to load a page
-- An uid argument which defines which pages should be loaded
+- An uid argument which defines which page should be loaded
 - A type which describes the fields of the page.
 
 The `RecordNodeBuilder` can be used as following:
