@@ -213,60 +213,6 @@ You might already check out your `/graphiql` route and for instance send a query
 In order to expose a TYPO3 table, a record graphql type is needed. Graphql3 provides a TCA based record type builder.
 The builder will generate `webonyx/graphql` object types based on TCA configuration.
 
-```php
-<?php
-
-namespace Your\Code;
-
-use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-
-$recordTypeBuilder = GeneralUtility::makeInstance(RecordTypeBuilder::class);
-
-// Build page type full automatically
-$pageObjectType = $recordTypeBuilder->for('pages')->build();
-```
-
-Apart from just creating the record type on the fly, the builder will also provide extendability and type caching.
-
-Any extension can hook into the type creation of any table by
-implementing `\RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface`.
-
-The following code shows how the pages type can be extended by an additional node `md5`.
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace Your\Extension;
-
-use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
-
-class Md5PageTypeExtender implements RecordTypeBuilderExtenderInterface
-{
-    public function supportsTable(string $table): bool
-    {
-        return 'pages' === $table;
-    }
-
-    public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
-    {
-        return $nodes->add(
-            GraphqlNode::create('md5')->withResolver(fn ($page) => md5(json_encode($page, JSON_THROW_ON_ERROR)))
-        );
-    }
-}
-```
-
-As long as the class implements `\RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface` the position
-does not matter. Symfony dependency injection will take care of loading the extender.
-
-It is also possible to remove or edit existing fields by extenders. For this check out `GraphqlNodeCollection`
-and `GraphqlNode`, which will be explained in chapter `GraphqlNode and GraphqlNodeCollection`.
-
 In the following example a page node on root query is created with the help of record-type-builder.
 
 ```php
@@ -311,7 +257,48 @@ class GraphqlSetup implements SetupInterface
 
 The given example only passes a hard-coded page array to the type.
 
-It does make a lot of sense to have a `uid` parameter and a resolver which loads the page by that `uid`.
+> It does make a lot of sense to have a `uid` parameter and a resolver which loads the page by that `uid`. This will
+> be tackled in the following chapters.
+
+Apart from just creating the record type on the fly, the builder will also provide extendability and type caching.
+
+Any extension can hook into the type creation of any table by
+implementing `\RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface`.
+
+The following code shows how the pages type can be extended by an additional node `md5`.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Your\Extension;
+
+use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+
+class Md5PageTypeExtender implements RecordTypeBuilderExtenderInterface
+{
+    public function supportsTable(string $table): bool
+    {
+        return 'pages' === $table;
+    }
+
+    public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
+    {
+        return $nodes->add(
+            GraphqlNode::create('md5')->withResolver(fn ($page) => md5(json_encode($page, JSON_THROW_ON_ERROR)))
+        );
+    }
+}
+```
+
+> As long as the class implements `\RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface` the position
+> does not matter. Symfony dependency injection will take care of loading the extender.
+
+It is also possible to remove or edit existing fields by extenders. For this check out `GraphqlNodeCollection`
+and `GraphqlNode`, which will be explained in chapter `GraphqlNode and GraphqlNodeCollection`.
 
 ### Node builders
 
@@ -321,7 +308,10 @@ arguments.
 Every node builder implements `NodeBuilderInterface` which by definition means it provides a build method which returns
 an instance of `GraphqlNode`.
 
-In following sections the record-type-builder is taken as an example.
+In following sections the record-type-builder is taken as an example. Check
+out `vendor/rozbehsharahi/graphql3/Classes/Builder/Node` to see which other builders exist and can be used.
+
+---
 
 When creating a meaningful page node we most likely need:
 
@@ -376,8 +366,7 @@ There is a lot of features which will be activated by this. For instance:
 
 - [x] Access check
 - [x] Extendability via Extenders
-
-Check out `vendor/rozbehsharahi/graphql3/Classes/Builder/Node` to see which builders exist and can be used.
+- [x] Flexible mapping of tca fields to graphql fields
 
 ### GraphqlNode and GraphqlNodeCollection
 
