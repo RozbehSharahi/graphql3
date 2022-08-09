@@ -45,6 +45,10 @@ class ManyToOneRelationFieldCreator extends AbstractFieldCreator implements Fiel
             $foreignTable = 'pages';
         }
 
+        if ($columnName === $this->getLanguageParentColumnName($tableName)) {
+            $name = 'languageParent';
+        }
+
         return GraphqlNode::create()
             ->withName($name)
             ->withType($this->recordTypeBuilder->for($foreignTable)->build())
