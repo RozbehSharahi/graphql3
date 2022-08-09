@@ -8,8 +8,6 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
-use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionScopeBuilder;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class AccessCheckerTest extends TestCase
 {
@@ -74,6 +72,38 @@ class AccessCheckerTest extends TestCase
         self::assertEquals('Root', $response['data']['page']['title']);
     }
 
+    public function testFeGroupProtectedContentIsAccessChecked(): void
+    {
+        $scope = $this->createScope(
+            rootPage: ['uid' => 1, 'title' => 'Root']
+        );
+
+        $scope->createRecord('tt_content', ['uid' => 1, 'header' => 'my content', 'fe_group' => '-2']);
+
+        $this->assertThrowsException(function () use ($scope) {
+            $scope->doGraphqlRequest('{
+                content(uid: 1, publicRequest: false) {
+                    header
+                }
+            }');
+        });
+
+        $scope = $this->createScope(
+            rootPage: ['uid' => 1, 'title' => 'Root'],
+            frontendUser: ['uid' => 1, 'username' => 'test-user']
+        );
+
+        $scope->createRecord('tt_content', ['uid' => 1, 'header' => 'my content', 'fe_group' => '-2']);
+
+        $response = $scope->doGraphqlRequest('{
+            content(uid: 1, publicRequest: false) {
+                header
+            }
+        }');
+
+        self::assertEquals('my content', $response['data']['content']['header']);
+    }
+
     protected function assertThrowsException(\Closure $closure): self
     {
         try {
@@ -111,15 +141,5 @@ class AccessCheckerTest extends TestCase
         ]));
 
         return $scope;
-    }
-
-    protected function getFunctionalScopeBuilder(): FunctionScopeBuilder
-    {
-        return GeneralUtility::makeInstance(FunctionScopeBuilder::class)
-            ->withAutoCreateHomepage(false)
-            ->withAutoCreateSchema(true)
-            ->withAutoCreateSite(true)
-            ->withAutoCreateGraphqlSchema(false)
-        ;
     }
 }

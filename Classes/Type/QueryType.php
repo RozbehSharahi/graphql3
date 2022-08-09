@@ -29,6 +29,8 @@ class QueryType extends ObjectType
                 $nodes = GraphqlNodeCollection::create([
                     $this->recordNodeBuilder->for('pages')->build(),
                     $this->recordListNodeBuilder->for('pages')->build(),
+                    $this->recordNodeBuilder->for('tt_content')->build()->withName('content'),
+                    $this->recordListNodeBuilder->for('tt_content')->build()->withName('contents'),
                     $this->languageNodeBuilder->build(),
                     $this->languageListNodeBuilder->build(),
                 ]);
