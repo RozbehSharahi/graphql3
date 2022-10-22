@@ -23,3 +23,5 @@ List of todos
 - [ ] Content type, node and relation on page type
 - [ ] Model nodes, types and relations (automatic setup)
 - [x] Disable sensitive data (example: page.fe_group)
+- [ ] Media relations
+- [ ] Flex-Form support
