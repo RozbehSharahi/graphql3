@@ -127,6 +127,6 @@ class RecordTypeBuilder implements TypeBuilderInterface
             return true;
         }
 
-        return $GLOBALS['TCA'][$this->table]['ctrl']['enablecolumns']['fe_group'] === $columnName;
+        return ($GLOBALS['TCA'][$this->table]['ctrl']['enablecolumns']['fe_group'] ?? null) === $columnName;
     }
 }

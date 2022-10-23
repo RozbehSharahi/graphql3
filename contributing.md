@@ -28,8 +28,3 @@ Installation steps should be fast and easy if you use sqlite (hopefully :)).
 
 When using my `doka` package, the path would be `http://localhost:8080/typo3/install.php`, according to configuration
 in `.doka.env`.
-
-# Well known open tasks
-
-- Need tests for installation of extension ext_localconf.php of Graphql3TestExtension.
-- Need good test base in order to test if extending graphql3 via extensions is working

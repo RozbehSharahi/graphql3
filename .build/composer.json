@@ -19,24 +19,24 @@
             "email": "rozbeh.sharahi+graphql3@gmail.com"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
         "rozbehsharahi/graphql3": "@dev",
         "rozbehsharahi/graphql3-test-extension": "@dev"
     },
     "require-dev": {
-        "typo3/cms-install": "12.1.x-dev",
-        "typo3/cms-lowlevel": "12.1.x-dev"
+        "typo3/cms-install": "^12.0",
+        "typo3/cms-lowlevel": "^12.0"
     },
     "scripts": {
         "setup": [
             "mkdir -p ./extensions/",
+            "mkdir -p ./public/",
             "ln -snf ./../../ ./extensions/graphql3",
             "ln -snf ./../../Tests/Fixture/Graphql3TestExtension ./extensions/graphql3-test-extension",
             "cp _.htaccess public/.htaccess"
         ],
-        "post-install-cmd": "@setup",
-        "post-update-cmd": "@setup"
+        "pre-install-cmd": "@setup",
+        "pre-update-cmd": "@setup"
     },
     "config": {
         "allow-plugins": {

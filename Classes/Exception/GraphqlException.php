@@ -26,4 +26,9 @@ class GraphqlException extends \RuntimeException implements ClientAware
     {
         return $this->clientSafe;
     }
+
+    public function getCategory(): string
+    {
+        return 'typo3';
+    }
 }
