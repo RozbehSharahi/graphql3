@@ -21,7 +21,7 @@ class SchemaRegistry
     public function getSchema(): Schema
     {
         if (empty($this->schema)) {
-            throw new GraphqlException('No schema registered. Did you call `'.self::class.'::registerSchema`. '.'For instance in a middleware?');
+            throw new GraphqlException('No schema registered. Did you call `'.self::class.'::registerSchema`. For instance in a middleware?');
         }
 
         return $this->schema;
