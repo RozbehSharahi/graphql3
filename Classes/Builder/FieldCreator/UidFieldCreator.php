@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 
+use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
-use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 
-class StringFieldCreator implements FieldCreatorInterface
+class UidFieldCreator implements FieldCreatorInterface
 {
     public static function getPriority(): int
     {
@@ -16,14 +16,15 @@ class StringFieldCreator implements FieldCreatorInterface
 
     public function supportsField(string $tableName, string $columnName): bool
     {
-        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isString() ?: false;
+        return 'uid' === $columnName;
     }
 
     public function createField(string $tableName, string $columnName): GraphqlNode
     {
         return GraphqlNode::create()
-            ->withName(ColumnConfiguration::fromTableAndColumn($tableName, $columnName)->getGraphqlName())
-            ->withResolver(fn ($record) => $record[$columnName])
+            ->withName($columnName)
+            ->withType(Type::int())
+            ->withResolver(fn (array $record) => $record[$columnName])
         ;
     }
 }

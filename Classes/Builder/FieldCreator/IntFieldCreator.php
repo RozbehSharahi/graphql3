@@ -6,8 +6,9 @@ namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 
 use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 
-class IntFieldCreator extends AbstractFieldCreator implements FieldCreatorInterface
+class IntFieldCreator implements FieldCreatorInterface
 {
     public static function getPriority(): int
     {
@@ -16,19 +17,13 @@ class IntFieldCreator extends AbstractFieldCreator implements FieldCreatorInterf
 
     public function supportsField(string $tableName, string $columnName): bool
     {
-        $configuration = $this->getFieldConfiguration($tableName, $columnName);
-
-        if ('uid' === $columnName) {
-            return true;
-        }
-
-        return 'number' === $configuration['type'] && 'decimal' !== $configuration['format'];
+        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isInt() ?: false;
     }
 
     public function createField(string $tableName, string $columnName): GraphqlNode
     {
         return GraphqlNode::create()
-            ->withName($this->getName($tableName, $columnName))
+            ->withName(ColumnConfiguration::fromTableAndColumn($tableName, $columnName)->getGraphqlName())
             ->withType(Type::int())
             ->withResolver(fn (array $record) => $record[$columnName])
         ;

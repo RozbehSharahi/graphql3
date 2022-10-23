@@ -6,8 +6,9 @@ namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 
 use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 
-class BoolFieldCreator extends AbstractFieldCreator implements FieldCreatorInterface
+class BoolFieldCreator implements FieldCreatorInterface
 {
     public static function getPriority(): int
     {
@@ -16,19 +17,26 @@ class BoolFieldCreator extends AbstractFieldCreator implements FieldCreatorInter
 
     public function supportsField(string $tableName, string $columnName): bool
     {
-        $configuration = $this->getFieldConfiguration($tableName, $columnName);
-
-        if ('deleted' === $columnName) {
-            return true;
-        }
-
-        return 'check' === $configuration['type'] && count($configuration['items'] ?? []) <= 1;
+        return
+            'deleted' === $columnName ||
+            ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isBool()
+        ;
     }
 
     public function createField(string $tableName, string $columnName): GraphqlNode
     {
+        if ('deleted' === $columnName) {
+            return GraphqlNode::create()
+                ->withName($columnName)
+                ->withType(Type::nonNull(Type::boolean()))
+                ->withResolver(fn (array $record) => !empty($record[$columnName]))
+            ;
+        }
+
+        $config = ColumnConfiguration::fromTableAndColumn($tableName, $columnName);
+
         return GraphqlNode::create()
-            ->withName($this->getName($tableName, $columnName))
+            ->withName($config->getGraphqlName())
             ->withType(Type::nonNull(Type::boolean()))
             ->withResolver(fn (array $record) => !empty($record[$columnName]))
         ;

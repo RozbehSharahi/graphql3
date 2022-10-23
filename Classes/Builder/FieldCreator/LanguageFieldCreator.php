@@ -7,9 +7,10 @@ namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 use RozbehSharahi\Graphql3\Builder\Type\LanguageTypeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\ItemRequest;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Resolver\LanguageResolver;
 
-class LanguageFieldCreator extends AbstractFieldCreator implements FieldCreatorInterface
+class LanguageFieldCreator implements FieldCreatorInterface
 {
     public function __construct(protected LanguageTypeBuilder $languageTypeBuilder, protected LanguageResolver $languageResolver)
     {
@@ -22,21 +23,13 @@ class LanguageFieldCreator extends AbstractFieldCreator implements FieldCreatorI
 
     public function supportsField(string $tableName, string $columnName): bool
     {
-        $configuration = $this->getFieldConfiguration($tableName, $columnName);
-
-        return 'language' === $configuration['type'];
+        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isLanguage() ?: false;
     }
 
     public function createField(string $tableName, string $columnName): GraphqlNode
     {
-        $name = $this->getName($tableName, $columnName);
-
-        if ('sys_language_uid' === $columnName) {
-            $name = 'language';
-        }
-
         return GraphqlNode::create()
-            ->withName($name)
+            ->withName(ColumnConfiguration::fromTableAndColumn($tableName, $columnName)->getGraphqlName())
             ->withType($this->languageTypeBuilder->build())
             ->withResolver(fn (array $record) => $this->languageResolver->resolve(new ItemRequest([
                 'id' => $record[$columnName] ?? 0,

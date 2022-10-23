@@ -8,10 +8,14 @@ use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
-use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 
-class DateTimeFieldCreator implements FieldCreatorInterface
+class CoreDateTimeFieldCreator implements FieldCreatorInterface
 {
+    public const COLUMN_NAME_MAP = [
+        'tstamp' => 'updatedAt',
+        'crdate' => 'createdAt',
+    ];
+
     public static function getPriority(): int
     {
         return 0;
@@ -19,22 +23,18 @@ class DateTimeFieldCreator implements FieldCreatorInterface
 
     public function supportsField(string $tableName, string $columnName): bool
     {
-        if (in_array($columnName, ['tstamp', 'crdate'])) {
-            return false;
-        }
-
-        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isDateTime() ?: false;
+        return array_key_exists($columnName, self::COLUMN_NAME_MAP);
     }
 
     public function createField(string $tableName, string $columnName): GraphqlNode
     {
+        $arguments = GraphqlArgumentCollection::create([
+            GraphqlArgument::create('format')->withType(Type::nonNull(Type::string()))->withDefaultValue('Y-m-d H:i'),
+        ]);
+
         return GraphqlNode::create()
-            ->withName(ColumnConfiguration::fromTableAndColumn($tableName, $columnName)->getGraphqlName())
-            ->withArguments(GraphqlArgumentCollection::create([
-                GraphqlArgument::create('format')
-                    ->withType(Type::nonNull(Type::string()))
-                    ->withDefaultValue('Y-m-d H:i'),
-            ]))
+            ->withName(self::COLUMN_NAME_MAP[$columnName])
+            ->withArguments($arguments)
             ->withResolver(fn ($record, $args) => date($args['format'], $record[$columnName]))
         ;
     }

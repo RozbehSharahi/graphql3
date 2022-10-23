@@ -7,10 +7,9 @@ namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\ItemRequest;
-use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 
-class ManyToOneRelationFieldCreator implements FieldCreatorInterface
+class PidFieldCreator implements FieldCreatorInterface
 {
     public function __construct(
         protected RecordTypeBuilder $recordTypeBuilder,
@@ -25,20 +24,16 @@ class ManyToOneRelationFieldCreator implements FieldCreatorInterface
 
     public function supportsField(string $tableName, string $columnName): bool
     {
-        $config = ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName);
-
-        return $config && $config->isManyToOne() && !$config->isLanguageParent();
+        return 'pid' === $columnName;
     }
 
     public function createField(string $tableName, string $columnName): GraphqlNode
     {
-        $config = ColumnConfiguration::fromTableAndColumn($tableName, $columnName);
-
         return GraphqlNode::create()
-            ->withName($config->getGraphqlName())
-            ->withType($this->recordTypeBuilder->for($config->getForeignTable())->build())
+            ->withName('parentPage')
+            ->withType($this->recordTypeBuilder->for('pages')->build())
             ->withResolver(fn ($record) => $this
-                ->recordResolver->for($config->getForeignTable())->resolve(new ItemRequest(['uid' => $record[$columnName] ?? null]))
+                ->recordResolver->for('pages')->resolve(new ItemRequest(['uid' => $record[$columnName] ?? null]))
             )
         ;
     }
