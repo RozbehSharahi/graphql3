@@ -47,6 +47,56 @@ class PageTest extends TestCase
         self::assertSame('Second subpage', $response['data']['page']['children']['items'][1]['title']);
     }
 
+    public function testCanFetchMediaOnContent(): void
+    {
+        $scope = $this->createScope();
+
+        $scope
+            ->createRecord('sys_file', ['uid' => 200, 'identifier' => '/user_upload/whatever'])
+            ->createRecord('sys_file', ['uid' => 300, 'identifier' => '/user_upload/whatever-2'])
+            ->createRecord('sys_file_reference', [
+                'uid' => 1,
+                'tablenames' => 'pages',
+                'fieldname' => 'media',
+                'uid_local' => 200,
+                'uid_foreign' => 1,
+            ])
+            ->createRecord('sys_file_reference', [
+                'uid' => 2,
+                'tablenames' => 'different-entity',
+                'fieldname' => 'some-thing-else',
+                'uid_local' => 200,
+                'uid_foreign' => 9999,
+            ])
+            ->createRecord('sys_file_reference', [
+                'uid' => 3,
+                'tablenames' => 'different-entity',
+                'fieldname' => 'some-thing-else',
+                'uid_local' => 300,
+                'uid_foreign' => 1,
+            ])
+        ;
+
+        $scope
+            ->getSchemaRegistry()
+            ->register(new Schema(['query' => $scope->get(QueryType::class)]))
+        ;
+
+        $response = $scope->doGraphqlRequest('{ 
+            page(uid: 1) {
+                title
+                media {
+                  count
+                }
+            }
+        }');
+
+        self::assertArrayHasKey('page', $response['data']);
+        self::assertNotEmpty($response['data']['page']);
+        self::assertSame('root page', $response['data']['page']['title']);
+        self::assertSame(1, $response['data']['page']['media']['count']);
+    }
+
     private function createScope(): FunctionalScope
     {
         return $this->getFunctionalScopeBuilder()->build();

@@ -42,11 +42,6 @@ class ColumnConfiguration
     {
     }
 
-    public function getForeignTable(): ?string
-    {
-        return $this->configuration['config']['foreign_table'] ?? null;
-    }
-
     public function getGraphqlName(): ?string
     {
         if ($graphql3Name = $this->configuration['config']['graphql3']['name'] ?? null) {
@@ -58,6 +53,21 @@ class ColumnConfiguration
         }
 
         return $this->getConverter()->toCamel($this->column);
+    }
+
+    public function getForeignTable(): ?string
+    {
+        return $this->configuration['config']['foreign_table'] ?? null;
+    }
+
+    public function getForeignField(): ?string
+    {
+        return $this->configuration['config']['foreign_field'] ?? null;
+    }
+
+    public function getRelationTable(): ?string
+    {
+        return $this->configuration['config']['MM'] ?? null;
     }
 
     public function getType(): ?string
@@ -102,7 +112,14 @@ class ColumnConfiguration
 
     public function isOneToMany(): bool
     {
-        return 'inline' === $this->getType() && $this->getForeignTable();
+        return !$this->getRelationTable() && 'inline' === $this->getType() && $this->getForeignTable();
+    }
+
+    public function isFile(): bool
+    {
+        return
+            'file' === $this->getType() ||
+            ('inline' === $this->getType() && 'sys_file_reference' === $this->getForeignTable());
     }
 
     public function isManyToOne(): bool
@@ -123,5 +140,18 @@ class ColumnConfiguration
     protected function getConverter(): CaseConverter
     {
         return GeneralUtility::makeInstance(CaseConverter::class);
+    }
+
+    public function getForeignTableField(): ?string
+    {
+        return $this->configuration['config']['foreign_table_field'] ?? null;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getForeignMatchFields(): array
+    {
+        return $this->configuration['config']['foreign_match_fields'] ?? [];
     }
 }

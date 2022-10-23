@@ -72,6 +72,7 @@ class RecordListResolver
 
         return $this
             ->applyFilters($query, $request)
+            ->applyListRequestModification($query, $request)
             ->applyPublicRequestFilters($query, $request)
             ->fetchRowCount($query)
         ;

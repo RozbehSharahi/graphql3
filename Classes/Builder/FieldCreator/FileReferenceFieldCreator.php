@@ -11,7 +11,7 @@ use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
-class OneToManyRelationFieldCreator implements FieldCreatorInterface
+class FileReferenceFieldCreator implements FieldCreatorInterface
 {
     public function __construct(
         protected RecordTypeBuilder $recordTypeBuilder,
@@ -26,7 +26,7 @@ class OneToManyRelationFieldCreator implements FieldCreatorInterface
 
     public function supportsField(string $tableName, string $columnName): bool
     {
-        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isOneToMany() ?: false;
+        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isFile() ?: false;
     }
 
     public function createField(string $tableName, string $columnName): GraphqlNode
@@ -35,10 +35,17 @@ class OneToManyRelationFieldCreator implements FieldCreatorInterface
 
         return GraphqlNode::create()
             ->withName($config->getGraphqlName())
-            ->withType($this->recordListTypeBuilder->for($config->getForeignTable())->build())
+            ->withType($this->recordListTypeBuilder->for('sys_file_reference')->build())
             ->withResolver(fn (array $row) => (new ListRequest())
-                ->withQueryModifier(static function (QueryBuilder $q) use ($config, $row) {
-                    $q->andWhere($q->expr()->eq($config->getForeignField(), $row['uid']));
+                ->withQueryModifier(static function (QueryBuilder $q) use ($tableName, $config, $row) {
+                    $q
+                        ->andWhere($q->expr()->eq('uid_foreign', $row['uid']))
+                        ->andWhere($q->expr()->eq('tablenames', $q->createNamedParameter($tableName)))
+                    ;
+
+                    foreach ($config->getForeignMatchFields() as $fieldName => $value) {
+                        $q->andWhere($q->expr()->eq($fieldName, $q->createNamedParameter($value)));
+                    }
                 }))
         ;
     }

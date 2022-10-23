@@ -77,7 +77,9 @@ class Executor
             throw new GraphqlException('No query provided to execute');
         }
 
-        $debugFlag = Environment::getContext()->isTesting() ? DebugFlag::INCLUDE_DEBUG_MESSAGE : DebugFlag::NONE;
+        $debugFlag = Environment::getContext()->isTesting() || Environment::getContext()->isDevelopment()
+            ? DebugFlag::INCLUDE_DEBUG_MESSAGE
+            : DebugFlag::NONE;
 
         return GraphQL::executeQuery($this->schema, $this->query, null, null, $this->variables)->toArray($debugFlag);
     }

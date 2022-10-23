@@ -11,7 +11,7 @@ List of todos
 - [x] Page list node filters
 - [x] Page list node pagination
 - [x] Page list node extendability
-- [ ] Pages children
+- [x] Pages children
 - [ ] Support languages on lists
 - [x] Language type, node and relation on page type
 - [x] Access control via voters (incl. login and fe_group checks)
@@ -23,6 +23,7 @@ List of todos
 - [ ] Content type, node and relation on page type
 - [ ] Model nodes, types and relations (automatic setup)
 - [x] Disable sensitive data (example: page.fe_group)
-- [ ] Finish one to many relation field creator (missing query for relation)
+- [x] One to many relation field creator (missing query for relation)
 - [ ] Media relations
 - [ ] Flex-Form support
+- [ ] ManyToManyRelationFieldCreator
