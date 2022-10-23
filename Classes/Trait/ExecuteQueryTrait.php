@@ -13,7 +13,7 @@ trait ExecuteQueryTrait
     /**
      * @return array<string, mixed>
      */
-    public function fetch(QueryBuilder $query): array
+    protected function fetch(QueryBuilder $query): array
     {
         try {
             return $query->executeQuery()->fetchAssociative();
@@ -25,7 +25,7 @@ trait ExecuteQueryTrait
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function fetchAll(QueryBuilder $query): array
+    protected function fetchAll(QueryBuilder $query): array
     {
         try {
             return $query->executeQuery()->fetchAllAssociative();
@@ -34,7 +34,7 @@ trait ExecuteQueryTrait
         }
     }
 
-    public function fetchRowCount(QueryBuilder $query): int
+    protected function fetchRowCount(QueryBuilder $query): int
     {
         try {
             return $query->selectLiteral('count(*) as count')->executeQuery()->fetchAssociative()['count'];

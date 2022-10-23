@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
+use Closure;
+
 class ListRequest
 {
     public const DEFAULT_PAGE = 1;
@@ -17,11 +19,14 @@ class ListRequest
     public const PARAMETER_FILTERS = 'filters';
     public const PARAMETER_PUBLIC_REQUEST = 'publicRequest';
 
+    protected Closure $queryModifier;
+
     /**
      * @param array<string, mixed> $arguments
      */
-    public function __construct(protected array $arguments)
+    public function __construct(protected array $arguments = [], Closure $queryModifier = null)
     {
+        $this->queryModifier = $queryModifier ?: static fn ($v) => $v;
     }
 
     /**
@@ -30,6 +35,30 @@ class ListRequest
     public function getArguments(): array
     {
         return $this->arguments;
+    }
+
+    /**
+     * @param array<string,mixed> $arguments
+     */
+    public function withArguments(array $arguments): self
+    {
+        $clone = clone $this;
+        $clone->arguments = $arguments;
+
+        return $clone;
+    }
+
+    public function getQueryModifier(): Closure
+    {
+        return $this->queryModifier;
+    }
+
+    public function withQueryModifier(Closure $queryModifier): self
+    {
+        $clone = clone $this;
+        $clone->queryModifier = $queryModifier;
+
+        return $clone;
     }
 
     public function getPage(): int

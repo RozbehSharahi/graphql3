@@ -55,6 +55,7 @@ class RecordListResolver
             ->applyPublicRequestFilters($query, $request)
             ->applyPagination($query, $request)
             ->applySorting($query, $request)
+            ->applyListRequestModification($query, $request)
             ->fetchAll($query)
         ;
 
@@ -86,7 +87,7 @@ class RecordListResolver
         ;
     }
 
-    private function applyPublicRequestFilters(QueryBuilder $query, ListRequest $request): self
+    protected function applyPublicRequestFilters(QueryBuilder $query, ListRequest $request): self
     {
         if (!$request->isPublicRequest()) {
             return $this;
@@ -107,7 +108,7 @@ class RecordListResolver
         return $this;
     }
 
-    private function applyFilters(QueryBuilder $query, ListRequest $request): self
+    protected function applyFilters(QueryBuilder $query, ListRequest $request): self
     {
         if (empty($request->getFilters())) {
             return $this;
@@ -118,7 +119,7 @@ class RecordListResolver
         return $this;
     }
 
-    private function applyPagination(QueryBuilder $query, ListRequest $request): self
+    protected function applyPagination(QueryBuilder $query, ListRequest $request): self
     {
         $offset = ($request->getPage() - 1) * $request->getPageSize();
         $length = $request->getPageSize();
@@ -128,7 +129,7 @@ class RecordListResolver
         return $this;
     }
 
-    private function applySorting(QueryBuilder $query, ListRequest $request): self
+    protected function applySorting(QueryBuilder $query, ListRequest $request): self
     {
         foreach ($request->getOrderBy() as $orderItem) {
             $this->assertOrderItemValid($orderItem);
@@ -138,12 +139,19 @@ class RecordListResolver
         return $this;
     }
 
+    protected function applyListRequestModification(QueryBuilder $query, ListRequest $request): self
+    {
+        $request->getQueryModifier()($query);
+
+        return $this;
+    }
+
     /**
      * @param array<string, string> $orderItem
      *
      * @return $this
      */
-    private function assertOrderItemValid(array $orderItem): self
+    protected function assertOrderItemValid(array $orderItem): self
     {
         if (empty($orderItem['field'])) {
             throw GraphqlException::createClientSafe('Order item is not valid.');

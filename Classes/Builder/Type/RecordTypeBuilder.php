@@ -64,7 +64,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
                     $columNames = array_keys($this->configuration['columns'] ?? []);
 
                     // Add core fields which are not present in TCA
-                    $columNames = ['uid', 'pid', 'tstamp', 'crdate', 'deleted', ...$columNames];
+                    $columNames = ['uid', 'pid', 'tstamp', 'crdate', 'deleted', 'children', ...$columNames];
 
                     foreach ($columNames as $columnName) {
                         $node = $this->resolveNode($columnName);
