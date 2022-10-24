@@ -12,8 +12,10 @@ use RozbehSharahi\Graphql3\Resolver\LanguageResolver;
 
 class LanguageFieldCreator implements FieldCreatorInterface
 {
-    public function __construct(protected LanguageTypeBuilder $languageTypeBuilder, protected LanguageResolver $languageResolver)
-    {
+    public function __construct(
+        protected LanguageTypeBuilder $languageTypeBuilder,
+        protected LanguageResolver $languageResolver
+    ) {
     }
 
     public static function getPriority(): int
@@ -21,18 +23,18 @@ class LanguageFieldCreator implements FieldCreatorInterface
         return 0;
     }
 
-    public function supportsField(string $tableName, string $columnName): bool
+    public function supportsField(ColumnConfiguration $column): bool
     {
-        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isLanguage() ?: false;
+        return $column->isLanguage();
     }
 
-    public function createField(string $tableName, string $columnName): GraphqlNode
+    public function createField(ColumnConfiguration $column): GraphqlNode
     {
         return GraphqlNode::create()
-            ->withName(ColumnConfiguration::fromTableAndColumn($tableName, $columnName)->getGraphqlName())
+            ->withName($column->getGraphqlName())
             ->withType($this->languageTypeBuilder->build())
             ->withResolver(fn (array $record) => $this->languageResolver->resolve(new ItemRequest([
-                'id' => $record[$columnName] ?? 0,
+                'id' => $record[$column->getName()] ?? 0,
             ])))
         ;
     }

@@ -23,22 +23,20 @@ class ManyToOneRelationFieldCreator implements FieldCreatorInterface
         return 0;
     }
 
-    public function supportsField(string $tableName, string $columnName): bool
+    public function supportsField(ColumnConfiguration $column): bool
     {
-        $config = ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName);
-
-        return $config && $config->isManyToOne() && !$config->isLanguageParent();
+        return $column->isManyToOne() && !$column->isLanguageParent();
     }
 
-    public function createField(string $tableName, string $columnName): GraphqlNode
+    public function createField(ColumnConfiguration $column): GraphqlNode
     {
-        $config = ColumnConfiguration::fromTableAndColumn($tableName, $columnName);
-
         return GraphqlNode::create()
-            ->withName($config->getGraphqlName())
-            ->withType($this->recordTypeBuilder->for($config->getForeignTable())->build())
+            ->withName($column->getGraphqlName())
+            ->withType($this->recordTypeBuilder->for($column->getForeignTable())->build())
             ->withResolver(fn ($record) => $this
-                ->recordResolver->for($config->getForeignTable())->resolve(new ItemRequest(['uid' => $record[$columnName] ?? null]))
+                ->recordResolver
+                ->for($column->getForeignTable())
+                ->resolve(new ItemRequest(['uid' => $record[$column->getName()] ?? null]))
             )
         ;
     }

@@ -82,15 +82,15 @@ class RecordTypeBuilder implements TypeBuilderInterface
 
     protected function resolveNode(string $columnName): ?GraphqlNode
     {
-        $config = $this->configuration->getColumn($columnName);
+        $column = $this->configuration->getColumn($columnName);
 
-        if (!$config->isGraphqlActive()) {
+        if (!$column->isGraphqlActive()) {
             return null;
         }
 
         foreach ($this->fieldCreators as $fieldCreator) {
-            if ($fieldCreator->supportsField($this->table, $columnName)) {
-                return $fieldCreator->createField($this->table, $columnName);
+            if ($fieldCreator->supportsField($column)) {
+                return $fieldCreator->createField($column);
             }
         }
 

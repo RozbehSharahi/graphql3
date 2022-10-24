@@ -15,17 +15,17 @@ class FloatFieldCreator implements FieldCreatorInterface
         return 0;
     }
 
-    public function supportsField(string $tableName, string $columnName): bool
+    public function supportsField(ColumnConfiguration $column): bool
     {
-        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isFloat() ?: false;
+        return $column->isFloat();
     }
 
-    public function createField(string $tableName, string $columnName): GraphqlNode
+    public function createField(ColumnConfiguration $column): GraphqlNode
     {
         return GraphqlNode::create()
-            ->withName(ColumnConfiguration::fromTableAndColumn($tableName, $columnName)->getGraphqlName())
+            ->withName($column->getGraphqlName())
             ->withType(Type::float())
-            ->withResolver(fn (array $record) => $record[$columnName])
+            ->withResolver(fn (array $record) => $record[$column->getName()])
         ;
     }
 }

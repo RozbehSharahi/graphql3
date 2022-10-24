@@ -17,21 +17,21 @@ class DateTimeFieldCreator implements FieldCreatorInterface
         return 0;
     }
 
-    public function supportsField(string $tableName, string $columnName): bool
+    public function supportsField(ColumnConfiguration $column): bool
     {
-        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isDateTime() ?: false;
+        return $column->isDateTime();
     }
 
-    public function createField(string $tableName, string $columnName): GraphqlNode
+    public function createField(ColumnConfiguration $column): GraphqlNode
     {
         return GraphqlNode::create()
-            ->withName(ColumnConfiguration::fromTableAndColumn($tableName, $columnName)->getGraphqlName())
+            ->withName($column->getGraphqlName())
             ->withArguments(GraphqlArgumentCollection::create([
                 GraphqlArgument::create('format')
                     ->withType(Type::nonNull(Type::string()))
                     ->withDefaultValue('Y-m-d H:i'),
             ]))
-            ->withResolver(fn ($record, $args) => date($args['format'], $record[$columnName]))
+            ->withResolver(fn ($record, $args) => date($args['format'], $record[$column->getName()]))
         ;
     }
 }

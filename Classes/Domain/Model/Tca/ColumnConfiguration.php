@@ -38,8 +38,13 @@ class ColumnConfiguration
     /**
      * @param array<string, mixed> $configuration
      */
-    public function __construct(protected string $table, protected string $column, protected array $configuration)
+    public function __construct(protected string $table, protected string $name, protected array $configuration)
     {
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     public function getGraphqlName(): ?string
@@ -48,11 +53,16 @@ class ColumnConfiguration
             return $graphql3Name;
         }
 
-        if ($hardMappedName = self::HARD_NAME_MAP[$this->column] ?? null) {
+        if ($hardMappedName = self::HARD_NAME_MAP[$this->name] ?? null) {
             return $hardMappedName;
         }
 
-        return $this->getConverter()->toCamel($this->column);
+        return $this->getConverter()->toCamel($this->name);
+    }
+
+    public function getTable(): string
+    {
+        return $this->table;
     }
 
     public function getForeignTable(): ?string
@@ -134,7 +144,7 @@ class ColumnConfiguration
 
     public function isLanguageParent(): bool
     {
-        return TableConfiguration::fromTableName($this->table)->getLanguageParentFieldName() === $this->column;
+        return TableConfiguration::fromTableName($this->table)->getLanguageParentFieldName() === $this->name;
     }
 
     protected function getConverter(): CaseConverter
@@ -166,6 +176,6 @@ class ColumnConfiguration
     {
         $tableConfig = TableConfiguration::fromTableName($this->table);
 
-        return 'TSconfig' === $this->column || $tableConfig->getAccessControlField() === $this->column;
+        return 'TSconfig' === $this->name || $tableConfig->getAccessControlField() === $this->name;
     }
 }

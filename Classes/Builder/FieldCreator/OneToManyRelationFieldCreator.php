@@ -24,21 +24,19 @@ class OneToManyRelationFieldCreator implements FieldCreatorInterface
         return 0;
     }
 
-    public function supportsField(string $tableName, string $columnName): bool
+    public function supportsField(ColumnConfiguration $column): bool
     {
-        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isOneToMany() ?: false;
+        return $column->isOneToMany();
     }
 
-    public function createField(string $tableName, string $columnName): GraphqlNode
+    public function createField(ColumnConfiguration $column): GraphqlNode
     {
-        $config = ColumnConfiguration::fromTableAndColumn($tableName, $columnName);
-
         return GraphqlNode::create()
-            ->withName($config->getGraphqlName())
-            ->withType($this->recordListTypeBuilder->for($config->getForeignTable())->build())
+            ->withName($column->getGraphqlName())
+            ->withType($this->recordListTypeBuilder->for($column->getForeignTable())->build())
             ->withResolver(fn (array $row) => (new ListRequest())
-                ->withQueryModifier(static function (QueryBuilder $q) use ($config, $row) {
-                    $q->andWhere($q->expr()->eq($config->getForeignField(), $row['uid']));
+                ->withQueryModifier(static function (QueryBuilder $q) use ($column, $row) {
+                    $q->andWhere($q->expr()->eq($column->getForeignField(), $row['uid']));
                 }))
         ;
     }

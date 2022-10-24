@@ -24,26 +24,24 @@ class FileReferenceFieldCreator implements FieldCreatorInterface
         return 0;
     }
 
-    public function supportsField(string $tableName, string $columnName): bool
+    public function supportsField(ColumnConfiguration $column): bool
     {
-        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isFile() ?: false;
+        return $column->isFile();
     }
 
-    public function createField(string $tableName, string $columnName): GraphqlNode
+    public function createField(ColumnConfiguration $column): GraphqlNode
     {
-        $config = ColumnConfiguration::fromTableAndColumn($tableName, $columnName);
-
         return GraphqlNode::create()
-            ->withName($config->getGraphqlName())
+            ->withName($column->getGraphqlName())
             ->withType($this->recordListTypeBuilder->for('sys_file_reference')->build())
             ->withResolver(fn (array $row) => (new ListRequest())
-                ->withQueryModifier(static function (QueryBuilder $q) use ($tableName, $config, $row) {
+                ->withQueryModifier(static function (QueryBuilder $q) use ($column, $row) {
                     $q
                         ->andWhere($q->expr()->eq('uid_foreign', $row['uid']))
-                        ->andWhere($q->expr()->eq('tablenames', $q->createNamedParameter($tableName)))
+                        ->andWhere($q->expr()->eq('tablenames', $q->createNamedParameter($column->getTable())))
                     ;
 
-                    foreach ($config->getForeignMatchFields() as $fieldName => $value) {
+                    foreach ($column->getForeignMatchFields() as $fieldName => $value) {
                         $q->andWhere($q->expr()->eq($fieldName, $q->createNamedParameter($value)));
                     }
                 }))

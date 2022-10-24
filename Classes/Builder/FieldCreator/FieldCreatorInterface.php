@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 
 interface FieldCreatorInterface
 {
     public static function getPriority(): int;
 
-    public function supportsField(string $tableName, string $columnName): bool;
+    public function supportsField(ColumnConfiguration $column): bool;
 
-    public function createField(string $tableName, string $columnName): GraphqlNode;
+    public function createField(ColumnConfiguration $column): GraphqlNode;
 }

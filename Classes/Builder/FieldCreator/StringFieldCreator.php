@@ -14,16 +14,16 @@ class StringFieldCreator implements FieldCreatorInterface
         return 0;
     }
 
-    public function supportsField(string $tableName, string $columnName): bool
+    public function supportsField(ColumnConfiguration $column): bool
     {
-        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isString() ?: false;
+        return $column->isString();
     }
 
-    public function createField(string $tableName, string $columnName): GraphqlNode
+    public function createField(ColumnConfiguration $column): GraphqlNode
     {
         return GraphqlNode::create()
-            ->withName(ColumnConfiguration::fromTableAndColumn($tableName, $columnName)->getGraphqlName())
-            ->withResolver(fn ($record) => $record[$columnName])
+            ->withName($column->getGraphqlName())
+            ->withResolver(fn ($record) => $record[$column->getName()])
         ;
     }
 }

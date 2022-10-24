@@ -15,19 +15,17 @@ class BoolFieldCreator implements FieldCreatorInterface
         return 0;
     }
 
-    public function supportsField(string $tableName, string $columnName): bool
+    public function supportsField(ColumnConfiguration $column): bool
     {
-        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isBool() ?: false;
+        return $column->isBool();
     }
 
-    public function createField(string $tableName, string $columnName): GraphqlNode
+    public function createField(ColumnConfiguration $column): GraphqlNode
     {
-        $config = ColumnConfiguration::fromTableAndColumn($tableName, $columnName);
-
         return GraphqlNode::create()
-            ->withName($config->getGraphqlName())
+            ->withName($column->getGraphqlName())
             ->withType(Type::nonNull(Type::boolean()))
-            ->withResolver(fn (array $record) => !empty($record[$columnName]))
+            ->withResolver(fn (array $record) => !empty($record[$column->getName()]))
         ;
     }
 }
