@@ -19,10 +19,6 @@ class DateTimeFieldCreator implements FieldCreatorInterface
 
     public function supportsField(string $tableName, string $columnName): bool
     {
-        if (in_array($columnName, ['tstamp', 'crdate'])) {
-            return false;
-        }
-
         return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isDateTime() ?: false;
     }
 

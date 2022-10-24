@@ -17,22 +17,11 @@ class BoolFieldCreator implements FieldCreatorInterface
 
     public function supportsField(string $tableName, string $columnName): bool
     {
-        return
-            'deleted' === $columnName ||
-            ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isBool()
-        ;
+        return ColumnConfiguration::fromTableAndColumnOrNull($tableName, $columnName)?->isBool() ?: false;
     }
 
     public function createField(string $tableName, string $columnName): GraphqlNode
     {
-        if ('deleted' === $columnName) {
-            return GraphqlNode::create()
-                ->withName($columnName)
-                ->withType(Type::nonNull(Type::boolean()))
-                ->withResolver(fn (array $record) => !empty($record[$columnName]))
-            ;
-        }
-
         $config = ColumnConfiguration::fromTableAndColumn($tableName, $columnName);
 
         return GraphqlNode::create()

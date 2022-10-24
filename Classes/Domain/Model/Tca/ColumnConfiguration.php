@@ -154,4 +154,18 @@ class ColumnConfiguration
     {
         return $this->configuration['config']['foreign_match_fields'] ?? [];
     }
+
+    public function isGraphqlActive(): bool
+    {
+        $active = $this->configuration['config']['graphql3']['active'] ?? true;
+
+        return $active && !$this->isSensitive();
+    }
+
+    public function isSensitive(): bool
+    {
+        $tableConfig = TableConfiguration::fromTableName($this->table);
+
+        return 'TSconfig' === $this->column || $tableConfig->getAccessControlField() === $this->column;
+    }
 }

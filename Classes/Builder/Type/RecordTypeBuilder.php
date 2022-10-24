@@ -9,6 +9,7 @@ use RozbehSharahi\Graphql3\Builder\FieldCreator\FieldCreatorInterface;
 use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 
 class RecordTypeBuilder implements TypeBuilderInterface
@@ -20,10 +21,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
 
     protected string $table;
 
-    /**
-     * @var array<string, mixed>
-     */
-    protected array $configuration;
+    protected TableConfiguration $configuration;
 
     public static function flushCache(): void
     {
@@ -45,7 +43,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
     {
         $clone = clone $this;
         $clone->table = $table;
-        $clone->configuration = $clone->getTca();
+        $clone->configuration = TableConfiguration::fromTableName($table);
 
         return $clone;
     }
@@ -61,12 +59,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
                 'fields' => function () {
                     $fields = GraphqlNodeCollection::create();
 
-                    $columNames = array_keys($this->configuration['columns'] ?? []);
-
-                    // Add core fields which are not present in TCA
-                    $columNames = ['uid', 'pid', 'tstamp', 'crdate', 'deleted', 'children', ...$columNames];
-
-                    foreach ($columNames as $columnName) {
+                    foreach ($this->configuration->getColumns() as $columnName) {
                         $node = $this->resolveNode($columnName);
 
                         if (!$node) {
@@ -89,7 +82,9 @@ class RecordTypeBuilder implements TypeBuilderInterface
 
     protected function resolveNode(string $columnName): ?GraphqlNode
     {
-        if (!$this->isColumnActive($columnName) || $this->isSensitive($columnName)) {
+        $config = $this->configuration->getColumn($columnName);
+
+        if (!$config->isGraphqlActive()) {
             return null;
         }
 
@@ -100,33 +95,5 @@ class RecordTypeBuilder implements TypeBuilderInterface
         }
 
         return null;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function getTca(): array
-    {
-        $tca = $GLOBALS['TCA'][$this->table] ?? null;
-
-        if (!$tca) {
-            throw new GraphqlException('Cannot create a graphql type for a table without TCA definition.');
-        }
-
-        return $tca;
-    }
-
-    protected function isColumnActive(string $columnName): bool
-    {
-        return $GLOBALS['TCA'][$this->table]['columns'][$columnName]['config']['graphql3']['active'] ?? true;
-    }
-
-    protected function isSensitive(string $columnName): bool
-    {
-        if ('TSconfig' === $columnName) {
-            return true;
-        }
-
-        return ($GLOBALS['TCA'][$this->table]['ctrl']['enablecolumns']['fe_group'] ?? null) === $columnName;
     }
 }

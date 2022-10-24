@@ -23,6 +23,14 @@ class TableConfiguration
         return ColumnConfiguration::fromConfiguration($this->table, $column, $this->configuration['columns'][$column]);
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public function getColumns(): array
+    {
+        return array_keys($this->configuration['columns'] ?? []);
+    }
+
     public function hasColumn(string $column): bool
     {
         return !empty($this->configuration['columns'][$column]);
