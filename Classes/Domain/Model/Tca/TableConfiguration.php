@@ -32,4 +32,14 @@ class TableConfiguration
     {
         return $this->configuration['ctrl']['transOrigPointerField'] ?? null;
     }
+
+    public function hasAccessControl(): bool
+    {
+        return (bool) $this->getAccessControlField();
+    }
+
+    public function getAccessControlField(): ?string
+    {
+        return $this->configuration['ctrl']['enablecolumns']['fe_group'] ?? null;
+    }
 }

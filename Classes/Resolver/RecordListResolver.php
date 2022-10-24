@@ -6,6 +6,7 @@ namespace RozbehSharahi\Graphql3\Resolver;
 
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Operator\ApplyFilterArrayToQueryOperator;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
@@ -94,16 +95,16 @@ class RecordListResolver
             return $this;
         }
 
-        $feGroupField = $GLOBALS['TCA'][$this->table]['ctrl']['enablecolumns']['fe_group'] ?? null;
+        $config = TableConfiguration::fromTableName($this->table);
 
-        if (null === $feGroupField) {
+        if (!$config->hasAccessControl()) {
             return $this;
         }
 
         $query->andWhere($query->expr()->or(
-            $query->expr()->eq($feGroupField, 0),
-            $query->expr()->eq($feGroupField, '""'),
-            $query->expr()->isNull($feGroupField)
+            $query->expr()->eq($config->getAccessControlField(), 0),
+            $query->expr()->eq($config->getAccessControlField(), '""'),
+            $query->expr()->isNull($config->getAccessControlField())
         ));
 
         return $this;
