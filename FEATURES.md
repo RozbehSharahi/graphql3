@@ -16,10 +16,10 @@ List of todos
 - [x] Language type, node and relation on page type
 - [x] Access control via voters (incl. login and fe_group checks)
 - [ ] Remove nested resolver, nodes, ...
-- [ ] None public requests should not be allowed without log
+- [ ] None public requests should not be allowed without logged-in user
 - [ ] JWT token auth
-- [ ] File type
-- [ ] File type crop and configuration
+- [x] File type
+- [x] File type crop and configuration
 - [ ] Content type, node and relation on page type
 - [ ] Model nodes, types and relations (automatic setup)
 - [x] Disable sensitive data (example: page.fe_group)
@@ -28,3 +28,4 @@ List of todos
 - [ ] Flex-Form support
 - [ ] ManyToManyRelationFieldCreator
 - [ ] Faceting
+- [ ] Better exception handling (bad-request, internal errors, unauthorized, ... + logging)

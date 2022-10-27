@@ -125,6 +125,30 @@ The build-in `QueryType` provides already a tca-based schema for following entit
 - tt_content
 - languages
 
+Try for instance:
+
+```
+{
+  pages {
+    items {
+      title
+      subtitle
+      parentPage {
+        title
+      }
+      createdAt(format: "Y-m-d h:i")
+      media {
+        uid
+        extension
+        size
+        publicUrl
+        imageUrl(variant: "default", maxHeight: 100)
+      }
+    }
+  }
+}
+```
+
 Extending the schema is as simple as implementing the `QueryTypeExtenderInterface`.
 
 ```php
@@ -159,8 +183,6 @@ can use them as well:
 <?php
 
 declare(strict_types=1);
-
-/** @noinspection PhpIllegalPsrClassPathInspection */
 
 namespace Your\Extension;
 
