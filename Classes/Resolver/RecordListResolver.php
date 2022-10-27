@@ -19,7 +19,7 @@ class RecordListResolver
 {
     use ExecuteQueryTrait;
 
-    protected string $table;
+    protected TableConfiguration $table;
 
     public function __construct(
         protected ConnectionPool $connectionPool,
@@ -29,31 +29,36 @@ class RecordListResolver
     ) {
     }
 
-    public function getTable(): string
+    public function getTable(): TableConfiguration
     {
         return $this->table;
     }
 
-    public function for(string $table): self
+    public function for(string|TableConfiguration $table): self
     {
         $clone = clone $this;
+
+        if (is_string($table)) {
+            $table = TableConfiguration::create($table);
+        }
+
         $clone->table = $table;
 
         return $clone;
     }
 
     /**
-     * @return array<int, array<string, mixed>>
+     * @return array<int, Record>
      */
     public function resolveItems(ListRequest $request): array
     {
-        if (!$this->table) {
+        if (empty($this->table)) {
             throw new GraphqlException('Table was not set. Did you forget to call ->for?');
         }
 
         $query = $this->createQuery();
 
-        $records = $this
+        $rows = $this
             ->applyFilters($query, $request)
             ->applyLanguageFilter($query, $request)
             ->applyPublicRequestFilters($query, $request)
@@ -63,8 +68,10 @@ class RecordListResolver
             ->fetchAll($query)
         ;
 
+        $records = array_map(fn (array $row) => Record::create($this->table, $row), $rows);
+
         foreach ($records as $record) {
-            $this->accessChecker->assert(['VIEW'], Record::create($this->table, $record));
+            $this->accessChecker->assert(['VIEW'], $record);
         }
 
         return $records;
@@ -87,9 +94,9 @@ class RecordListResolver
     {
         return $this
             ->connectionPool
-            ->getQueryBuilderForTable($this->table)
+            ->getQueryBuilderForTable($this->table->getName())
             ->select('*')
-            ->from($this->table)
+            ->from($this->table->getName())
         ;
     }
 
@@ -99,16 +106,14 @@ class RecordListResolver
             return $this;
         }
 
-        $config = TableConfiguration::create($this->table);
-
-        if (!$config->hasAccessControl()) {
+        if (!$this->table->hasAccessControl()) {
             return $this;
         }
 
         $query->andWhere($query->expr()->or(
-            $query->expr()->eq($config->getAccessControl(), 0),
-            $query->expr()->eq($config->getAccessControl(), '""'),
-            $query->expr()->isNull($config->getAccessControl())
+            $query->expr()->eq($this->table->getAccessControl(), 0),
+            $query->expr()->eq($this->table->getAccessControl(), '""'),
+            $query->expr()->isNull($this->table->getAccessControl())
         ));
 
         return $this;

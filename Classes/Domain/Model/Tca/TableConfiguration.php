@@ -28,7 +28,12 @@ class TableConfiguration
 
     public function getCamelSingularName(): string
     {
-        return $this->getCaseConverter()->toCamelSingular($this->getName());
+        return $this->getCaseConverter()->toCamelSingular($this->name);
+    }
+
+    public function getCamelPluralName(): string
+    {
+        return $this->getCaseConverter()->toCamelPlural($this->name);
     }
 
     public function getPascalSingularName(): string
@@ -74,9 +79,19 @@ class TableConfiguration
         return !empty($this->configuration['ctrl']['crdate']);
     }
 
+    public function getCreatedAt(): string
+    {
+        return $this->configuration['ctrl']['crdate'];
+    }
+
     public function hasUpdatedAt(): bool
     {
         return !empty($this->configuration['ctrl']['tstamp']);
+    }
+
+    public function getUpdatedAt(): string
+    {
+        return $this->configuration['ctrl']['tstamp'];
     }
 
     public function hasLanguage(): bool

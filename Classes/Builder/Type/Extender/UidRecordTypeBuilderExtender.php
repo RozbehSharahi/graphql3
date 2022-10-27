@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 
 class UidRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
@@ -25,7 +26,7 @@ class UidRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
             GraphqlNode::create()
                 ->withName('uid')
                 ->withType(Type::int())
-                ->withResolver(fn (array $record) => $record['uid'])
+                ->withResolver(fn (Record $record) => $record->getUid())
         );
     }
 }

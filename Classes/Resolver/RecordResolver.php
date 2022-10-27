@@ -45,10 +45,7 @@ class RecordResolver
         return $clone;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
-    public function resolve(ItemRequest $request): ?array
+    public function resolve(ItemRequest $request): ?Record
     {
         if (empty($this->table)) {
             throw new GraphqlException('No table given, did you forget to call ->for?');
@@ -84,7 +81,7 @@ class RecordResolver
 
         $this->accessChecker->assert(['VIEW'], $record);
 
-        return $row;
+        return $record;
     }
 
     protected function createQuery(): QueryBuilder

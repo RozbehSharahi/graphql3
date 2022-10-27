@@ -7,6 +7,7 @@ namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\ItemRequest;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 
@@ -33,10 +34,10 @@ class ManyToOneRelationFieldCreator implements FieldCreatorInterface
         return GraphqlNode::create()
             ->withName($column->getGraphqlName())
             ->withType($this->recordTypeBuilder->for($column->getForeignTable())->build())
-            ->withResolver(fn ($record) => $this
+            ->withResolver(fn (Record $record) => $this
                 ->recordResolver
                 ->for($column->getForeignTable())
-                ->resolve(ItemRequest::create(['uid' => $record[$column->getName()] ?? null]))
+                ->resolve(ItemRequest::create(['uid' => $record->get($column)]))
             )
         ;
     }

@@ -10,6 +10,7 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 
 class DatesRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
@@ -32,7 +33,7 @@ class DatesRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterfa
                 GraphqlNode::create()
                     ->withName('createdAt')
                     ->withArguments($arguments)
-                    ->withResolver(fn ($record, $args) => date($args['format'], $record['crdate']))
+                    ->withResolver(fn (Record $record, $args) => $record->getCreationDate()->format($args['format']))
             );
         }
 
@@ -41,7 +42,7 @@ class DatesRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterfa
                 GraphqlNode::create()
                     ->withName('updatedAt')
                     ->withArguments($arguments)
-                    ->withResolver(fn ($record, $args) => date($args['format'], $record['tstamp']))
+                    ->withResolver(fn (Record $record, $args) => $record->getUpdatedAt()->format($args['format']))
             );
         }
 

@@ -10,6 +10,7 @@ use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode as Node;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection as Collection;
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Resolver\RecordListResolver;
 
@@ -20,12 +21,7 @@ class RecordListTypeBuilder implements TypeBuilderInterface
      */
     protected static array $cache = [];
 
-    protected string $table;
-
-    /**
-     * @var array<string, mixed>
-     */
-    protected array $configuration;
+    protected TableConfiguration $table;
 
     public static function flushCache(): void
     {
@@ -39,16 +35,20 @@ class RecordListTypeBuilder implements TypeBuilderInterface
     ) {
     }
 
-    public function getTable(): string
+    public function getTable(): TableConfiguration
     {
         return $this->table;
     }
 
-    public function for(string $table): self
+    public function for(string|TableConfiguration $table): self
     {
         $clone = clone $this;
+
+        if (is_string($table)) {
+            $table = TableConfiguration::create($table);
+        }
+
         $clone->table = $table;
-        $clone->configuration = $clone->getTca();
 
         return $clone;
     }
@@ -59,8 +59,8 @@ class RecordListTypeBuilder implements TypeBuilderInterface
             throw new GraphqlException('No table defined, did you forget to call ->for?');
         }
 
-        return self::$cache[$this->table] ?? self::$cache[$this->table] = new ObjectType([
-                'name' => $this->caseConverter->toPascalSingular($this->table).'List',
+        return self::$cache[$this->table->getName()] ?? self::$cache[$this->table->getName()] = new ObjectType([
+                'name' => $this->table->getPascalSingularName().'List',
                 'fields' => function () {
                     return Collection::create()
                         ->add(
@@ -84,19 +84,5 @@ class RecordListTypeBuilder implements TypeBuilderInterface
                     ;
                 },
             ]);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    protected function getTca(): array
-    {
-        $tca = $GLOBALS['TCA'][$this->table] ?? null;
-
-        if (!$tca) {
-            throw new GraphqlException('Cannot create a graphql type for a table without TCA definition.');
-        }
-
-        return $tca;
     }
 }

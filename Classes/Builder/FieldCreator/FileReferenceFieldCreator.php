@@ -7,6 +7,7 @@ namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Builder\Type\FileReferenceTypeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use TYPO3\CMS\Core\Resource\FileRepository;
 
@@ -33,10 +34,10 @@ class FileReferenceFieldCreator implements FieldCreatorInterface
         return GraphqlNode::create()
             ->withName($column->getGraphqlName())
             ->withType(Type::listOf($this->fileReferenceTypeBuilder->build()))
-            ->withResolver(function (array $row) use ($column) {
+            ->withResolver(function (Record $record) use ($column) {
                 return $this
                     ->fileRepository
-                    ->findByRelation($column->getTable()->getName(), $column->getName(), $row['uid'])
+                    ->findByRelation($column->getTable()->getName(), $column->getName(), $record->getUid())
                 ;
             })
         ;

@@ -6,6 +6,7 @@ namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 
 use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 
 class FloatFieldCreator implements FieldCreatorInterface
@@ -25,7 +26,7 @@ class FloatFieldCreator implements FieldCreatorInterface
         return GraphqlNode::create()
             ->withName($column->getGraphqlName())
             ->withType(Type::float())
-            ->withResolver(fn (array $record) => $record[$column->getName()])
+            ->withResolver(fn (Record $record) => $record->get($column))
         ;
     }
 }

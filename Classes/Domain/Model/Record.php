@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
+use DateTimeImmutable;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Site\CurrentSite;
@@ -29,6 +31,15 @@ class Record
      */
     public function __construct(protected TableConfiguration $table, protected array $data)
     {
+    }
+
+    public function get(ColumnConfiguration|string $column): mixed
+    {
+        if ($column instanceof ColumnConfiguration) {
+            $column = $column->getName();
+        }
+
+        return $this->data[$column] ?? null;
     }
 
     public function getTable(): TableConfiguration
@@ -59,6 +70,16 @@ class Record
     public function getLanguage(): SiteLanguage
     {
         return GeneralUtility::makeInstance(CurrentSite::class)->get()->getLanguageById($this->getLanguageUid());
+    }
+
+    public function getCreationDate(): DateTimeImmutable
+    {
+        return (new DateTimeImmutable())->setTimestamp($this->data[$this->table->getCreatedAt()]);
+    }
+
+    public function getUpdatedAt(): DateTimeImmutable
+    {
+        return (new DateTimeImmutable())->setTimestamp($this->data[$this->table->getUpdatedAt()]);
     }
 
     public function isTranslation(): bool

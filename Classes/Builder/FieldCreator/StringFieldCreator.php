@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 
 class StringFieldCreator implements FieldCreatorInterface
@@ -23,7 +24,7 @@ class StringFieldCreator implements FieldCreatorInterface
     {
         return GraphqlNode::create()
             ->withName($column->getGraphqlName())
-            ->withResolver(fn ($record) => $record[$column->getName()])
+            ->withResolver(fn (Record $record) => $record->get($column))
         ;
     }
 }

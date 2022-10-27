@@ -37,9 +37,7 @@ class PageChildrenRecordTypeBuilderExtender implements RecordTypeBuilderExtender
             GraphqlNode::create()
                 ->withName('children')
                 ->withType($this->recordListTypeBuilder->for('pages')->build())
-                ->withResolver(function ($row, array $args) use ($table) {
-                    $record = Record::create($table, $row);
-
+                ->withResolver(function (Record $record, array $args) {
                     $record->assertRootPageLanguageIntegrity();
 
                     $childrenPid = 0 === $record->getLanguageUid()

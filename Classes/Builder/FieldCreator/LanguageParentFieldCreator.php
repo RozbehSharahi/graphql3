@@ -7,6 +7,7 @@ namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\ItemRequest;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 
@@ -25,18 +26,18 @@ class LanguageParentFieldCreator implements FieldCreatorInterface
 
     public function supportsField(ColumnConfiguration $column): bool
     {
-        return $column->isLanguageParent() && $column->isManyToOne();
+        return $column->isLanguageParent();
     }
 
     public function createField(ColumnConfiguration $column): GraphqlNode
     {
         return GraphqlNode::create()
             ->withName('languageParent')
-            ->withType($this->recordTypeBuilder->for($column->getForeignTable())->build())
-            ->withResolver(fn ($record) => $this
+            ->withType($this->recordTypeBuilder->for($column->getTable())->build())
+            ->withResolver(fn (Record $record) => $this
                 ->recordResolver
-                ->for($column->getForeignTable())
-                ->resolve(ItemRequest::create(['uid' => $record[$column->getName()] ?? null]))
+                ->for($column->getTable())
+                ->resolve(ItemRequest::create(['uid' => $record->get($column)]))
             )
         ;
     }

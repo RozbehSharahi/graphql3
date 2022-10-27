@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 
 class DeletedRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
@@ -25,7 +26,7 @@ class DeletedRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInter
             GraphqlNode::create()
                 ->withName('deleted')
                 ->withType(Type::boolean())
-                ->withResolver(fn (array $record) => !empty($record['deleted']))
+                ->withResolver(fn (Record $record) => !empty($record->get('deleted')))
         );
     }
 }

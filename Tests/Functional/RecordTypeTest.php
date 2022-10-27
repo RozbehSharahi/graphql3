@@ -12,6 +12,7 @@ use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
@@ -33,7 +34,11 @@ class RecordTypeTest extends TestCase
                     'fields' => [
                         'page' => [
                             'type' => $scope->get(RecordTypeBuilder::class)->for('pages')->build(),
-                            'resolve' => fn () => ['uid' => 12345, 'pid' => 1, 'title' => 'My title'],
+                            'resolve' => fn () => Record::create('pages', [
+                                'uid' => 12345,
+                                'pid' => 1,
+                                'title' => 'My title',
+                            ]),
                         ],
                     ],
                 ]),

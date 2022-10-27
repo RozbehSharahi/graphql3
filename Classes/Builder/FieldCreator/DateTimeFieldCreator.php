@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 
 class DateTimeFieldCreator implements FieldCreatorInterface
@@ -31,7 +32,7 @@ class DateTimeFieldCreator implements FieldCreatorInterface
                     ->withType(Type::nonNull(Type::string()))
                     ->withDefaultValue('Y-m-d H:i'),
             ]))
-            ->withResolver(fn ($record, $args) => date($args['format'], $record[$column->getName()]))
+            ->withResolver(fn (Record $record, $args) => date($args['format'], $record->get($column)))
         ;
     }
 }

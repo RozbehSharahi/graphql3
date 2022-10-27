@@ -9,6 +9,7 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
@@ -63,7 +64,7 @@ class RecordTypeBuilderTest extends TestCase
                 'fields' => fn () => [
                     'page' => [
                         'type' => $builder->for('pages')->build(),
-                        'resolve' => fn () => $scope->getRecord('pages', 1),
+                        'resolve' => fn () => Record::create('pages', $scope->getRecord('pages', 1)),
                     ],
                 ],
             ]),
@@ -110,7 +111,7 @@ class RecordTypeBuilderTest extends TestCase
                 'fields' => fn () => [
                     'subPage' => [
                         'type' => $builder->for('pages')->build(),
-                        'resolve' => fn () => $scope->getRecord('pages', 3),
+                        'resolve' => fn () => Record::create('pages', $scope->getRecord('pages', 3)),
                     ],
                 ],
             ]),
@@ -151,7 +152,7 @@ class RecordTypeBuilderTest extends TestCase
                 'fields' => fn () => [
                     'page' => [
                         'type' => $builder->for('pages')->build(),
-                        'resolve' => fn () => $scope->getRecord('pages', 1),
+                        'resolve' => fn () => Record::create('pages', $scope->getRecord('pages', 1)),
                     ],
                 ],
             ]),

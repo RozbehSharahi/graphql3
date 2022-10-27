@@ -35,14 +35,12 @@ class OneToManyRelationFieldCreator implements FieldCreatorInterface
         return GraphqlNode::create()
             ->withName($column->getGraphqlName())
             ->withType($this->recordListTypeBuilder->for($column->getForeignTable())->build())
-            ->withResolver(function (array $row, array $args) use ($column) {
-                $foreignField = $column->getForeignField();
-                $record = Record::create($column->getTable(), $row);
-
+            ->withResolver(function (Record $record, array $args) use ($column) {
                 return ListRequest::create($args)
                     ->withLanguageFromRecord($record)
                     ->withQueryModifier(
-                        fn (QueryBuilder $q) => $q->andWhere($q->expr()->eq($foreignField, $row['uid']))
+                        fn (QueryBuilder $q) => $q
+                            ->andWhere($q->expr()->eq($column->getForeignField(), $record->get($column)))
                     )
                 ;
             })
