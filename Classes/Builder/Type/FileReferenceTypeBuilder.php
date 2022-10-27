@@ -35,7 +35,7 @@ class FileReferenceTypeBuilder implements TypeBuilderInterface
 
         return self::$cache = new ObjectType([
             'name' => 'FileReference',
-            'fields' => fn () => $this->getFields(),
+            'fields' => fn() => $this->getFields(),
         ]);
     }
 
@@ -49,35 +49,52 @@ class FileReferenceTypeBuilder implements TypeBuilderInterface
                 Node::create()
                     ->withName('uid')
                     ->withType(Type::int())
-                    ->withResolver(fn (FileReference $fileReference) => $fileReference->getUid())
+                    ->withResolver(fn(FileReference $fileReference) => $fileReference->getUid())
             )
             ->add(
                 Node::create()
                     ->withName('size')
                     ->withType(Type::int())
-                    ->withResolver(fn (FileReference $fileReference) => $fileReference->getSize())
+                    ->withResolver(fn(FileReference $fileReference) => $fileReference->getSize())
             )
             ->add(
                 Node::create()
                     ->withName('extension')
                     ->withType(Type::string())
-                    ->withResolver(fn (FileReference $fileReference) => $fileReference->getExtension())
+                    ->withResolver(fn(FileReference $fileReference) => $fileReference->getExtension())
             )
             ->add(
                 Node::create()
                     ->withName('publicUrl')
                     ->withType(Type::string())
-                    ->withResolver(fn (FileReference $fileReference) => $fileReference->getPublicUrl())
+                    ->withResolver(fn(FileReference $fileReference) => $fileReference->getPublicUrl())
             )
             ->add(
                 Node::create()
                     ->withName('imageUrl')
                     ->withArguments(
-                        GraphqlArgumentCollection::create()->add(
-                            GraphqlArgument::create('variant')
-                                ->withDefaultValue('default')
-                                ->withType(Type::string())
-                        )
+                        GraphqlArgumentCollection::create()
+                            ->add(
+                                GraphqlArgument::create('variant')
+                                    ->withDefaultValue('default')
+                                    ->withType(Type::string())
+                            )
+                            ->add(
+                                GraphqlArgument::create('maxWidth')
+                                    ->withType(Type::int())
+                            )
+                            ->add(
+                                GraphqlArgument::create('maxHeight')
+                                    ->withType(Type::int())
+                            )
+                            ->add(
+                                GraphqlArgument::create('width')
+                                    ->withType(Type::string())
+                            )
+                            ->add(
+                                GraphqlArgument::create('height')
+                                    ->withType(Type::string())
+                            )
                     )
                     ->withType(Type::string())
                     ->withResolver(function (FileReference $fileReference, array $args) {
@@ -90,20 +107,37 @@ class FileReferenceTypeBuilder implements TypeBuilderInterface
                         }
 
                         $cropVariant = CropVariantCollection::create($fileReference->getProperty('crop'))
-                            ->getCropArea($args['variant'])
-                        ;
+                            ->getCropArea($args['variant']);
 
-                        $processedImage = $this->imageService->applyProcessingInstructions($fileReference, [
+                        $processingInstructions = [
                             'crop' => $cropVariant->isEmpty()
                                 ? null
                                 : $cropVariant->makeAbsoluteBasedOnFile($fileReference),
-                        ]);
+                        ];
+
+                        if($args['maxWidth'] ?? false) {
+                            $processingInstructions['maxWidth'] = $args['maxWidth'];
+                        }
+
+                        if($args['maxHeight'] ?? false) {
+                            $processingInstructions['maxHeight'] = $args['maxHeight'];
+                        }
+
+                        if($args['width'] ?? false) {
+                            $processingInstructions['width'] = $args['width'];
+                        }
+
+                        if($args['height'] ?? false) {
+                            $processingInstructions['height'] = $args['height'];
+                        }
+
+                        $processedImage = $this->imageService->applyProcessingInstructions($fileReference,
+                            $processingInstructions);
 
                         return $this->imageService->getImageUri($processedImage);
                     })
             )
-            ->toArray()
-        ;
+            ->toArray();
     }
 
     /**
