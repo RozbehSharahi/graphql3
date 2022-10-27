@@ -12,13 +12,13 @@ use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 
 class UidRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
 {
-    public function supportsTable(TableConfiguration $tableConfiguration): bool
+    public function supportsTable(TableConfiguration $table): bool
     {
         return true;
     }
 
     public function extendNodes(
-        TableConfiguration $tableConfiguration,
+        TableConfiguration $table,
         GraphqlNodeCollection $nodes
     ): GraphqlNodeCollection {
         return $nodes->add(

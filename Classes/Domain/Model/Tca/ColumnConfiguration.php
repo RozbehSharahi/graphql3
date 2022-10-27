@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Domain\Model\Tca;
 
 use RozbehSharahi\Graphql3\Converter\CaseConverter;
+use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ColumnConfiguration
@@ -15,31 +16,27 @@ class ColumnConfiguration
         'crdate' => 'createdAt',
     ];
 
-    public static function fromTableAndColumnOrNull(string $table, string $column): ?self
+    public static function create(string $tableName, string $columnName): self
     {
-        return !empty($GLOBALS['TCA'][$table]['columns'][$column])
-            ? self::fromTableAndColumn($table, $column)
-            : null;
-    }
+        $table = TableConfiguration::create($tableName);
 
-    public static function fromTableAndColumn(string $table, string $column): self
-    {
-        return new self($table, $column, $GLOBALS['TCA'][$table]['columns'][$column]);
-    }
+        $configuration = $table->toArray()['columns'][$columnName] ?? null;
 
-    /**
-     * @param array<string, mixed> $configuration
-     */
-    public static function fromConfiguration(string $table, string $column, array $configuration): self
-    {
-        return new self($table, $column, $configuration);
+        if (null === $configuration) {
+            throw new GraphqlException("Cannot instantiate column-configuration from none TCA field ({$columnName}).");
+        }
+
+        return GeneralUtility::makeInstance(self::class, $table, $columnName, $configuration);
     }
 
     /**
      * @param array<string, mixed> $configuration
      */
-    public function __construct(protected string $table, protected string $name, protected array $configuration)
-    {
+    public function __construct(
+        protected TableConfiguration $table,
+        protected string $name,
+        protected array $configuration
+    ) {
     }
 
     public function getName(): string
@@ -60,14 +57,9 @@ class ColumnConfiguration
         return $this->getConverter()->toCamel($this->name);
     }
 
-    public function getTable(): string
+    public function getTable(): TableConfiguration
     {
         return $this->table;
-    }
-
-    public function getTableConfiguration(): TableConfiguration
-    {
-        return TableConfiguration::fromTableName($this->table);
     }
 
     public function getForeignTable(): ?string
@@ -100,9 +92,9 @@ class ColumnConfiguration
         return $this->configuration['config']['renderType'] ?? null;
     }
 
-    public function getFormat(): ?string
+    public function getFormat(): string
     {
-        return $this->configuration['config']['format'] ?? null;
+        return $this->configuration['config']['format'] ?? 'integer';
     }
 
     public function isBool(): bool
@@ -154,11 +146,7 @@ class ColumnConfiguration
 
     public function isLanguageParent(): bool
     {
-        $tableConfiguration = TableConfiguration::fromTableName($this->table);
-
-        return
-            $tableConfiguration->hasLanguageParentField() &&
-            $tableConfiguration->getLanguageParentFieldName() === $this->name;
+        return $this->table->hasLanguageParent() && $this->table->getLanguageParent() === $this->name;
     }
 
     public function isImageManipulation(): bool
@@ -193,12 +181,10 @@ class ColumnConfiguration
 
     public function isSensitive(): bool
     {
-        $tableConfig = TableConfiguration::fromTableName($this->table);
-
         if ('TSconfig' === $this->name) {
             return true;
         }
 
-        return $tableConfig->hasAccessControl() && $tableConfig->getAccessControlField() === $this->name;
+        return $this->table->hasAccessControl() && $this->table->getAccessControl() === $this->name;
     }
 }

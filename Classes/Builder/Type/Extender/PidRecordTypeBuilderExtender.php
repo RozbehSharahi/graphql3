@@ -20,13 +20,13 @@ class PidRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
     ) {
     }
 
-    public function supportsTable(TableConfiguration $tableConfiguration): bool
+    public function supportsTable(TableConfiguration $table): bool
     {
         return true;
     }
 
     public function extendNodes(
-        TableConfiguration $tableConfiguration,
+        TableConfiguration $table,
         GraphqlNodeCollection $nodes
     ): GraphqlNodeCollection {
         return $nodes->add(

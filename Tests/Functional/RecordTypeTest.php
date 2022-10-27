@@ -71,13 +71,13 @@ class RecordTypeTest extends TestCase
 
         $recordTypeBuilder = new RecordTypeBuilder($scope->get(CaseConverter::class), [], [
             new class() implements RecordTypeBuilderExtenderInterface {
-                public function supportsTable(TableConfiguration $tableConfiguration): bool
+                public function supportsTable(TableConfiguration $table): bool
                 {
-                    return 'pages' === $tableConfiguration->getName();
+                    return 'pages' === $table->getName();
                 }
 
                 public function extendNodes(
-                    TableConfiguration $tableConfiguration,
+                    TableConfiguration $table,
                     GraphqlNodeCollection $nodes
                 ): GraphqlNodeCollection {
                     return $nodes->add(

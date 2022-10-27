@@ -9,7 +9,7 @@ use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 
 interface RecordTypeBuilderExtenderInterface
 {
-    public function supportsTable(TableConfiguration $tableConfiguration): bool;
+    public function supportsTable(TableConfiguration $table): bool;
 
-    public function extendNodes(TableConfiguration $tableConfiguration, GraphqlNodeCollection $nodes): GraphqlNodeCollection;
+    public function extendNodes(TableConfiguration $table, GraphqlNodeCollection $nodes): GraphqlNodeCollection;
 }

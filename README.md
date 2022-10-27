@@ -633,7 +633,7 @@ class PageVoter implements VoterInterface
 {
     public function vote(TokenInterface $token, mixed $subject, array $attributes): int
     {
-        if (!$subject instanceof Record || $subject->getTable() !== 'pages') {
+        if (!$subject instanceof Record || $subject->getTable()->getName() !== 'pages') {
             return self::ACCESS_ABSTAIN;
         }
 

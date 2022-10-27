@@ -4,36 +4,41 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model\Tca;
 
+use RozbehSharahi\Graphql3\Converter\CaseConverter;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 class TableConfiguration
 {
-    public static function fromTableName(string $table): self
+    public static function create(string $name): self
     {
-        return new self($table, $GLOBALS['TCA'][$table]);
+        return GeneralUtility::makeInstance(self::class, $name, $GLOBALS['TCA'][$name]);
     }
 
     /**
      * @param array<string, array<string, mixed>> $configuration
      */
-    public function __construct(protected string $table, protected array $configuration)
+    public function __construct(protected string $name, protected array $configuration)
     {
     }
 
     public function getName(): string
     {
-        return $this->table;
+        return $this->name;
     }
 
-    /**
-     * @return array<string, array<string, mixed>> $configuration
-     */
-    public function toArray(): array
+    public function getCamelSingularName(): string
     {
-        return $this->configuration;
+        return $this->getCaseConverter()->toCamelSingular($this->getName());
+    }
+
+    public function getPascalSingularName(): string
+    {
+        return $this->getCaseConverter()->toPascalSingular($this->name);
     }
 
     public function getColumn(string $column): ColumnConfiguration
     {
-        return ColumnConfiguration::fromConfiguration($this->table, $column, $this->configuration['columns'][$column]);
+        return ColumnConfiguration::create($this->name, $column);
     }
 
     /**
@@ -49,12 +54,17 @@ class TableConfiguration
         return !empty($this->configuration['columns'][$column]);
     }
 
-    public function getLanguageParentFieldName(): string
+    public function getLanguageParent(): string
     {
         return $this->configuration['ctrl']['transOrigPointerField'];
     }
 
-    public function hasLanguageParentField(): bool
+    public function getLanguage(): ?string
+    {
+        return $this->configuration['ctrl']['languageField'];
+    }
+
+    public function hasLanguageParent(): bool
     {
         return !empty($this->configuration['ctrl']['transOrigPointerField']);
     }
@@ -79,13 +89,21 @@ class TableConfiguration
         return !empty($this->configuration['ctrl']['enablecolumns']['fe_group']);
     }
 
-    public function getAccessControlField(): string
+    public function getAccessControl(): string
     {
         return $this->configuration['ctrl']['enablecolumns']['fe_group'];
     }
 
-    public function getLanguageField(): ?string
+    /**
+     * @return array<string, array<string, mixed>> $configuration
+     */
+    public function toArray(): array
     {
-        return $this->configuration['ctrl']['languageField'];
+        return $this->configuration;
+    }
+
+    protected function getCaseConverter(): CaseConverter
+    {
+        return GeneralUtility::makeInstance(CaseConverter::class);
     }
 }

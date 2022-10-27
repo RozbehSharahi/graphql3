@@ -105,7 +105,7 @@ class ListRequest
 
     public function withLanguageFromRecord(Record $record): self
     {
-        if (!$record->hasLanguageField()) {
+        if (!$record->getTable()->hasLanguage()) {
             return $this;
         }
 

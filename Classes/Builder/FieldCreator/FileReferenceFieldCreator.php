@@ -36,7 +36,7 @@ class FileReferenceFieldCreator implements FieldCreatorInterface
             ->withResolver(function (array $row) use ($column) {
                 return $this
                     ->fileRepository
-                    ->findByRelation($column->getTable(), $column->getName(), $row['uid'])
+                    ->findByRelation($column->getTable()->getName(), $column->getName(), $row['uid'])
                 ;
             })
         ;

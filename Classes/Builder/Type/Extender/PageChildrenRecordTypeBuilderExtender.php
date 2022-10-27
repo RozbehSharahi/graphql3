@@ -24,21 +24,21 @@ class PageChildrenRecordTypeBuilderExtender implements RecordTypeBuilderExtender
     ) {
     }
 
-    public function supportsTable(TableConfiguration $tableConfiguration): bool
+    public function supportsTable(TableConfiguration $table): bool
     {
-        return 'pages' === $tableConfiguration->getName();
+        return 'pages' === $table->getName();
     }
 
     public function extendNodes(
-        TableConfiguration $tableConfiguration,
+        TableConfiguration $table,
         GraphqlNodeCollection $nodes
     ): GraphqlNodeCollection {
         return $nodes->add(
             GraphqlNode::create()
                 ->withName('children')
                 ->withType($this->recordListTypeBuilder->for('pages')->build())
-                ->withResolver(function ($row, array $args) use ($tableConfiguration) {
-                    $record = Record::create($tableConfiguration->getName(), $row);
+                ->withResolver(function ($row, array $args) use ($table) {
+                    $record = Record::create($table, $row);
 
                     $record->assertRootPageLanguageIntegrity();
 

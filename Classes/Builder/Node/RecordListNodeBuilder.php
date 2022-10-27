@@ -47,7 +47,7 @@ class RecordListNodeBuilder implements NodeBuilderInterface
             throw new GraphqlException('Can not create node without table give, did you call ->for?');
         }
 
-        $config = TableConfiguration::fromTableName($this->table);
+        $config = TableConfiguration::create($this->table);
 
         $arguments = GraphqlArgumentCollection::create([
             GraphqlArgument::create('page')->withType(Type::nonNull(Type::int()))->withDefaultValue(1),

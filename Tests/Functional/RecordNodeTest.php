@@ -14,6 +14,7 @@ use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
@@ -43,13 +44,13 @@ class RecordNodeTest extends TestCase
 
         $extenders = [
             new class() implements RecordNodeExtenderInterface {
-                public function supportsTable(string $table): bool
+                public function supportsTable(TableConfiguration $table): bool
                 {
-                    return 'pages' === $table;
+                    return 'pages' === $table->getName();
                 }
 
                 public function extendArguments(
-                    string $table,
+                    TableConfiguration $table,
                     GraphqlArgumentCollection $arguments
                 ): GraphqlArgumentCollection {
                     return $arguments
@@ -57,7 +58,7 @@ class RecordNodeTest extends TestCase
                     ;
                 }
 
-                public function extendQuery(string $table, QueryBuilder $query, array $arguments): QueryBuilder
+                public function extendQuery(TableConfiguration $table, QueryBuilder $query, array $arguments): QueryBuilder
                 {
                     if ($arguments['removeRestrictions'] ?? false) {
                         $query->getRestrictions()->removeAll();

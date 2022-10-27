@@ -64,7 +64,7 @@ class RecordListResolver
         ;
 
         foreach ($records as $record) {
-            $this->accessChecker->assert(['VIEW'], new Record($this->table, $record));
+            $this->accessChecker->assert(['VIEW'], Record::create($this->table, $record));
         }
 
         return $records;
@@ -99,16 +99,16 @@ class RecordListResolver
             return $this;
         }
 
-        $config = TableConfiguration::fromTableName($this->table);
+        $config = TableConfiguration::create($this->table);
 
         if (!$config->hasAccessControl()) {
             return $this;
         }
 
         $query->andWhere($query->expr()->or(
-            $query->expr()->eq($config->getAccessControlField(), 0),
-            $query->expr()->eq($config->getAccessControlField(), '""'),
-            $query->expr()->isNull($config->getAccessControlField())
+            $query->expr()->eq($config->getAccessControl(), 0),
+            $query->expr()->eq($config->getAccessControl(), '""'),
+            $query->expr()->isNull($config->getAccessControl())
         ));
 
         return $this;

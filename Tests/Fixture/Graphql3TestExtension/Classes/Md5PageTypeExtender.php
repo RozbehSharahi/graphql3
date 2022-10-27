@@ -13,12 +13,12 @@ use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 
 class Md5PageTypeExtender implements RecordTypeBuilderExtenderInterface
 {
-    public function supportsTable(TableConfiguration $tableConfiguration): bool
+    public function supportsTable(TableConfiguration $table): bool
     {
-        return 'pages' === $tableConfiguration->getName();
+        return 'pages' === $table->getName();
     }
 
-    public function extendNodes(TableConfiguration $tableConfiguration, GraphqlNodeCollection $nodes): GraphqlNodeCollection
+    public function extendNodes(TableConfiguration $table, GraphqlNodeCollection $nodes): GraphqlNodeCollection
     {
         return $nodes->add(
             GraphqlNode::create('md5')->withResolver(fn ($page) => md5(json_encode($page, JSON_THROW_ON_ERROR)))

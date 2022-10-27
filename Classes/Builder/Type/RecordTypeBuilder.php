@@ -19,9 +19,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
      */
     protected static array $cache = [];
 
-    protected string $table;
-
-    protected TableConfiguration $tableConfiguration;
+    protected TableConfiguration $table;
 
     public static function flushCache(): void
     {
@@ -39,11 +37,15 @@ class RecordTypeBuilder implements TypeBuilderInterface
     ) {
     }
 
-    public function for(string $table): self
+    public function for(string|TableConfiguration $table): self
     {
         $clone = clone $this;
+
+        if (is_string($table)) {
+            $table = TableConfiguration::create($table);
+        }
+
         $clone->table = $table;
-        $clone->tableConfiguration = TableConfiguration::fromTableName($table);
 
         return $clone;
     }
@@ -54,12 +56,12 @@ class RecordTypeBuilder implements TypeBuilderInterface
             throw new GraphqlException('No table defined, did you forget to call ->for?');
         }
 
-        return self::$cache[$this->table] ?? self::$cache[$this->table] = new ObjectType([
-                'name' => $this->caseConverter->toPascalSingular($this->table),
+        return self::$cache[$this->table->getName()] ?? self::$cache[$this->table->getName()] = new ObjectType([
+                'name' => $this->table->getPascalSingularName(),
                 'fields' => function () {
                     $fields = GraphqlNodeCollection::create();
 
-                    foreach ($this->tableConfiguration->getColumns() as $columnName) {
+                    foreach ($this->table->getColumns() as $columnName) {
                         $node = $this->resolveNode($columnName);
 
                         if (!$node) {
@@ -70,8 +72,8 @@ class RecordTypeBuilder implements TypeBuilderInterface
                     }
 
                     foreach ($this->extenders as $extender) {
-                        if ($extender->supportsTable($this->tableConfiguration)) {
-                            $fields = $extender->extendNodes($this->tableConfiguration, $fields);
+                        if ($extender->supportsTable($this->table)) {
+                            $fields = $extender->extendNodes($this->table, $fields);
                         }
                     }
 
@@ -82,7 +84,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
 
     protected function resolveNode(string $columnName): ?GraphqlNode
     {
-        $column = $this->tableConfiguration->getColumn($columnName);
+        $column = $this->table->getColumn($columnName);
 
         if (!$column->isGraphqlActive()) {
             return null;

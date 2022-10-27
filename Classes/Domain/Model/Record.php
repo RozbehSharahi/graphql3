@@ -10,47 +10,30 @@ use RozbehSharahi\Graphql3\Site\CurrentSite;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-/**
- * Page object.
- *
- * This class is mainly used to pass a page array to voters.
- *
- * By this it is easier to determine the type of the record on voters and it also provides some helpful getters
- * in order to do permission checking.
- *
- * However, you can also retrieve the page array by Page::getData().
- */
 class Record
 {
-    protected TableConfiguration $tableConfiguration;
-
     /**
      * @param array<string, mixed> $row
      */
-    public static function create(string $table, array $row): self
+    public static function create(string|TableConfiguration $table, array $row): self
     {
+        if (is_string($table)) {
+            $table = TableConfiguration::create($table);
+        }
+
         return GeneralUtility::makeInstance(self::class, $table, $row);
     }
 
     /**
      * @param array<string, mixed> $data
      */
-    public function __construct(protected string $table, protected array $data)
+    public function __construct(protected TableConfiguration $table, protected array $data)
     {
-        $this->tableConfiguration = TableConfiguration::fromTableName($this->table);
     }
 
-    public function getTable(): string
+    public function getTable(): TableConfiguration
     {
         return $this->table;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getData(): array
-    {
-        return $this->data;
     }
 
     public function getUid(): int
@@ -70,39 +53,46 @@ class Record
 
     public function getLanguageUid(): int
     {
-        return $this->data[$this->tableConfiguration->getLanguageField()];
+        return $this->data[$this->table->getLanguage()];
     }
 
     public function getLanguage(): SiteLanguage
     {
-        return GeneralUtility::makeInstance(CurrentSite::class)
-            ->get()
-            ->getLanguageById($this->getLanguageUid())
-        ;
+        return GeneralUtility::makeInstance(CurrentSite::class)->get()->getLanguageById($this->getLanguageUid());
     }
 
     public function isTranslation(): bool
     {
-        return
-            $this->tableConfiguration->hasLanguage() &&
-            $this->getLanguageUid() > 0;
+        return $this->table->hasLanguage() && $this->getLanguageUid() > 0;
     }
 
     public function hasLanguageParent(): bool
     {
-        return
-            $this->tableConfiguration->hasLanguageParentField() &&
-            !empty($this->data[$this->tableConfiguration->getLanguageParentFieldName()]);
+        return $this->table->hasLanguageParent() && !empty($this->data[$this->table->getLanguageParent()]);
     }
 
     public function hasLanguageField(): bool
     {
-        return $this->tableConfiguration->hasLanguage();
+        return $this->table->hasLanguage();
     }
 
     public function getLanguageParentUid(): int
     {
-        return $this->data[$this->tableConfiguration->getLanguageParentFieldName()];
+        return $this->data[$this->table->getLanguageParent()];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getFrontendGroups(): array
+    {
+        if (!$this->table->hasAccessControl()) {
+            return [];
+        }
+
+        $groupList = $this->data[$this->table->getAccessControl()] ?? null;
+
+        return !empty($groupList) ? explode(',', $groupList) : [];
     }
 
     public function isShowAtAnyLogin(): bool
@@ -111,28 +101,16 @@ class Record
     }
 
     /**
-     * @return array<int, string>
+     * @return array<string, mixed>
      */
-    public function getFrontendGroups(): array
+    public function toArray(): array
     {
-        $feGroupField = $GLOBALS['TCA'][$this->table]['ctrl']['enablecolumns']['fe_group'] ?? null;
-
-        if (null === $feGroupField) {
-            return [];
-        }
-
-        $groupList = $this->data[$feGroupField] ?? null;
-
-        if (empty($groupList)) {
-            return [];
-        }
-
-        return explode(',', $groupList);
+        return $this->data;
     }
 
     public function assertRootPageLanguageIntegrity(): self
     {
-        if ('pages' === $this->table && $this->isRoot() && $this->isTranslation() && !$this->hasLanguageParent()) {
+        if ('pages' === $this->table->getName() && $this->isRoot() && $this->isTranslation() && !$this->hasLanguageParent()) {
             throw new GraphqlException('Integrity failure: On resolving page children, a root page (uid='.$this->data['uid'].') was found of language='.$this->getLanguageUid().' but without parent-language relation (l10n_parent).');
         }
 

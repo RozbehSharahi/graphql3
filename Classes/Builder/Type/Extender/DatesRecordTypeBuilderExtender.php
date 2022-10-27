@@ -14,20 +14,20 @@ use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 
 class DatesRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
 {
-    public function supportsTable(TableConfiguration $tableConfiguration): bool
+    public function supportsTable(TableConfiguration $table): bool
     {
         return true;
     }
 
     public function extendNodes(
-        TableConfiguration $tableConfiguration,
+        TableConfiguration $table,
         GraphqlNodeCollection $nodes
     ): GraphqlNodeCollection {
         $arguments = GraphqlArgumentCollection::create([
             GraphqlArgument::create('format')->withType(Type::nonNull(Type::string()))->withDefaultValue('Y-m-d H:i'),
         ]);
 
-        if ($tableConfiguration->hasCreatedAt()) {
+        if ($table->hasCreatedAt()) {
             $nodes = $nodes->add(
                 GraphqlNode::create()
                     ->withName('createdAt')
@@ -36,7 +36,7 @@ class DatesRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterfa
             );
         }
 
-        if ($tableConfiguration->hasUpdatedAt()) {
+        if ($table->hasUpdatedAt()) {
             $nodes = $nodes->add(
                 GraphqlNode::create()
                     ->withName('updatedAt')

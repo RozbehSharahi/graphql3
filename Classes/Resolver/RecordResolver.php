@@ -15,7 +15,7 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class RecordResolver
 {
-    protected string $table;
+    protected TableConfiguration $table;
 
     /**
      * @param iterable<RecordNodeExtenderInterface> $extenders
@@ -27,14 +27,19 @@ class RecordResolver
     ) {
     }
 
-    public function getTable(): string
+    public function getTable(): TableConfiguration
     {
         return $this->table;
     }
 
-    public function for(string $table): self
+    public function for(TableConfiguration|string $table): self
     {
         $clone = clone $this;
+
+        if (is_string($table)) {
+            $table = TableConfiguration::create($table);
+        }
+
         $clone->table = $table;
 
         return $clone;
@@ -75,7 +80,7 @@ class RecordResolver
             return null;
         }
 
-        $this->accessChecker->assert(['VIEW'], new Record($this->table, $record));
+        $this->accessChecker->assert(['VIEW'], Record::create($this->table, $record));
 
         return $record;
     }
@@ -84,9 +89,9 @@ class RecordResolver
     {
         return $this
             ->connectionPool
-            ->getQueryBuilderForTable($this->table)
+            ->getQueryBuilderForTable($this->table->getName())
             ->select('*')
-            ->from($this->table)
+            ->from($this->table->getName())
         ;
     }
 
@@ -96,16 +101,16 @@ class RecordResolver
             return $this;
         }
 
-        $config = TableConfiguration::fromTableName($this->table);
+        $config = TableConfiguration::create($this->table->getName());
 
         if (!$config->hasAccessControl()) {
             return $this;
         }
 
         $query->andWhere($query->expr()->or(
-            $query->expr()->eq($config->getAccessControlField(), 0),
-            $query->expr()->eq($config->getAccessControlField(), '""'),
-            $query->expr()->isNull($config->getAccessControlField())
+            $query->expr()->eq($config->getAccessControl(), 0),
+            $query->expr()->eq($config->getAccessControl(), '""'),
+            $query->expr()->isNull($config->getAccessControl())
         ));
 
         return $this;
