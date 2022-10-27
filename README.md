@@ -52,6 +52,14 @@ $schemaRegistry->register((new NoopQueryType());
 
 In order to have some real working TYPO3 code, continue to the next chapter `Getting started`.
 
+# Must have features still open
+
+Although the extension already provides quite a lot of features it misses following essentials:
+
+- [ ] JWT Token authentication (not yet started)
+- [ ] Language handling (in progress)
+- [ ] Workspaces (not yet started)
+
 # Getting started
 
 We assume you have a working TYPO3 extension and a `Configuration/Services.yaml` (as following), which will make
