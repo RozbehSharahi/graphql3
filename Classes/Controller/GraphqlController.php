@@ -58,7 +58,7 @@ class GraphqlController
             return $this
                 ->throwIfTestingMode(
                     $output['errors'][0]['message'],
-                    $output['errors'][0]['extensions']['debugMessage'] ?? null
+                    $output['errors'][0]['debugMessage'] ?? null
                 )
                 ->errorResponseBuilder
                 ->withErrors(GraphqlErrorCollection::createFromArray($output['errors']))

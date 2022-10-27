@@ -64,7 +64,7 @@ class RecordListNodeBuilder implements NodeBuilderInterface
         return GraphqlNode::create($this->caseConverter->toCamelPlural($this->table))
             ->withArguments($arguments)
             ->withType($this->recordListTypeBuilder->for($this->table)->build())
-            ->withResolver(fn ($_, $args) => new ListRequest($args))
+            ->withResolver(fn ($_, $args) => ListRequest::create($args))
         ;
     }
 }

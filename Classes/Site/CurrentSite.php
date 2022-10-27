@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Site;
 
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 
-class CurrentSite
+class CurrentSite implements SingletonInterface
 {
     protected SiteInterface $site;
 

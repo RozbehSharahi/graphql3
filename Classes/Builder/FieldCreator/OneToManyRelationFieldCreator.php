@@ -8,6 +8,7 @@ use RozbehSharahi\Graphql3\Builder\Type\RecordListTypeBuilder;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
@@ -34,10 +35,17 @@ class OneToManyRelationFieldCreator implements FieldCreatorInterface
         return GraphqlNode::create()
             ->withName($column->getGraphqlName())
             ->withType($this->recordListTypeBuilder->for($column->getForeignTable())->build())
-            ->withResolver(fn (array $row) => (new ListRequest())
-                ->withQueryModifier(static function (QueryBuilder $q) use ($column, $row) {
-                    $q->andWhere($q->expr()->eq($column->getForeignField(), $row['uid']));
-                }))
+            ->withResolver(function (array $row, array $args) use ($column) {
+                $foreignField = $column->getForeignField();
+                $record = Record::create($column->getTable(), $row);
+
+                return ListRequest::create($args)
+                    ->withLanguageFromRecord($record)
+                    ->withQueryModifier(
+                        fn (QueryBuilder $q) => $q->andWhere($q->expr()->eq($foreignField, $row['uid']))
+                    )
+                ;
+            })
         ;
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
 use Closure;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ListRequest
 {
@@ -22,6 +23,14 @@ class ListRequest
     public const PARAMETER_LANGUAGE = 'language';
 
     protected Closure $queryModifier;
+
+    /**
+     * @param array<string, mixed> $arguments
+     */
+    public static function create(array $arguments = [], Closure $queryModifier = null): self
+    {
+        return GeneralUtility::makeInstance(self::class, $arguments, $queryModifier);
+    }
 
     /**
      * @param array<string, mixed> $arguments
@@ -92,6 +101,18 @@ class ListRequest
     public function getLanguage(): ?string
     {
         return $this->arguments[self::PARAMETER_LANGUAGE] ?? self::DEFAULT_LANGUAGE;
+    }
+
+    public function withLanguageFromRecord(Record $record): self
+    {
+        if (!$record->hasLanguageField()) {
+            return $this;
+        }
+
+        $clone = clone $this;
+        $clone->arguments[self::PARAMETER_LANGUAGE] = $record->getLanguage()->getTwoLetterIsoCode();
+
+        return $clone;
     }
 
     public function isPublicRequest(): bool

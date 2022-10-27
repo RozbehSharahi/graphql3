@@ -65,6 +65,11 @@ class ColumnConfiguration
         return $this->table;
     }
 
+    public function getTableConfiguration(): TableConfiguration
+    {
+        return TableConfiguration::fromTableName($this->table);
+    }
+
     public function getForeignTable(): ?string
     {
         return $this->configuration['config']['foreign_table'] ?? null;
@@ -75,14 +80,19 @@ class ColumnConfiguration
         return $this->configuration['config']['foreign_field'] ?? null;
     }
 
-    public function getRelationTable(): ?string
+    public function hasRelationTable(): bool
     {
-        return $this->configuration['config']['MM'] ?? null;
+        return !empty($this->configuration['config']['MM']);
     }
 
-    public function getType(): ?string
+    public function getRelationTable(): string
     {
-        return $this->configuration['config']['type'] ?? null;
+        return $this->configuration['config']['MM'];
+    }
+
+    public function getType(): string
+    {
+        return $this->configuration['config']['type'];
     }
 
     public function getRenderType(): ?string
@@ -122,7 +132,7 @@ class ColumnConfiguration
 
     public function isOneToMany(): bool
     {
-        return !$this->getRelationTable() && 'inline' === $this->getType() && $this->getForeignTable();
+        return !$this->hasRelationTable() && 'inline' === $this->getType() && $this->getForeignTable();
     }
 
     public function isFile(): bool
@@ -144,7 +154,11 @@ class ColumnConfiguration
 
     public function isLanguageParent(): bool
     {
-        return TableConfiguration::fromTableName($this->table)->getLanguageParentFieldName() === $this->name;
+        $tableConfiguration = TableConfiguration::fromTableName($this->table);
+
+        return
+            $tableConfiguration->hasLanguageParentField() &&
+            $tableConfiguration->getLanguageParentFieldName() === $this->name;
     }
 
     public function isImageManipulation(): bool
@@ -157,9 +171,9 @@ class ColumnConfiguration
         return GeneralUtility::makeInstance(CaseConverter::class);
     }
 
-    public function getForeignTableField(): ?string
+    public function getForeignTableField(): string
     {
-        return $this->configuration['config']['foreign_table_field'] ?? null;
+        return $this->configuration['config']['foreign_table_field'];
     }
 
     /**
@@ -181,6 +195,10 @@ class ColumnConfiguration
     {
         $tableConfig = TableConfiguration::fromTableName($this->table);
 
-        return 'TSconfig' === $this->name || $tableConfig->getAccessControlField() === $this->name;
+        if ('TSconfig' === $this->name) {
+            return true;
+        }
+
+        return $tableConfig->hasAccessControl() && $tableConfig->getAccessControlField() === $this->name;
     }
 }

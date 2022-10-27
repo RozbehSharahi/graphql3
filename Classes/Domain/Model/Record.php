@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
+use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
+use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Site\CurrentSite;
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
  * Page object.
  *
@@ -16,11 +22,22 @@ namespace RozbehSharahi\Graphql3\Domain\Model;
  */
 class Record
 {
+    protected TableConfiguration $tableConfiguration;
+
+    /**
+     * @param array<string, mixed> $row
+     */
+    public static function create(string $table, array $row): self
+    {
+        return GeneralUtility::makeInstance(self::class, $table, $row);
+    }
+
     /**
      * @param array<string, mixed> $data
      */
     public function __construct(protected string $table, protected array $data)
     {
+        $this->tableConfiguration = TableConfiguration::fromTableName($this->table);
     }
 
     public function getTable(): string
@@ -34,6 +51,58 @@ class Record
     public function getData(): array
     {
         return $this->data;
+    }
+
+    public function getUid(): int
+    {
+        return $this->data['uid'];
+    }
+
+    public function getPid(): int
+    {
+        return $this->data['pid'];
+    }
+
+    public function isRoot(): bool
+    {
+        return empty($this->getPid());
+    }
+
+    public function getLanguageUid(): int
+    {
+        return $this->data[$this->tableConfiguration->getLanguageField()];
+    }
+
+    public function getLanguage(): SiteLanguage
+    {
+        return GeneralUtility::makeInstance(CurrentSite::class)
+            ->get()
+            ->getLanguageById($this->getLanguageUid())
+        ;
+    }
+
+    public function isTranslation(): bool
+    {
+        return
+            $this->tableConfiguration->hasLanguage() &&
+            $this->getLanguageUid() > 0;
+    }
+
+    public function hasLanguageParent(): bool
+    {
+        return
+            $this->tableConfiguration->hasLanguageParentField() &&
+            !empty($this->data[$this->tableConfiguration->getLanguageParentFieldName()]);
+    }
+
+    public function hasLanguageField(): bool
+    {
+        return $this->tableConfiguration->hasLanguage();
+    }
+
+    public function getLanguageParentUid(): int
+    {
+        return $this->data[$this->tableConfiguration->getLanguageParentFieldName()];
     }
 
     public function isShowAtAnyLogin(): bool
@@ -59,5 +128,14 @@ class Record
         }
 
         return explode(',', $groupList);
+    }
+
+    public function assertRootPageLanguageIntegrity(): self
+    {
+        if ('pages' === $this->table && $this->isRoot() && $this->isTranslation() && !$this->hasLanguageParent()) {
+            throw new GraphqlException('Integrity failure: On resolving page children, a root page (uid='.$this->data['uid'].') was found of language='.$this->getLanguageUid().' but without parent-language relation (l10n_parent).');
+        }
+
+        return $this;
     }
 }

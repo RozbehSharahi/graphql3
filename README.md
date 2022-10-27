@@ -57,7 +57,6 @@ In order to have some real working TYPO3 code, continue to the next chapter `Get
 Although the extension already provides quite a lot of features it misses following essentials:
 
 - [ ] JWT Token authentication (not yet started)
-- [ ] Language handling (in progress)
 - [ ] Workspaces (not yet started)
 
 # Getting started
@@ -524,10 +523,8 @@ Whenever a table has `langagueField` set on `TCA` it will add an extra query par
 The parameter expects currently the `twoLetterIsoCode`. If the given language is available on the current site it will
 be set as a filter to the query. A none-available language will cause an exception with a descriptive error message.
 
-The current implementation is however not final yet, as language filters have to be inherited to sub-relation-queries.
-For instance fetching pages in "German" language should also lead to page-children to be filtered to "German" language.
-
-This logic will soon follow.
+Languages are inherited to child-relations. For instance fetching a page record for language "en" will result in
+children to be filtered for language "en" as well.
 
 ### GraphqlNode and GraphqlNodeCollection
 
@@ -656,4 +653,4 @@ container in any extension's `Configuration/Services.yaml`.
 
 ## Contribution & known issues
 
-[Continue here](contributing.md)
+[Continue here](CONTRIBUTING.md)

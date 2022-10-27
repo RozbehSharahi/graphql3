@@ -49,9 +49,14 @@ class TableConfiguration
         return !empty($this->configuration['columns'][$column]);
     }
 
-    public function getLanguageParentFieldName(): ?string
+    public function getLanguageParentFieldName(): string
     {
-        return $this->configuration['ctrl']['transOrigPointerField'] ?? null;
+        return $this->configuration['ctrl']['transOrigPointerField'];
+    }
+
+    public function hasLanguageParentField(): bool
+    {
+        return !empty($this->configuration['ctrl']['transOrigPointerField']);
     }
 
     public function hasCreatedAt(): bool
@@ -71,11 +76,16 @@ class TableConfiguration
 
     public function hasAccessControl(): bool
     {
-        return (bool) $this->getAccessControlField();
+        return !empty($this->configuration['ctrl']['enablecolumns']['fe_group']);
     }
 
-    public function getAccessControlField(): ?string
+    public function getAccessControlField(): string
     {
-        return $this->configuration['ctrl']['enablecolumns']['fe_group'] ?? null;
+        return $this->configuration['ctrl']['enablecolumns']['fe_group'];
+    }
+
+    public function getLanguageField(): ?string
+    {
+        return $this->configuration['ctrl']['languageField'];
     }
 }
