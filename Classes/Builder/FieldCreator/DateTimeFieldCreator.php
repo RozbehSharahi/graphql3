@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 
-use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
@@ -27,11 +26,7 @@ class DateTimeFieldCreator implements FieldCreatorInterface
     {
         return GraphqlNode::create()
             ->withName($column->getGraphqlName())
-            ->withArguments(GraphqlArgumentCollection::create([
-                GraphqlArgument::create('format')
-                    ->withType(Type::nonNull(Type::string()))
-                    ->withDefaultValue('Y-m-d H:i'),
-            ]))
+            ->withArguments(GraphqlArgumentCollection::create([GraphqlArgument::createDateTimeFormat()]))
             ->withResolver(fn (Record $record, $args) => date($args['format'], $record->get($column)))
         ;
     }

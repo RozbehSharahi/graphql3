@@ -34,12 +34,9 @@ class FileReferenceFieldCreator implements FieldCreatorInterface
         return GraphqlNode::create()
             ->withName($column->getGraphqlName())
             ->withType(Type::listOf($this->fileReferenceTypeBuilder->build()))
-            ->withResolver(function (Record $record) use ($column) {
-                return $this
-                    ->fileRepository
-                    ->findByRelation($column->getTable()->getName(), $column->getName(), $record->getUid())
-                ;
-            })
+            ->withResolver(fn (Record $record) => $this
+                ->fileRepository
+                ->findByRelation($record->getTable()->getName(), $column->getName(), $record->getUid()))
         ;
     }
 }

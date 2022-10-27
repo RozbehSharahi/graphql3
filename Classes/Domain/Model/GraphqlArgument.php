@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
 use GraphQL\Type\Definition\Type;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class GraphqlArgument
 {
@@ -12,7 +13,12 @@ class GraphqlArgument
 
     public static function create(string $name): self
     {
-        return new self($name, Type::string(), self::DEFAULT_VALUE_UNDEFINED);
+        return GeneralUtility::makeInstance(self::class, $name, Type::string(), self::DEFAULT_VALUE_UNDEFINED);
+    }
+
+    public static function createDateTimeFormat(): self
+    {
+        return self::create('format')->withType(Type::nonNull(Type::string()))->withDefaultValue('Y-m-d H:i');
     }
 
     public function __construct(
