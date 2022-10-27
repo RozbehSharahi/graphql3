@@ -10,6 +10,7 @@ use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Exception\GraphqlException;
 use RozbehSharahi\Graphql3\Operator\ApplyFilterArrayToQueryOperator;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
+use RozbehSharahi\Graphql3\Site\CurrentSite;
 use RozbehSharahi\Graphql3\Trait\ExecuteQueryTrait;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -24,6 +25,7 @@ class RecordListResolver
         protected ConnectionPool $connectionPool,
         protected ApplyFilterArrayToQueryOperator $applyFilterArrayToQueryOperator,
         protected AccessChecker $accessChecker,
+        protected CurrentSite $currentSite
     ) {
     }
 
@@ -49,10 +51,11 @@ class RecordListResolver
             throw new GraphqlException('Table was not set. Did you forget to call ->for?');
         }
 
-        $query = $this->createQuery($request);
+        $query = $this->createQuery();
 
         $records = $this
             ->applyFilters($query, $request)
+            ->applyLanguageFilter($query, $request)
             ->applyPublicRequestFilters($query, $request)
             ->applyPagination($query, $request)
             ->applySorting($query, $request)
@@ -69,17 +72,18 @@ class RecordListResolver
 
     public function resolveCount(ListRequest $request): int
     {
-        $query = $this->createQuery($request);
+        $query = $this->createQuery();
 
         return $this
             ->applyFilters($query, $request)
+            ->applyLanguageFilter($query, $request)
             ->applyListRequestModification($query, $request)
             ->applyPublicRequestFilters($query, $request)
             ->fetchRowCount($query)
         ;
     }
 
-    protected function createQuery(ListRequest $request): QueryBuilder
+    protected function createQuery(): QueryBuilder
     {
         return $this
             ->connectionPool
@@ -117,6 +121,23 @@ class RecordListResolver
         }
 
         $this->applyFilterArrayToQueryOperator->operate($query, $request->getFilters());
+
+        return $this;
+    }
+
+    private function applyLanguageFilter(QueryBuilder $query, ListRequest $request): self
+    {
+        if (empty($request->getLanguage())) {
+            return $this;
+        }
+
+        if (!$this->currentSite->isLanguageCodeAvailable($request->getLanguage())) {
+            throw GraphqlException::createClientSafe('Given language code is not available on current site.');
+        }
+
+        $language = $this->currentSite->getLanguageByCode($request->getLanguage());
+
+        $query->andWhere($query->expr()->eq('sys_language_uid', $language->getLanguageId()));
 
         return $this;
     }

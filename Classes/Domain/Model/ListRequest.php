@@ -13,11 +13,13 @@ class ListRequest
     public const DEFAULT_ORDER_BY = [['field' => 'uid', 'direction' => 'ASC']];
     public const DEFAULT_FILTERS = [];
     public const DEFAULT_PUBLIC_REQUEST = true;
+    public const DEFAULT_LANGUAGE = null;
     public const PARAMETER_PAGE = 'page';
     public const PARAMETER_PAGE_SIZE = 'pageSize';
     public const PARAMETER_ORDER_BY = 'orderBy';
     public const PARAMETER_FILTERS = 'filters';
     public const PARAMETER_PUBLIC_REQUEST = 'publicRequest';
+    public const PARAMETER_LANGUAGE = 'language';
 
     protected Closure $queryModifier;
 
@@ -85,6 +87,11 @@ class ListRequest
     public function getFilters(): array
     {
         return $this->arguments[self::PARAMETER_FILTERS] ?? self::DEFAULT_FILTERS;
+    }
+
+    public function getLanguage(): ?string
+    {
+        return $this->arguments[self::PARAMETER_LANGUAGE] ?? self::DEFAULT_LANGUAGE;
     }
 
     public function isPublicRequest(): bool

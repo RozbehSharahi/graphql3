@@ -64,6 +64,11 @@ class TableConfiguration
         return !empty($this->configuration['ctrl']['tstamp']);
     }
 
+    public function hasLanguage(): bool
+    {
+        return !empty($this->configuration['ctrl']['languageField']);
+    }
+
     public function hasAccessControl(): bool
     {
         return (bool) $this->getAccessControlField();
