@@ -27,3 +27,4 @@ List of todos
 - [ ] Media relations
 - [ ] Flex-Form support
 - [ ] ManyToManyRelationFieldCreator
+- [ ] Faceting

@@ -10,31 +10,41 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 
 class DatesRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
 {
-    public function supportsTable(string $table): bool
+    public function supportsTable(TableConfiguration $tableConfiguration): bool
     {
         return true;
     }
 
-    public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
-    {
+    public function extendNodes(
+        TableConfiguration $tableConfiguration,
+        GraphqlNodeCollection $nodes
+    ): GraphqlNodeCollection {
         $arguments = GraphqlArgumentCollection::create([
             GraphqlArgument::create('format')->withType(Type::nonNull(Type::string()))->withDefaultValue('Y-m-d H:i'),
         ]);
 
-        return $nodes
-            ->add(GraphqlNode::create()
-                ->withName('createdAt')
-                ->withArguments($arguments)
-                ->withResolver(fn ($record, $args) => date($args['format'], $record['crdate']))
-            )
-            ->add(GraphqlNode::create()
-                ->withName('updatedAt')
-                ->withArguments($arguments)
-                ->withResolver(fn ($record, $args) => date($args['format'], $record['tstamp']))
-            )
-        ;
+        if ($tableConfiguration->hasCreatedAt()) {
+            $nodes = $nodes->add(
+                GraphqlNode::create()
+                    ->withName('createdAt')
+                    ->withArguments($arguments)
+                    ->withResolver(fn ($record, $args) => date($args['format'], $record['crdate']))
+            );
+        }
+
+        if ($tableConfiguration->hasUpdatedAt()) {
+            $nodes = $nodes->add(
+                GraphqlNode::create()
+                    ->withName('updatedAt')
+                    ->withArguments($arguments)
+                    ->withResolver(fn ($record, $args) => date($args['format'], $record['tstamp']))
+            );
+        }
+
+        return $nodes;
     }
 }

@@ -79,33 +79,119 @@ Create a graphql setup class, somewhere in your extension's `Classes` directory.
 
 namespace Your\Extension;
 
+use GraphQL\Type\Schema;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
-use RozbehSharahi\Graphql3\Type\NoopQueryType;
+use RozbehSharahi\Graphql3\Type\QueryType;
 
 class GraphqlSetup implements SetupInterface
 {
     public function __construct(
         protected SchemaRegistry $schemaRegistry,
+        protected QueryType $queryType
     ) {
     }
 
     public function setup(): void
     {
-        // You can pass any schema you want here
-        // https://webonyx.github.io/graphql-php/
-        $this->schemaRegistry->register(new NoopQueryType());
+        $this->schemaRegistry->register(new Schema([
+            'query' => $this->queryType,
+        ]));
     }
 }
 ```
 
 > It does not matter, where you place your `GraphqlSetup` class. As long as you implement `GraphqlSetupInterface`
-> graphql3 will auto-detect your class and call the `setup` method.
+> graphql3 will auto-detect your class and call the `setup` method. **However, make sure to clear all caches!**
 
 At this point your graphql endpoint should already be accessible.
 
 ```
 https://../your-site-root/graphql
+https://../your-site-root/graphiql # in dev mode
+```
+
+The build-in `QueryType` provides already a tca-based schema for following entities:
+
+- pages
+- tt_content
+- languages
+
+Extending the schema is as simple as implementing the `QueryTypeExtenderInterface`.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Your\Extension;
+
+use GraphQL\Type\Definition\Type;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Type\QueryTypeExtenderInterface;
+
+class ExampleQueryTypeExtender implements QueryTypeExtenderInterface
+{
+    public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
+    {
+        return $nodes
+            ->add(GraphqlNode::create('someNode')->withType(Type::string())->withResolver(fn () => 'Hello World'))
+        ;
+    }
+}
+```
+
+The `QueryType` implementation is using built-in tca-based builders. If you want to add your own entities to graphql you
+can use them as well:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+/** @noinspection PhpIllegalPsrClassPathInspection */
+
+namespace Your\Extension;
+
+use GraphQL\Type\Definition\Type;
+use RozbehSharahi\Graphql3\Builder\Node\RecordListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Type\QueryTypeExtenderInterface;
+
+class ExampleQueryTypeExtender implements QueryTypeExtenderInterface
+{
+    public function __construct(
+        protected RecordNodeBuilder $recordNodeBuilder,
+        protected RecordListNodeBuilder $recordListNodeBuilder
+    ) {
+    }
+
+    public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
+    {
+        return $nodes
+            ->add($this->recordListNodeBuilder->for('sys_log')->build())
+            ->add($this->recordNodeBuilder->for('sys_log')->build())
+        ;
+    }
+}
+```
+
+In the given example, record-node-builder and record-list-node-builder were used. These classes will auto generate a
+graphql schema, based on TCA configuration. Now it is for instance possible to run following query:
+
+```
+{
+  sysLogs {
+    items {
+      updatedAt
+      details
+      type
+    }
+  }
+}
 ```
 
 Registering a schema on graphql3 will activate the graphql endpoint. This is task should be done by only one single
@@ -113,52 +199,6 @@ extension, in most cases your main project extension. Other extensions should on
 which will be explained in the following chapter `Documentation`.
 
 ## Documentation
-
-Graphql3 brings a couple of handy builders, types, nodes & resolvers, which shall facilitate the introduction of GraphQL
-on TYPO3 projects. However, without you telling `graphql3` what you want, nothing will happen.
-
-First step every project should take, is creating a setup class which registers a schema.
-
-```php
-<?php
-
-namespace Your\Extension;
-
-use GraphQL\Type\Schema;
-use GraphQL\Type\Definition\ObjectType;
-use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Setup\SetupInterface;
-
-class GraphqlSetup implements SetupInterface
-{
-    public function __construct(
-        protected SchemaRegistry $schemaRegistry,
-    ) {
-    }
-
-    public function setup(): void
-    {
-        $this->schemaRegistry->register(new Schema([
-            'query' => new ObjectType([
-                'name' => 'Query',
-                'fields' => [
-                    'sayHi' => [
-                        'type' => Type::string(),
-                        'resolve' => fn () => 'Hi !',
-                    ],
-                ],
-            ]),
-        ]));
-    }
-}
-```
-
-> The position of your setup class within your extension's `Classes` directory is irrelevant. As long as you implement
-> `GraphqlSetupInterface`, your namespace is correct and `Services.yaml` makes sense, graphql3 will find your class. :)
-
-Registering a schema like this is possible, however, doing now everything by hand is boring.
-
-Instead, we want to use one of the built-in query types.
 
 Let's start off with the `QueryType`.
 
@@ -194,8 +234,6 @@ class GraphqlSetup implements SetupInterface
 }
 ```
 
-`QueryType` exposes the configuration of root nodes/fields by `QueryTypeExtenderInterface`.
-
 You might already check out your `/graphiql` route and for instance send a query as following:
 
 ```
@@ -207,6 +245,9 @@ You might already check out your `/graphiql` route and for instance send a query
   }
 }
 ```
+
+`QueryType` exposes the configuration of root nodes/fields by `QueryTypeExtenderInterface`. By implementing the
+interface you can edit all nodes on your root query.
 
 ### Record Type Builder
 
@@ -276,17 +317,19 @@ namespace Your\Extension;
 
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 
 class Md5PageTypeExtender implements RecordTypeBuilderExtenderInterface
 {
-    public function supportsTable(string $table): bool
+    public function supportsTable(TableConfiguration $tableConfiguration): bool
     {
-        return 'pages' === $table;
+        return 'pages' === $tableConfiguration->getName();
     }
 
-    public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
-    {
+    public function extendNodes(
+        TableConfiguration $tableConfiguration, 
+        GraphqlNodeCollection $nodes
+    ): GraphqlNodeCollection {
         return $nodes->add(
             GraphqlNode::create('md5')->withResolver(fn ($page) => md5(json_encode($page, JSON_THROW_ON_ERROR)))
         );
@@ -295,7 +338,7 @@ class Md5PageTypeExtender implements RecordTypeBuilderExtenderInterface
 ```
 
 > As long as the class implements `\RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface` the position
-> does not matter. Symfony dependency injection will take care of loading the extender.
+> does not matter. Symfony dependency injection will take care of loading the extender. **However, clear the caches!**
 
 It is also possible to remove or edit existing fields by extenders. For this check out `GraphqlNodeCollection`
 and `GraphqlNode`, which will be explained in chapter `GraphqlNode and GraphqlNodeCollection`.
@@ -367,6 +410,70 @@ There is a lot of features which will be activated by this. For instance:
 - [x] Access check
 - [x] Extendability via Extenders
 - [x] Flexible mapping of tca fields to graphql fields
+
+### List node builders
+
+As record-node-builders will create singular nodes as `page`, `content`, `logs`, list-node-builders will create `pages`
+, `content`, `logs`.
+
+They come in with a pack of built-in features as:
+
+- [x] Pagination
+- [x] Filtering
+- [x] Counting
+- [ ] Faceting (will follow)
+
+Let's say you added `sys_log` to your graphql endpoint as following:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Your\Extension;
+
+use GraphQL\Type\Definition\Type;
+use RozbehSharahi\Graphql3\Builder\Node\RecordListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Type\QueryTypeExtenderInterface;
+
+class ExampleQueryTypeExtender implements QueryTypeExtenderInterface
+{
+    public function __construct(
+        protected RecordListNodeBuilder $recordListNodeBuilder
+    ) {
+    }
+
+    public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
+    {
+        return $nodes
+            ->add($this->recordListNodeBuilder->for('sys_log')->build())
+        ;
+    }
+}
+```
+
+By this you can already do following query:
+
+```
+  sysLogs(
+    pageSize:2 
+    page: 2 
+    filters: [
+      {type: "eq", field: "type", value: "2"}
+    ]
+  ) {
+    items {
+      updatedAt
+      details
+      type
+    }
+  }
+```
+
+A more complete documentation of built-in filters will follow.
 
 ### GraphqlNode and GraphqlNodeCollection
 

@@ -12,6 +12,7 @@ use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 
@@ -70,13 +71,15 @@ class RecordTypeTest extends TestCase
 
         $recordTypeBuilder = new RecordTypeBuilder($scope->get(CaseConverter::class), [], [
             new class() implements RecordTypeBuilderExtenderInterface {
-                public function supportsTable(string $table): bool
+                public function supportsTable(TableConfiguration $tableConfiguration): bool
                 {
-                    return 'pages' === $table;
+                    return 'pages' === $tableConfiguration->getName();
                 }
 
-                public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
-                {
+                public function extendNodes(
+                    TableConfiguration $tableConfiguration,
+                    GraphqlNodeCollection $nodes
+                ): GraphqlNodeCollection {
                     return $nodes->add(
                         GraphqlNode::create('titleHash')
                             ->withResolver(fn ($page) => md5($page['title']))

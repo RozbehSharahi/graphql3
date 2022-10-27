@@ -21,7 +21,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
 
     protected string $table;
 
-    protected TableConfiguration $configuration;
+    protected TableConfiguration $tableConfiguration;
 
     public static function flushCache(): void
     {
@@ -43,7 +43,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
     {
         $clone = clone $this;
         $clone->table = $table;
-        $clone->configuration = TableConfiguration::fromTableName($table);
+        $clone->tableConfiguration = TableConfiguration::fromTableName($table);
 
         return $clone;
     }
@@ -59,7 +59,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
                 'fields' => function () {
                     $fields = GraphqlNodeCollection::create();
 
-                    foreach ($this->configuration->getColumns() as $columnName) {
+                    foreach ($this->tableConfiguration->getColumns() as $columnName) {
                         $node = $this->resolveNode($columnName);
 
                         if (!$node) {
@@ -70,8 +70,8 @@ class RecordTypeBuilder implements TypeBuilderInterface
                     }
 
                     foreach ($this->extenders as $extender) {
-                        if ($extender->supportsTable($this->table)) {
-                            $fields = $extender->extendNodes($fields);
+                        if ($extender->supportsTable($this->tableConfiguration)) {
+                            $fields = $extender->extendNodes($this->tableConfiguration, $fields);
                         }
                     }
 
@@ -82,7 +82,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
 
     protected function resolveNode(string $columnName): ?GraphqlNode
     {
-        $column = $this->configuration->getColumn($columnName);
+        $column = $this->tableConfiguration->getColumn($columnName);
 
         if (!$column->isGraphqlActive()) {
             return null;

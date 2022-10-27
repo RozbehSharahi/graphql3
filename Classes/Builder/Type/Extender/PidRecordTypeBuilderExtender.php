@@ -9,6 +9,7 @@ use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Domain\Model\ItemRequest;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 
 class PidRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
@@ -19,13 +20,15 @@ class PidRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
     ) {
     }
 
-    public function supportsTable(string $table): bool
+    public function supportsTable(TableConfiguration $tableConfiguration): bool
     {
         return true;
     }
 
-    public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
-    {
+    public function extendNodes(
+        TableConfiguration $tableConfiguration,
+        GraphqlNodeCollection $nodes
+    ): GraphqlNodeCollection {
         return $nodes->add(
             GraphqlNode::create()
                 ->withName('parentPage')

@@ -18,6 +18,19 @@ class TableConfiguration
     {
     }
 
+    public function getName(): string
+    {
+        return $this->table;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>> $configuration
+     */
+    public function toArray(): array
+    {
+        return $this->configuration;
+    }
+
     public function getColumn(string $column): ColumnConfiguration
     {
         return ColumnConfiguration::fromConfiguration($this->table, $column, $this->configuration['columns'][$column]);
@@ -39,6 +52,16 @@ class TableConfiguration
     public function getLanguageParentFieldName(): ?string
     {
         return $this->configuration['ctrl']['transOrigPointerField'] ?? null;
+    }
+
+    public function hasCreatedAt(): bool
+    {
+        return !empty($this->configuration['ctrl']['crdate']);
+    }
+
+    public function hasUpdatedAt(): bool
+    {
+        return !empty($this->configuration['ctrl']['tstamp']);
     }
 
     public function hasAccessControl(): bool

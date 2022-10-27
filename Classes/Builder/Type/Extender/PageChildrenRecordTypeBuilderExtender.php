@@ -9,6 +9,7 @@ use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class PageChildrenRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
@@ -17,13 +18,15 @@ class PageChildrenRecordTypeBuilderExtender implements RecordTypeBuilderExtender
     {
     }
 
-    public function supportsTable(string $table): bool
+    public function supportsTable(TableConfiguration $tableConfiguration): bool
     {
-        return 'pages' === $table;
+        return 'pages' === $tableConfiguration->getName();
     }
 
-    public function extendNodes(GraphqlNodeCollection $nodes): GraphqlNodeCollection
-    {
+    public function extendNodes(
+        TableConfiguration $tableConfiguration,
+        GraphqlNodeCollection $nodes
+    ): GraphqlNodeCollection {
         return $nodes->add(
             GraphqlNode::create()
                 ->withName('children')
