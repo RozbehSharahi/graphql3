@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
@@ -29,7 +29,7 @@ class FrontendUser implements UserInterface
                 $userAspect->isLoggedIn()
             );
         } catch (AspectNotFoundException|AspectPropertyNotFoundException) {
-            throw new GraphqlException('Could create frontend user from context.');
+            throw new InternalErrorException('Could not create frontend user from context.');
         }
     }
 

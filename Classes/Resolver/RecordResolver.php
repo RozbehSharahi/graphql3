@@ -8,7 +8,7 @@ use RozbehSharahi\Graphql3\Builder\Node\RecordNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Domain\Model\ItemRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
@@ -48,7 +48,7 @@ class RecordResolver
     public function resolve(ItemRequest $request): ?Record
     {
         if (empty($this->table)) {
-            throw new GraphqlException('No table given, did you forget to call ->for?');
+            throw new InternalErrorException('No table given, did you forget to call ->for?');
         }
 
         $identifier = $request->get('uid');
@@ -70,7 +70,7 @@ class RecordResolver
         try {
             $row = $query->executeQuery()->fetchAssociative();
         } catch (\Throwable $e) {
-            throw new GraphqlException('Error on fetching page from database :'.$e->getMessage());
+            throw new InternalErrorException('Error on fetching page from database :'.$e->getMessage());
         }
 
         if (empty($row)) {

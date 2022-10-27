@@ -7,7 +7,7 @@ namespace RozbehSharahi\Graphql3\Domain\Model;
 use DateTimeImmutable;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Site\CurrentSite;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -132,7 +132,7 @@ class Record
     public function assertRootPageLanguageIntegrity(): self
     {
         if ('pages' === $this->table->getName() && $this->isRoot() && $this->isTranslation() && !$this->hasLanguageParent()) {
-            throw new GraphqlException('Integrity failure: On resolving page children, a root page (uid='.$this->data['uid'].') was found of language='.$this->getLanguageUid().' but without parent-language relation (l10n_parent).');
+            throw new InternalErrorException('Integrity failure found on resolving page children. A root page (uid='.$this->data['uid'].') was found of language='.$this->getLanguageUid().' but without parent-language relation (l10n_parent).');
         }
 
         return $this;

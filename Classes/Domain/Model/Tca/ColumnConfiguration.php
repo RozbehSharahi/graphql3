@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Domain\Model\Tca;
 
 use RozbehSharahi\Graphql3\Converter\CaseConverter;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ColumnConfiguration
@@ -23,7 +23,7 @@ class ColumnConfiguration
         $configuration = $table->toArray()['columns'][$columnName] ?? null;
 
         if (null === $configuration) {
-            throw new GraphqlException("Cannot instantiate column-configuration from none TCA field ({$columnName}).");
+            throw new InternalErrorException("Cannot instantiate column-configuration from none TCA field ({$columnName}).");
         }
 
         return GeneralUtility::makeInstance(self::class, $table, $columnName, $configuration);

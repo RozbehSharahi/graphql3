@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use JsonException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 
 class GraphqlErrorCollection
 {
@@ -28,7 +29,7 @@ class GraphqlErrorCollection
     {
         foreach ($this->errors as $error) {
             if (!$error instanceof GraphqlError) {
-                throw new GraphqlException(self::class.' only allows '.GraphqlError::class.' items.');
+                throw new InternalErrorException(self::class.' only allows '.GraphqlError::class.' items.');
             }
         }
     }
@@ -47,5 +48,14 @@ class GraphqlErrorCollection
     public function toArray(): array
     {
         return array_map(static fn ($error) => $error->toArray(), $this->errors);
+    }
+
+    public function toJson(): string
+    {
+        try {
+            return json_encode(['errors' => $this->toArray()], JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new InternalErrorException('Could not encode graphql error to json: '.$e->getMessage());
+        }
     }
 }

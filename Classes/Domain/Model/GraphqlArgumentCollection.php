@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 
 class GraphqlArgumentCollection
 {
@@ -101,7 +101,7 @@ class GraphqlArgumentCollection
     {
         foreach ($items as $item) {
             if (!$item instanceof GraphqlArgument) {
-                throw new GraphqlException(self::class.' only allows '.GraphqlArgument::class.' items.');
+                throw new InternalErrorException(self::class.' only allows '.GraphqlArgument::class.' items.');
             }
         }
 

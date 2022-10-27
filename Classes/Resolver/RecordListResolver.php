@@ -4,21 +4,20 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Resolver;
 
+use Doctrine\DBAL\Exception;
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\BadRequestException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Operator\ApplyFilterArrayToQueryOperator;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Site\CurrentSite;
-use RozbehSharahi\Graphql3\Trait\ExecuteQueryTrait;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class RecordListResolver
 {
-    use ExecuteQueryTrait;
-
     protected TableConfiguration $table;
 
     public function __construct(
@@ -53,20 +52,25 @@ class RecordListResolver
     public function resolveItems(ListRequest $request): array
     {
         if (empty($this->table)) {
-            throw new GraphqlException('Table was not set. Did you forget to call ->for?');
+            throw new InternalErrorException('Table was not set. Did you forget to call ->for?');
         }
 
         $query = $this->createQuery();
 
-        $rows = $this
+        $this
             ->applyFilters($query, $request)
             ->applyLanguageFilter($query, $request)
             ->applyPublicRequestFilters($query, $request)
             ->applyPagination($query, $request)
             ->applySorting($query, $request)
             ->applyListRequestModification($query, $request)
-            ->fetchAll($query)
         ;
+
+        try {
+            $rows = $query->executeQuery()->fetchAllAssociative();
+        } catch (Exception $e) {
+            throw new InternalErrorException('Could not fetch rows on record-list-resolving: '.$e->getMessage());
+        }
 
         $records = array_map(fn (array $row) => Record::create($this->table, $row), $rows);
 
@@ -81,13 +85,18 @@ class RecordListResolver
     {
         $query = $this->createQuery();
 
-        return $this
+        $this
             ->applyFilters($query, $request)
             ->applyLanguageFilter($query, $request)
             ->applyListRequestModification($query, $request)
             ->applyPublicRequestFilters($query, $request)
-            ->fetchRowCount($query)
         ;
+
+        try {
+            return $query->selectLiteral('count(*) as count')->executeQuery()->fetchAssociative()['count'];
+        } catch (Exception $e) {
+            throw new InternalErrorException('Row counting failed on record-list-resolving: '.$e->getMessage());
+        }
     }
 
     protected function createQuery(): QueryBuilder
@@ -137,7 +146,7 @@ class RecordListResolver
         }
 
         if (!$this->currentSite->isLanguageCodeAvailable($request->getLanguage())) {
-            throw GraphqlException::createClientSafe('Given language code is not available on current site.');
+            throw new BadRequestException('Given language code is not available on current site.');
         }
 
         $language = $this->currentSite->getLanguageByCode($request->getLanguage());
@@ -182,11 +191,11 @@ class RecordListResolver
     protected function assertOrderItemValid(array $orderItem): self
     {
         if (empty($orderItem['field'])) {
-            throw GraphqlException::createClientSafe('Order item is not valid.');
+            throw new BadRequestException('Order item "field" was not set.');
         }
 
         if (!empty($orderItem['direction']) && !in_array(strtolower($orderItem['direction']), ['desc', 'asc'])) {
-            throw GraphqlException::createClientSafe('Order item is not valid.');
+            throw new BadRequestException('Order item direction must be "desc" or "asc".');
         }
 
         return $this;

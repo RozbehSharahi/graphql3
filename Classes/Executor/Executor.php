@@ -7,7 +7,7 @@ namespace RozbehSharahi\Graphql3\Executor;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\BadRequestException;
 use TYPO3\CMS\Core\Core\Environment;
 
 class Executor
@@ -74,7 +74,7 @@ class Executor
     public function execute(): array
     {
         if (empty($this->query)) {
-            throw new GraphqlException('No query provided to execute');
+            throw new BadRequestException('No query provided to execute');
         }
 
         $debugFlag = Environment::getContext()->isTesting() || Environment::getContext()->isDevelopment()

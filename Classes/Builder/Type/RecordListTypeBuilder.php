@@ -11,7 +11,7 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode as Node;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection as Collection;
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Resolver\RecordListResolver;
 
 class RecordListTypeBuilder implements TypeBuilderInterface
@@ -56,7 +56,7 @@ class RecordListTypeBuilder implements TypeBuilderInterface
     public function build(): ObjectType
     {
         if (empty($this->table)) {
-            throw new GraphqlException('No table defined, did you forget to call ->for?');
+            throw new InternalErrorException('No table defined, did you forget to call ->for?');
         }
 
         return self::$cache[$this->table->getName()] ?? self::$cache[$this->table->getName()] = new ObjectType([

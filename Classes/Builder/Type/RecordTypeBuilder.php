@@ -10,7 +10,7 @@ use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 
 class RecordTypeBuilder implements TypeBuilderInterface
 {
@@ -53,7 +53,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
     public function build(): ObjectType
     {
         if (empty($this->table)) {
-            throw new GraphqlException('No table defined, did you forget to call ->for?');
+            throw new InternalErrorException('No table defined, did you forget to call ->for?');
         }
 
         return self::$cache[$this->table->getName()] ?? self::$cache[$this->table->getName()] = new ObjectType([

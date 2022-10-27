@@ -8,14 +8,13 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlError;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlErrorCollection;
-use RozbehSharahi\Graphql3\Encoder\JsonEncoder;
 use Symfony\Component\HttpFoundation\Response;
 
 class ErrorResponseBuilder
 {
     protected GraphqlErrorCollection $errors;
 
-    public function __construct(protected ResponseFactoryInterface $responseFactory, protected JsonEncoder $encoder)
+    public function __construct(protected ResponseFactoryInterface $responseFactory)
     {
         $this->errors = new GraphqlErrorCollection([]);
     }
@@ -63,7 +62,7 @@ class ErrorResponseBuilder
             ->withHeader('Content-Type', 'application/json')
         ;
 
-        $response->getBody()->write($this->encoder->encode(['errors' => $this->errors->toArray()]));
+        $response->getBody()->write($this->errors->toJson());
 
         return $response;
     }

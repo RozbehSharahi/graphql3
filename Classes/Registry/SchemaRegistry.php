@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Registry;
 
 use GraphQL\Type\Schema;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 
 class SchemaRegistry
 {
@@ -21,7 +21,7 @@ class SchemaRegistry
     public function getSchema(): Schema
     {
         if (empty($this->schema)) {
-            throw new GraphqlException('No schema registered. Did you call `'.self::class.'::registerSchema`. For instance in a middleware?');
+            throw new InternalErrorException('No schema registered. Did you call `'.self::class.'::registerSchema`. For instance in a middleware?');
         }
 
         return $this->schema;

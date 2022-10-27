@@ -12,7 +12,7 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\ItemRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 
 class RecordNodeBuilder implements NodeBuilderInterface
@@ -51,7 +51,7 @@ class RecordNodeBuilder implements NodeBuilderInterface
     public function build(): GraphqlNode
     {
         if (empty($this->table)) {
-            throw new GraphqlException('No table given, did you forget to call ->for?');
+            throw new InternalErrorException('No table given, did you forget to call ->for?');
         }
 
         $arguments = GraphqlArgumentCollection::create([

@@ -11,7 +11,6 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
-use RozbehSharahi\Graphql3\Service\DataService;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
@@ -19,7 +18,6 @@ class PageChildrenRecordTypeBuilderExtender implements RecordTypeBuilderExtender
 {
     public function __construct(
         protected RecordListTypeBuilder $recordListTypeBuilder,
-        protected DataService $dataService,
         protected ConnectionPool $connectionPool
     ) {
     }

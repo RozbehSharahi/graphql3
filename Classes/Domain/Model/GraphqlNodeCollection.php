@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class GraphqlNodeCollection
@@ -105,7 +105,7 @@ class GraphqlNodeCollection
     {
         foreach ($items as $item) {
             if (!$item instanceof GraphqlNode) {
-                throw new GraphqlException(self::class.' only allows '.GraphqlNode::class.' items.');
+                throw new InternalErrorException(self::class.' only allows '.GraphqlNode::class.' items.');
             }
         }
 

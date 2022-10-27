@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Site;
 
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
@@ -48,6 +48,6 @@ class CurrentSite implements SingletonInterface
             }
         }
 
-        throw GraphqlException::createClientSafe('Given language code is not available on current site.');
+        throw new InternalErrorException('Given language code is not available on current site.');
     }
 }

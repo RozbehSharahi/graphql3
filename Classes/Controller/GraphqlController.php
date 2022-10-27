@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Controller;
 
+use JsonException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RozbehSharahi\Graphql3\Builder\ErrorResponseBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlErrorCollection;
-use RozbehSharahi\Graphql3\Encoder\JsonEncoder;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Executor\Executor;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use Throwable;
@@ -18,11 +18,12 @@ use TYPO3\CMS\Core\Core\Environment;
 
 class GraphqlController
 {
+    public const CONTEXT_TESTING_PRODUCTION = 'Testing/Production';
+
     public const ERROR_MESSAGE_INVALID_INPUT = 'Invalid input given on graphql request: Missing or invalid query.';
 
     public function __construct(
         protected ResponseFactoryInterface $responseFactory,
-        protected JsonEncoder $encoder,
         protected Executor $executor,
         protected SchemaRegistry $schemaRegistry,
         protected ErrorResponseBuilder $errorResponseBuilder,
@@ -31,11 +32,15 @@ class GraphqlController
 
     public function graphqlAction(ServerRequestInterface $request): ResponseInterface
     {
-        if (!$this->isValidInput($request)) {
+        try {
+            $input = json_decode((string) $request->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
             return $this->errorResponseBuilder->withMessage(self::ERROR_MESSAGE_INVALID_INPUT)->build();
         }
 
-        $input = $this->encoder->decode((string) $request->getBody());
+        if (!is_array($input) || !is_string($input['query'] ?? null)) {
+            return $this->errorResponseBuilder->withMessage(self::ERROR_MESSAGE_INVALID_INPUT)->build();
+        }
 
         try {
             $output = $this
@@ -45,21 +50,16 @@ class GraphqlController
                 ->withVariables($input['variables'] ?? [])
                 ->execute()
             ;
-        } catch (Throwable|GraphqlException $e) {
-            return $this
-                ->throwIfTestingMode($e->getMessage())
-                ->errorResponseBuilder
-                ->withMessage($e->getMessage())
-                ->build()
-            ;
+        } catch (Throwable $e) {
+            $this->throwIfTestingMode($e->getMessage());
+
+            return $this->errorResponseBuilder->withMessage($e->getMessage())->build();
         }
 
         if ($output['errors'] ?? null) {
+            $this->throwIfTestingMode($output['errors']);
+
             return $this
-                ->throwIfTestingMode(
-                    $output['errors'][0]['message'],
-                    $output['errors'][0]['debugMessage'] ?? null
-                )
                 ->errorResponseBuilder
                 ->withErrors(GraphqlErrorCollection::createFromArray($output['errors']))
                 ->build()
@@ -71,7 +71,11 @@ class GraphqlController
             ->withHeader('Content-Type', 'application/json')
         ;
 
-        $response->getBody()->write($this->encoder->encode($output));
+        try {
+            $response->getBody()->write(json_encode($output, JSON_THROW_ON_ERROR));
+        } catch (JsonException $e) {
+            throw new InternalErrorException('Could not json encode graphql output: '.$e->getMessage());
+        }
 
         return $response;
     }
@@ -84,27 +88,15 @@ class GraphqlController
         return $response;
     }
 
-    protected function isValidInput(ServerRequestInterface $request): bool
+    protected function throwIfTestingMode(mixed $data): self
     {
-        $json = (string) $request->getBody();
-
-        if (!$this->encoder->isValidJson($json)) {
-            return false;
-        }
-
-        $input = $this->encoder->decode($json);
-
-        return !(!is_array($input) || !is_string($input['query'] ?? null));
-    }
-
-    protected function throwIfTestingMode(string $message, ?string $details = null): self
-    {
-        if ('Testing/Production' === (string) Environment::getContext()) {
+        if (self::CONTEXT_TESTING_PRODUCTION === (string) Environment::getContext()) {
             return $this;
         }
 
         if (Environment::getContext()->isTesting()) {
-            throw new \RuntimeException($message.($details ? ': '.$details : ''));
+            /* @noinspection JsonEncodingApiUsageInspection */
+            throw new InternalErrorException('An exception was thrown in test: '.json_encode($data));
         }
 
         return $this;

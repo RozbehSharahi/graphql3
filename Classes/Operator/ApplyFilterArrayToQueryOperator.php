@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Operator;
 
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\BadRequestException;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class ApplyFilterArrayToQueryOperator
@@ -96,11 +96,11 @@ class ApplyFilterArrayToQueryOperator
     protected function asserFieldAndValueIsSet(string $type, array $filter): self
     {
         if (empty($filter['field'])) {
-            throw GraphqlException::createClientSafe("'field' is mandatory on filters of type '{$type}'");
+            throw new BadRequestException("'field' is mandatory on filters of type '{$type}'");
         }
 
         if (!isset($filter['value'])) {
-            throw GraphqlException::createClientSafe("'value' is mandatory on filters of type '{$type}'");
+            throw new BadRequestException("'value' is mandatory on filters of type '{$type}'");
         }
 
         return $this;
@@ -112,7 +112,7 @@ class ApplyFilterArrayToQueryOperator
     protected function assertChildrenAreSet(string $type, array $filter): self
     {
         if (empty($filter['children'])) {
-            throw GraphqlException::createClientSafe("'children' are mandatory on filters of type '{$type}'");
+            throw new BadRequestException("'children' are mandatory on filters of type '{$type}'");
         }
 
         return $this;
@@ -124,7 +124,7 @@ class ApplyFilterArrayToQueryOperator
     protected function assertValuesAreSet(string $type, array $filter): self
     {
         if (empty($filter['values'])) {
-            throw GraphqlException::createClientSafe("'values' are mandatory on filters of type '{$type}'");
+            throw new BadRequestException("'values' are mandatory on filters of type '{$type}'");
         }
 
         return $this;
@@ -133,7 +133,7 @@ class ApplyFilterArrayToQueryOperator
     protected function assertTypeIsValid(string $type): self
     {
         if (!isset($this->typeToExpressionCreatorMap[$type])) {
-            throw GraphqlException::createClientSafe("Given filter type '{$type}' is not valid.");
+            throw new BadRequestException("Given filter type '{$type}' is not valid.");
         }
 
         return $this;

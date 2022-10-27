@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Security;
 
 use RozbehSharahi\Graphql3\Domain\Model\FrontendUser;
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
+use RozbehSharahi\Graphql3\Exception\NotImplementedException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -42,7 +43,7 @@ class SessionToken implements TokenInterface
     public function setUser(UserInterface $user): self
     {
         if (!$user instanceof FrontendUser) {
-            throw new GraphqlException('Can only set user of type: '.FrontendUser::class.' on token.');
+            throw new InternalErrorException('Can only set user of type: '.FrontendUser::class.' on token.');
         }
 
         $this->frontendUser = $user;
@@ -52,7 +53,7 @@ class SessionToken implements TokenInterface
 
     public function eraseCredentials(): self
     {
-        throw new GraphqlException('Not implemented');
+        throw new NotImplementedException('Not implemented');
     }
 
     /**
@@ -60,7 +61,7 @@ class SessionToken implements TokenInterface
      */
     public function getAttributes(): array
     {
-        throw new GraphqlException('Not implemented');
+        throw new NotImplementedException('Not implemented');
     }
 
     /**
@@ -68,22 +69,22 @@ class SessionToken implements TokenInterface
      */
     public function setAttributes(array $attributes): self
     {
-        throw new GraphqlException('Not implemented');
+        throw new NotImplementedException('Not implemented');
     }
 
     public function hasAttribute(string $name): bool
     {
-        throw new GraphqlException('Not implemented');
+        throw new NotImplementedException('Not implemented');
     }
 
     public function getAttribute(string $name): mixed
     {
-        throw new GraphqlException('Not implemented');
+        throw new NotImplementedException('Not implemented');
     }
 
     public function setAttribute(string $name, mixed $value): self
     {
-        throw new GraphqlException('Not implemented');
+        throw new NotImplementedException('Not implemented');
     }
 
     /**
@@ -91,7 +92,7 @@ class SessionToken implements TokenInterface
      */
     public function __serialize(): array
     {
-        throw new GraphqlException('Not implemented');
+        throw new NotImplementedException('Not implemented');
     }
 
     /**
@@ -99,6 +100,6 @@ class SessionToken implements TokenInterface
      */
     public function __unserialize(array $data): void
     {
-        throw new GraphqlException('Not implemented');
+        throw new NotImplementedException('Not implemented');
     }
 }

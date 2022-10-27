@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Security;
 
-use RozbehSharahi\Graphql3\Exception\GraphqlException;
+use RozbehSharahi\Graphql3\Exception\UnauthorizedException;
 use RozbehSharahi\Graphql3\Security\Voter\VoterInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
 use Symfony\Component\Security\Core\Authorization\Strategy\UnanimousStrategy;
@@ -35,7 +35,7 @@ class AccessChecker
     public function assert(array $attributes, mixed $object = null): self
     {
         if (!$this->check($attributes, $object)) {
-            throw GraphqlException::createClientSafe('Access denied.');
+            throw new UnauthorizedException();
         }
 
         return $this;
