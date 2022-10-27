@@ -135,9 +135,11 @@ class ExampleQueryTypeExtender implements QueryTypeExtenderInterface
 {
     public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
     {
-        return $nodes
-            ->add(GraphqlNode::create('someNode')->withType(Type::string())->withResolver(fn () => 'Hello World'))
-        ;
+        return $nodes->add(
+            GraphqlNode::create('someNode')
+                ->withType(Type::string())
+                ->withResolver(fn () => 'Hello World')
+        );
     }
 }
 ```
