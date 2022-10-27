@@ -35,7 +35,7 @@ class FileReferenceTypeBuilder implements TypeBuilderInterface
 
         return self::$cache = new ObjectType([
             'name' => 'FileReference',
-            'fields' => fn() => $this->getFields(),
+            'fields' => fn () => $this->getFields(),
         ]);
     }
 
@@ -49,25 +49,25 @@ class FileReferenceTypeBuilder implements TypeBuilderInterface
                 Node::create()
                     ->withName('uid')
                     ->withType(Type::int())
-                    ->withResolver(fn(FileReference $fileReference) => $fileReference->getUid())
+                    ->withResolver(fn (FileReference $fileReference) => $fileReference->getUid())
             )
             ->add(
                 Node::create()
                     ->withName('size')
                     ->withType(Type::int())
-                    ->withResolver(fn(FileReference $fileReference) => $fileReference->getSize())
+                    ->withResolver(fn (FileReference $fileReference) => $fileReference->getSize())
             )
             ->add(
                 Node::create()
                     ->withName('extension')
                     ->withType(Type::string())
-                    ->withResolver(fn(FileReference $fileReference) => $fileReference->getExtension())
+                    ->withResolver(fn (FileReference $fileReference) => $fileReference->getExtension())
             )
             ->add(
                 Node::create()
                     ->withName('publicUrl')
                     ->withType(Type::string())
-                    ->withResolver(fn(FileReference $fileReference) => $fileReference->getPublicUrl())
+                    ->withResolver(fn (FileReference $fileReference) => $fileReference->getPublicUrl())
             )
             ->add(
                 Node::create()
@@ -107,7 +107,8 @@ class FileReferenceTypeBuilder implements TypeBuilderInterface
                         }
 
                         $cropVariant = CropVariantCollection::create($fileReference->getProperty('crop'))
-                            ->getCropArea($args['variant']);
+                            ->getCropArea($args['variant'])
+                        ;
 
                         $processingInstructions = [
                             'crop' => $cropVariant->isEmpty()
@@ -115,19 +116,19 @@ class FileReferenceTypeBuilder implements TypeBuilderInterface
                                 : $cropVariant->makeAbsoluteBasedOnFile($fileReference),
                         ];
 
-                        if($args['maxWidth'] ?? false) {
+                        if ($args['maxWidth'] ?? false) {
                             $processingInstructions['maxWidth'] = $args['maxWidth'];
                         }
 
-                        if($args['maxHeight'] ?? false) {
+                        if ($args['maxHeight'] ?? false) {
                             $processingInstructions['maxHeight'] = $args['maxHeight'];
                         }
 
-                        if($args['width'] ?? false) {
+                        if ($args['width'] ?? false) {
                             $processingInstructions['width'] = $args['width'];
                         }
 
-                        if($args['height'] ?? false) {
+                        if ($args['height'] ?? false) {
                             $processingInstructions['height'] = $args['height'];
                         }
 
@@ -137,7 +138,8 @@ class FileReferenceTypeBuilder implements TypeBuilderInterface
                         return $this->imageService->getImageUri($processedImage);
                     })
             )
-            ->toArray();
+            ->toArray()
+        ;
     }
 
     /**
