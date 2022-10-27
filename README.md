@@ -507,6 +507,28 @@ By this you can already do following query:
 
 A more complete documentation of built-in filters will follow.
 
+#### Languages
+
+The list-node-builder follows this logic regarding `sys_language_uid` relations:
+
+Whenever a table has `langagueField` set on `TCA` it will add an extra query parameter for language filtering.
+
+```
+{
+  pages(language: "de") {
+   ...
+  }
+}
+```
+
+The parameter expects currently the `twoLetterIsoCode`. If the given language is available on the current site it will
+be set as a filter to the query. A none-available language will cause an exception with a descriptive error message.
+
+The current implementation is however not final yet, as language filters have to be inherited to sub-relation-queries.
+For instance fetching pages in "German" language should also lead to page-children to be filtered to "German" language.
+
+This logic will soon follow.
+
 ### GraphqlNode and GraphqlNodeCollection
 
 When extending one of the build-in nodes/type/... you will receive relevant schema parts in your extender, which you are
