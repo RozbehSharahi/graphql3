@@ -10,7 +10,9 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 interface RecordNodeExtenderInterface
 {
-    public function supportsTable(TableConfiguration $table): bool;
+    public function supportsTable(
+        TableConfiguration $table
+    ): bool;
 
     public function extendArguments(
         TableConfiguration $table,
@@ -20,5 +22,9 @@ interface RecordNodeExtenderInterface
     /**
      * @param array<string, mixed> $arguments
      */
-    public function extendQuery(TableConfiguration $table, QueryBuilder $query, array $arguments): QueryBuilder;
+    public function extendQuery(
+        TableConfiguration $table,
+        QueryBuilder $query,
+        array $arguments
+    ): QueryBuilder;
 }

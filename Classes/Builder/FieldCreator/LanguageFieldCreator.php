@@ -33,7 +33,7 @@ class LanguageFieldCreator implements FieldCreatorInterface
         return GraphqlNode::create()
             ->withName($column->getGraphqlName())
             ->withType($this->languageTypeBuilder->build())
-            ->withResolver(fn (array $record) => $this->languageResolver->resolve(new ItemRequest([
+            ->withResolver(fn (array $record) => $this->languageResolver->resolve(ItemRequest::create([
                 'id' => $record[$column->getName()] ?? 0,
             ])))
         ;

@@ -44,7 +44,7 @@ class LanguageNodeBuilder implements NodeBuilderInterface
                     GraphqlArgument::create('id')->withType(Type::nonNull(Type::int())),
                 ])
             )
-            ->withResolver(fn ($_, $args) => $this->languageResolver->resolve(new ItemRequest($args)))
+            ->withResolver(fn ($_, $args) => $this->languageResolver->resolve(ItemRequest::create($args)))
         ;
     }
 }

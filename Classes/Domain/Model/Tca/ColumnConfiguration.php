@@ -44,6 +44,11 @@ class ColumnConfiguration
         return $this->name;
     }
 
+    public function getCamelName(): string
+    {
+        return $this->getConverter()->toCamel($this->name);
+    }
+
     public function getGraphqlName(): ?string
     {
         if ($graphql3Name = $this->configuration['config']['graphql3']['name'] ?? null) {
@@ -54,7 +59,7 @@ class ColumnConfiguration
             return $hardMappedName;
         }
 
-        return $this->getConverter()->toCamel($this->name);
+        return $this->getCamelName();
     }
 
     public function getTable(): TableConfiguration

@@ -36,7 +36,7 @@ class LanguageParentFieldCreator implements FieldCreatorInterface
             ->withResolver(fn ($record) => $this
                 ->recordResolver
                 ->for($column->getForeignTable())
-                ->resolve(new ItemRequest(['uid' => $record[$column->getName()] ?? null]))
+                ->resolve(ItemRequest::create(['uid' => $record[$column->getName()] ?? null]))
             )
         ;
     }

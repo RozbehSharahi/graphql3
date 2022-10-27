@@ -68,7 +68,9 @@ class RecordNodeBuilder implements NodeBuilderInterface
         return GraphqlNode::create($this->table->getCamelSingularName())
             ->withType($this->recordTypeBuilder->for($this->table)->build())
             ->withArguments($arguments)
-            ->withResolver(fn ($_, $args) => $this->recordResolver->for($this->table)->resolve(new ItemRequest($args)))
+            ->withResolver(fn ($_, $args) => $this
+                ->recordResolver
+                ->for($this->table)->resolve(ItemRequest::create($args)))
         ;
     }
 }

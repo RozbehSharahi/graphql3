@@ -34,7 +34,7 @@ class PidRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
                 ->withName('parentPage')
                 ->withType($this->recordTypeBuilder->for('pages')->build())
                 ->withResolver(fn ($record) => $this
-                    ->recordResolver->for('pages')->resolve(new ItemRequest(['uid' => $record['pid'] ?? null]))
+                    ->recordResolver->for('pages')->resolve(ItemRequest::create(['uid' => $record['pid'] ?? null]))
                 )
         );
     }

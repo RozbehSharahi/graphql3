@@ -71,18 +71,20 @@ class RecordResolver
         }
 
         try {
-            $record = $query->executeQuery()->fetchAssociative();
+            $row = $query->executeQuery()->fetchAssociative();
         } catch (\Throwable $e) {
             throw new GraphqlException('Error on fetching page from database :'.$e->getMessage());
         }
 
-        if (empty($record)) {
+        if (empty($row)) {
             return null;
         }
 
-        $this->accessChecker->assert(['VIEW'], Record::create($this->table, $record));
+        $record = Record::create($this->table, $row);
 
-        return $record;
+        $this->accessChecker->assert(['VIEW'], $record);
+
+        return $row;
     }
 
     protected function createQuery(): QueryBuilder
