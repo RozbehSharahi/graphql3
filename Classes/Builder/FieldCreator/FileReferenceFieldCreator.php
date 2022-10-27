@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
 
-use RozbehSharahi\Graphql3\Builder\Type\RecordListTypeBuilder;
-use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
+use GraphQL\Type\Definition\Type;
+use RozbehSharahi\Graphql3\Builder\Type\FileReferenceTypeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
-use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
-use TYPO3\CMS\Core\Database\Query\QueryBuilder;
+use TYPO3\CMS\Core\Resource\FileRepository;
 
 class FileReferenceFieldCreator implements FieldCreatorInterface
 {
     public function __construct(
-        protected RecordTypeBuilder $recordTypeBuilder,
-        protected RecordListTypeBuilder $recordListTypeBuilder,
+        protected FileReferenceTypeBuilder $fileReferenceTypeBuilder,
+        protected FileRepository $fileRepository
     ) {
     }
 
@@ -33,18 +32,13 @@ class FileReferenceFieldCreator implements FieldCreatorInterface
     {
         return GraphqlNode::create()
             ->withName($column->getGraphqlName())
-            ->withType($this->recordListTypeBuilder->for('sys_file_reference')->build())
-            ->withResolver(fn (array $row) => (new ListRequest())
-                ->withQueryModifier(static function (QueryBuilder $q) use ($column, $row) {
-                    $q
-                        ->andWhere($q->expr()->eq('uid_foreign', $row['uid']))
-                        ->andWhere($q->expr()->eq('tablenames', $q->createNamedParameter($column->getTable())))
-                    ;
-
-                    foreach ($column->getForeignMatchFields() as $fieldName => $value) {
-                        $q->andWhere($q->expr()->eq($fieldName, $q->createNamedParameter($value)));
-                    }
-                }))
+            ->withType(Type::listOf($this->fileReferenceTypeBuilder->build()))
+            ->withResolver(function (array $row) use ($column) {
+                return $this
+                    ->fileRepository
+                    ->findByRelation($column->getTable(), $column->getName(), $row['uid'])
+                ;
+            })
         ;
     }
 }

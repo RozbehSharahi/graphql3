@@ -147,6 +147,11 @@ class ColumnConfiguration
         return TableConfiguration::fromTableName($this->table)->getLanguageParentFieldName() === $this->name;
     }
 
+    public function isImageManipulation(): bool
+    {
+        return 'imageManipulation' === $this->getType();
+    }
+
     protected function getConverter(): CaseConverter
     {
         return GeneralUtility::makeInstance(CaseConverter::class);

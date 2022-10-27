@@ -52,8 +52,18 @@ class PageTest extends TestCase
         $scope = $this->createScope();
 
         $scope
-            ->createRecord('sys_file', ['uid' => 200, 'identifier' => '/user_upload/whatever'])
-            ->createRecord('sys_file', ['uid' => 300, 'identifier' => '/user_upload/whatever-2'])
+            ->createRecord('sys_file', [
+                'uid' => 200,
+                'identifier' => '/user_upload/whatever.txt',
+                'extension' => 'txt',
+                'name' => 'whatever.txt',
+            ])
+            ->createRecord('sys_file', [
+                'uid' => 300,
+                'identifier' => '/user_upload/whatever-2.txt',
+                'extension' => 'txt',
+                'name' => 'whatever-2.txt',
+            ])
             ->createRecord('sys_file_reference', [
                 'uid' => 1,
                 'tablenames' => 'pages',
@@ -86,7 +96,10 @@ class PageTest extends TestCase
             page(uid: 1) {
                 title
                 media {
-                  count
+                  uid
+                  publicUrl
+                  extension
+                  imageUrl
                 }
             }
         }');
@@ -94,7 +107,11 @@ class PageTest extends TestCase
         self::assertArrayHasKey('page', $response['data']);
         self::assertNotEmpty($response['data']['page']);
         self::assertSame('root page', $response['data']['page']['title']);
-        self::assertSame(1, $response['data']['page']['media']['count']);
+        self::assertCount(1, $response['data']['page']['media']);
+        self::assertSame(1, $response['data']['page']['media'][0]['uid']);
+        self::assertSame('user_upload/whatever.txt', $response['data']['page']['media'][0]['publicUrl']);
+        self::assertSame('txt', $response['data']['page']['media'][0]['extension']);
+        self::assertNull($response['data']['page']['media'][0]['imageUrl']);
     }
 
     private function createScope(): FunctionalScope
