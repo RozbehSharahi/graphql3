@@ -38,7 +38,7 @@ class ErrorHandler
             return GraphqlError::create($throwable->getMessage(), 501)->toResponse();
         }
 
-        if ($throwable instanceof InternalErrorException && !Environment::getContext()->isProduction()) {
+        if ($throwable instanceof InternalErrorException && $this->isInternalEnvironment()) {
             $this->logger->critical($throwable->getPrivateMessage());
 
             return GraphqlError::create($throwable->getPrivateMessage(), 500)->toResponse();
@@ -50,7 +50,7 @@ class ErrorHandler
             return GraphqlError::create($throwable->getPublicMessage(), 500)->toResponse();
         }
 
-        if ($throwable instanceof ShouldNotHappenException && !Environment::getContext()->isProduction()) {
+        if ($throwable instanceof ShouldNotHappenException && $this->isInternalEnvironment()) {
             $this->logger->critical($throwable->getPrivateMessage());
 
             return GraphqlError::create($throwable->getPrivateMessage())->toResponse();
@@ -63,5 +63,10 @@ class ErrorHandler
         }
 
         throw $throwable;
+    }
+
+    public function isInternalEnvironment(): bool
+    {
+        return !Environment::getContext()->isProduction();
     }
 }
