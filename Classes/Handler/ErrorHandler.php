@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Handler;
 
+use GraphQL\Error\SyntaxError;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlError;
 use RozbehSharahi\Graphql3\Exception\BadRequestException;
+use RozbehSharahi\Graphql3\Exception\Graphql3ExceptionInterface;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Exception\NotImplementedException;
 use RozbehSharahi\Graphql3\Exception\ShouldNotHappenException;
@@ -26,43 +28,53 @@ class ErrorHandler
      */
     public function handle(Throwable $throwable): ResponseInterface
     {
-        if ($throwable instanceof BadRequestException) {
-            return GraphqlError::create($throwable->getMessage())->toResponse();
+        // In some cases our exceptions are wrapped into a graphql error exception.
+        // Probably those on execution time
+        $exception = !$throwable->getPrevious() instanceof Graphql3ExceptionInterface
+            ? $throwable
+            : $throwable->getPrevious();
+
+        if ($exception instanceof SyntaxError) {
+            return GraphqlError::create($exception->getMessage())->toResponse();
         }
 
-        if ($throwable instanceof UnauthorizedException) {
-            return GraphqlError::create($throwable->getMessage(), 401)->toResponse();
+        if ($exception instanceof BadRequestException) {
+            return GraphqlError::create($exception->getMessage())->toResponse();
         }
 
-        if ($throwable instanceof NotImplementedException) {
-            return GraphqlError::create($throwable->getMessage(), 501)->toResponse();
+        if ($exception instanceof UnauthorizedException) {
+            return GraphqlError::create($exception->getMessage(), 401)->toResponse();
         }
 
-        if ($throwable instanceof InternalErrorException && $this->isInternalEnvironment()) {
-            $this->logger->critical($throwable->getPrivateMessage());
-
-            return GraphqlError::create($throwable->getPrivateMessage(), 500)->toResponse();
+        if ($exception instanceof NotImplementedException) {
+            return GraphqlError::create($exception->getMessage(), 501)->toResponse();
         }
 
-        if ($throwable instanceof InternalErrorException) {
-            $this->logger->critical($throwable->getPrivateMessage());
+        if ($exception instanceof InternalErrorException && $this->isInternalEnvironment()) {
+            $this->logger->critical($exception->getPrivateMessage());
 
-            return GraphqlError::create($throwable->getPublicMessage(), 500)->toResponse();
+            return GraphqlError::create($exception->getPrivateMessage(), 500)->toResponse();
         }
 
-        if ($throwable instanceof ShouldNotHappenException && $this->isInternalEnvironment()) {
-            $this->logger->critical($throwable->getPrivateMessage());
+        if ($exception instanceof InternalErrorException) {
+            $this->logger->critical($exception->getPrivateMessage());
 
-            return GraphqlError::create($throwable->getPrivateMessage())->toResponse();
+            return GraphqlError::create($exception->getPublicMessage(), 500)->toResponse();
         }
 
-        if ($throwable instanceof ShouldNotHappenException) {
-            $this->logger->critical($throwable->getPrivateMessage());
+        if ($exception instanceof ShouldNotHappenException && $this->isInternalEnvironment()) {
+            $this->logger->critical($exception->getPrivateMessage());
 
-            return GraphqlError::create($throwable->getPublicMessage())->toResponse();
+            return GraphqlError::create($exception->getPrivateMessage())->toResponse();
         }
 
-        throw $throwable;
+        if ($exception instanceof ShouldNotHappenException) {
+            $this->logger->critical($exception->getPrivateMessage());
+
+            return GraphqlError::create($exception->getPublicMessage())->toResponse();
+        }
+
+        throw $exception;
     }
 
     public function isInternalEnvironment(): bool

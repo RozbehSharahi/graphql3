@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Executor;
 
+use Closure;
 use GraphQL\Error\DebugFlag;
-use GraphQL\Error\Error;
-use GraphQL\Error\SyntaxError;
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
-use RozbehSharahi\Graphql3\Exception\BadRequestException;
-use RozbehSharahi\Graphql3\Exception\Graphql3ExceptionInterface;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
-use RozbehSharahi\Graphql3\Handler\ErrorHandler;
-use Throwable;
 use TYPO3\CMS\Core\Core\Environment;
 
 class Executor
@@ -26,6 +21,8 @@ class Executor
     protected array $variables = [];
 
     protected Schema $schema;
+
+    protected ?Closure $errorHandler = null;
 
     public function getQuery(): string
     {
@@ -61,6 +58,19 @@ class Executor
         return $clone;
     }
 
+    public function getErrorHandler(): Closure
+    {
+        return $this->errorHandler;
+    }
+
+    public function withErrorHandler(?Closure $errorHandler): self
+    {
+        $clone = clone $this;
+        $clone->errorHandler = $errorHandler;
+
+        return $clone;
+    }
+
     public function getSchema(): Schema
     {
         return $this->schema;
@@ -80,50 +90,22 @@ class Executor
     public function execute(): array
     {
         if (empty($this->query)) {
-            throw new BadRequestException('No query provided to execute');
+            throw new InternalErrorException('No query provided to execute.');
         }
 
         $debugFlag = Environment::getContext()->isTesting() || Environment::getContext()->isDevelopment()
             ? DebugFlag::INCLUDE_DEBUG_MESSAGE
             : DebugFlag::NONE;
 
-        return GraphQL::executeQuery($this->schema, $this->query, null, null, $this->variables)
-            ->setErrorsHandler(fn (array $errors) => $this->noMercyErrorHandler($errors))
+        $executionResult = GraphQL::executeQuery($this->schema, $this->query, null, null, $this->variables);
+
+        if ($this->errorHandler) {
+            $executionResult->setErrorsHandler($this->errorHandler);
+        }
+
+        return $executionResult
+            ->setErrorsHandler($this->errorHandler)
             ->toArray($debugFlag)
         ;
-    }
-
-    /**
-     * Override of default graphql error handling.
-     *
-     * Graphql3 in current state reduces to one error per request. This makes error-handling a bit easier.
-     *
-     * Main error handling however takes place in ErrorHandler.
-     *
-     * @see ErrorHandler
-     *
-     * @param Throwable[] $errors
-     *
-     * @throws Throwable
-     */
-    private function noMercyErrorHandler(array $errors): void
-    {
-        $error = reset($errors);
-
-        $previous = $error->getPrevious();
-
-        if ($previous instanceof Graphql3ExceptionInterface) {
-            throw $previous;
-        }
-
-        if ($error instanceof SyntaxError) {
-            throw new BadRequestException($error->getMessage());
-        }
-
-        if ($error instanceof Error && $error->isClientSafe()) {
-            throw new BadRequestException($error->getMessage());
-        }
-
-        throw new InternalErrorException('Unhandled graphql exception: '.$error->getMessage());
     }
 }

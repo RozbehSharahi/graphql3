@@ -10,7 +10,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RozbehSharahi\Graphql3\Exception\BadRequestException;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
-use RozbehSharahi\Graphql3\Exception\ShouldNotHappenException;
 use RozbehSharahi\Graphql3\Executor\Executor;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 
@@ -44,13 +43,9 @@ class GraphqlController
             ->withSchema($this->schemaRegistry->getSchema())
             ->withQuery($input['query'])
             ->withVariables($input['variables'] ?? [])
+            ->withErrorHandler(fn ($errors) => throw reset($errors))
             ->execute()
         ;
-
-        // Current error handling should avoid this state and instead throw exceptions
-        if ($output['errors'] ?? null) {
-            throw new ShouldNotHappenException('Output contained errors without being thrown as exception.', $output);
-        }
 
         $response = $this->responseFactory
             ->createResponse()
