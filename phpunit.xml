@@ -4,4 +4,9 @@
             <directory>Tests/Functional</directory>
         </testsuite>
     </testsuites>
+    <coverage>
+        <include>
+            <directory suffix=".php">Classes</directory>
+        </include>
+    </coverage>
 </phpunit>

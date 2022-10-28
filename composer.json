@@ -58,6 +58,13 @@
             "vendor/bin/php-cs-fixer fix",
             "vendor/bin/phpstan",
             "vendor/bin/phpunit"
+        ],
+        "coverage": [
+            "@cache-clear",
+            "vendor/bin/php-cs-fixer fix",
+            "vendor/bin/phpstan",
+            "vendor/bin/phpunit --coverage-html .build/public/coverage",
+            "echo 'Checkout http:\/\/localhost:8080\/coverage\/' > /dev/null"
         ]
     }
 }
