@@ -8,7 +8,7 @@ use JsonException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RozbehSharahi\Graphql3\Builder\ErrorResponseBuilder;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlError;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlErrorCollection;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Executor\Executor;
@@ -25,8 +25,7 @@ class GraphqlController
     public function __construct(
         protected ResponseFactoryInterface $responseFactory,
         protected Executor $executor,
-        protected SchemaRegistry $schemaRegistry,
-        protected ErrorResponseBuilder $errorResponseBuilder,
+        protected SchemaRegistry $schemaRegistry
     ) {
     }
 
@@ -35,11 +34,11 @@ class GraphqlController
         try {
             $input = json_decode((string) $request->getBody(), true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException) {
-            return $this->errorResponseBuilder->withMessage(self::ERROR_MESSAGE_INVALID_INPUT)->build();
+            return GraphqlError::create(self::ERROR_MESSAGE_INVALID_INPUT)->toResponse();
         }
 
         if (!is_array($input) || !is_string($input['query'] ?? null)) {
-            return $this->errorResponseBuilder->withMessage(self::ERROR_MESSAGE_INVALID_INPUT)->build();
+            return GraphqlError::create(self::ERROR_MESSAGE_INVALID_INPUT)->toResponse();
         }
 
         try {
@@ -53,17 +52,13 @@ class GraphqlController
         } catch (Throwable $e) {
             $this->throwIfTestingMode($e->getMessage());
 
-            return $this->errorResponseBuilder->withMessage($e->getMessage())->build();
+            return GraphqlError::create($e->getMessage())->toResponse();
         }
 
         if ($output['errors'] ?? null) {
             $this->throwIfTestingMode($output['errors']);
 
-            return $this
-                ->errorResponseBuilder
-                ->withErrors(GraphqlErrorCollection::createFromArray($output['errors']))
-                ->build()
-            ;
+            return GraphqlErrorCollection::createFromOutput($output['errors'])->toResponse();
         }
 
         $response = $this->responseFactory

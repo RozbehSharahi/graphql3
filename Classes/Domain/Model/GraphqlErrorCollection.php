@@ -5,21 +5,28 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
 use JsonException;
+use Psr\Http\Message\ResponseInterface;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
+use Symfony\Component\HttpFoundation\Response;
+use TYPO3\CMS\Core\Http\ResponseFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class GraphqlErrorCollection
 {
-    public static function createSingleError(string $message): self
+    /**
+     * @param array<int, mixed> $errors
+     */
+    public static function createFromOutput(array $errors): self
     {
-        return new self([new GraphqlError($message)]);
+        return self::create(array_map(static fn ($v) => GraphqlError::create($v['message']), $errors));
     }
 
     /**
      * @param GraphqlError[] $errors
      */
-    public static function createFromArray(array $errors): self
+    public static function create(array $errors): self
     {
-        return new self(array_map(static fn ($v) => new GraphqlError($v['message']), $errors));
+        return GeneralUtility::makeInstance(self::class, $errors);
     }
 
     /**
@@ -57,5 +64,20 @@ class GraphqlErrorCollection
         } catch (JsonException $e) {
             throw new InternalErrorException('Could not encode graphql error to json: '.$e->getMessage());
         }
+    }
+
+    public function toResponse(): ResponseInterface
+    {
+        $responseFactory = GeneralUtility::makeInstance(ResponseFactory::class);
+
+        $response = $responseFactory
+            ->createResponse()
+            ->withStatus(Response::HTTP_BAD_REQUEST)
+            ->withHeader('Content-Type', 'application/json')
+        ;
+
+        $response->getBody()->write($this->toJson());
+
+        return $response;
     }
 }
