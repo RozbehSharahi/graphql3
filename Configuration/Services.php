@@ -16,6 +16,7 @@ use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
+use RozbehSharahi\Graphql3\Security\JwtManager;
 use RozbehSharahi\Graphql3\Security\Voter\VoterInterface;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
 use RozbehSharahi\Graphql3\Site\CurrentSite;
@@ -64,5 +65,6 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         $containerBuilder->registerForAutoconfiguration(RecordNodeBuilder::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(RecordListNodeBuilder::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(RecordResolver::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(JwtManager::class)->setPublic(true);
     }
 };

@@ -10,7 +10,7 @@ use RozbehSharahi\Graphql3\Exception\NotImplementedException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-class SessionToken implements TokenInterface
+class Token implements TokenInterface
 {
     public function __construct(protected ?FrontendUser $frontendUser = null)
     {

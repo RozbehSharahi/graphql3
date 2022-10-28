@@ -26,7 +26,7 @@ class AccessChecker
      */
     public function check(array $attributes, mixed $object = null): bool
     {
-        return $this->decisionManager->decide(new SessionToken(), $attributes, $object, true);
+        return $this->decisionManager->decide(new Token(), $attributes, $object, true);
     }
 
     /**
