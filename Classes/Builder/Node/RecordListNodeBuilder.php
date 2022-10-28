@@ -6,7 +6,6 @@ namespace RozbehSharahi\Graphql3\Builder\Node;
 
 use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Builder\Type\RecordListTypeBuilder;
-use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
@@ -23,8 +22,7 @@ class RecordListNodeBuilder implements NodeBuilderInterface
     public function __construct(
         protected RecordListTypeBuilder $recordListTypeBuilder,
         protected OrderItemInputType $orderFieldType,
-        protected FilterInputType $filterInputType,
-        protected CaseConverter $caseConverter
+        protected FilterInputType $filterInputType
     ) {
     }
 

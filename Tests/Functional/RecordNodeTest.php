@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
 use RozbehSharahi\Graphql3\Builder\Node\RecordNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
-use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
@@ -76,7 +75,6 @@ class RecordNodeTest extends TestCase
                     'page' => (new RecordNodeBuilder(
                         $scope->get(RecordTypeBuilder::class),
                         new RecordResolver($scope->getConnectionPool(), $scope->get(AccessChecker::class), $extenders),
-                        $scope->get(CaseConverter::class),
                         $extenders
                     ))->for('pages')->build()->toArray(),
                 ],

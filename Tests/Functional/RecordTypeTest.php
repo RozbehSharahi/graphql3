@@ -9,7 +9,6 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
-use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
@@ -74,7 +73,7 @@ class RecordTypeTest extends TestCase
     {
         $scope = $this->createScope();
 
-        $recordTypeBuilder = new RecordTypeBuilder($scope->get(CaseConverter::class), [], [
+        $recordTypeBuilder = new RecordTypeBuilder([], [
             new class() implements RecordTypeBuilderExtenderInterface {
                 public function supportsTable(TableConfiguration $table): bool
                 {

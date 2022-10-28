@@ -6,7 +6,6 @@ namespace RozbehSharahi\Graphql3\Builder\Node;
 
 use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
-use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
@@ -25,7 +24,6 @@ class RecordNodeBuilder implements NodeBuilderInterface
     public function __construct(
         protected RecordTypeBuilder $recordTypeBuilder,
         protected RecordResolver $recordResolver,
-        protected CaseConverter $caseConverter,
         protected iterable $extenders
     ) {
     }

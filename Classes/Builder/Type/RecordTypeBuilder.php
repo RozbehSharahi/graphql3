@@ -6,7 +6,6 @@ namespace RozbehSharahi\Graphql3\Builder\Type;
 
 use GraphQL\Type\Definition\ObjectType;
 use RozbehSharahi\Graphql3\Builder\FieldCreator\FieldCreatorInterface;
-use RozbehSharahi\Graphql3\Converter\CaseConverter;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
@@ -31,7 +30,6 @@ class RecordTypeBuilder implements TypeBuilderInterface
      * @param iterable<RecordTypeBuilderExtenderInterface> $extenders
      */
     public function __construct(
-        protected CaseConverter $caseConverter,
         protected iterable $fieldCreators,
         protected iterable $extenders
     ) {

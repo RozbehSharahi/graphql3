@@ -64,6 +64,5 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         $containerBuilder->registerForAutoconfiguration(RecordNodeBuilder::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(RecordListNodeBuilder::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(RecordResolver::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(CaseConverter::class)->setPublic(true);
     }
 };
