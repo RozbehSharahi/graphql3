@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Handler;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\SyntaxError;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -23,9 +24,6 @@ class ErrorHandler
     {
     }
 
-    /**
-     * @throws Throwable
-     */
     public function handle(Throwable $throwable): ResponseInterface
     {
         // In some cases our exceptions are wrapped into a graphql error exception.
@@ -33,6 +31,10 @@ class ErrorHandler
         $exception = !$throwable->getPrevious() instanceof Graphql3ExceptionInterface
             ? $throwable
             : $throwable->getPrevious();
+
+        if ($exception instanceof Error && $exception->isClientSafe()) {
+            return GraphqlError::create($exception->getMessage())->toResponse();
+        }
 
         if ($exception instanceof SyntaxError) {
             return GraphqlError::create($exception->getMessage())->toResponse();
@@ -74,7 +76,9 @@ class ErrorHandler
             return GraphqlError::create($exception->getPublicMessage())->toResponse();
         }
 
-        throw $exception;
+        $this->logger->critical('Unhandled exception: '.$exception->getMessage());
+
+        return GraphqlError::create(InternalErrorException::PUBLIC_MESSAGE)->toResponse();
     }
 
     public function isInternalEnvironment(): bool
