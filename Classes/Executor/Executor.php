@@ -5,9 +5,15 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Executor;
 
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\Error;
+use GraphQL\Error\SyntaxError;
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
 use RozbehSharahi\Graphql3\Exception\BadRequestException;
+use RozbehSharahi\Graphql3\Exception\Graphql3ExceptionInterface;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
+use RozbehSharahi\Graphql3\Handler\ErrorHandler;
+use Throwable;
 use TYPO3\CMS\Core\Core\Environment;
 
 class Executor
@@ -81,6 +87,43 @@ class Executor
             ? DebugFlag::INCLUDE_DEBUG_MESSAGE
             : DebugFlag::NONE;
 
-        return GraphQL::executeQuery($this->schema, $this->query, null, null, $this->variables)->toArray($debugFlag);
+        return GraphQL::executeQuery($this->schema, $this->query, null, null, $this->variables)
+            ->setErrorsHandler(fn (array $errors) => $this->noMercyErrorHandler($errors))
+            ->toArray($debugFlag)
+        ;
+    }
+
+    /**
+     * Override of default graphql error handling.
+     *
+     * Graphql3 in current state reduces to one error per request. This makes error-handling a bit easier.
+     *
+     * Main error handling however takes place in ErrorHandler.
+     *
+     * @see ErrorHandler
+     *
+     * @param Throwable[] $errors
+     *
+     * @throws Throwable
+     */
+    private function noMercyErrorHandler(array $errors): void
+    {
+        $error = reset($errors);
+
+        $previous = $error->getPrevious();
+
+        if ($previous instanceof Graphql3ExceptionInterface) {
+            throw $previous;
+        }
+
+        if ($error instanceof SyntaxError) {
+            throw new BadRequestException($error->getMessage());
+        }
+
+        if ($error instanceof Error && $error->isClientSafe()) {
+            throw new BadRequestException($error->getMessage());
+        }
+
+        throw new InternalErrorException('Unhandled graphql exception: '.$error->getMessage());
     }
 }

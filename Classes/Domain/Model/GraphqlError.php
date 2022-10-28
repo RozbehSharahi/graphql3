@@ -26,16 +26,17 @@ class GraphqlError
 
     public function toResponse(): ResponseInterface
     {
-        return GraphqlErrorCollection::create([$this])->toResponse();
+        return GraphqlErrorCollection::create([$this], $this->code)->toResponse();
     }
 
     /**
-     * @return string[]
+     * @return array<string, mixed>
      */
     public function toArray(): array
     {
         return [
             'message' => $this->message,
+            'code' => $this->code,
         ];
     }
 }

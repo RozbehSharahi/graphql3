@@ -24,15 +24,15 @@ class GraphqlErrorCollection
     /**
      * @param GraphqlError[] $errors
      */
-    public static function create(array $errors): self
+    public static function create(array $errors, int $code = Response::HTTP_BAD_REQUEST): self
     {
-        return GeneralUtility::makeInstance(self::class, $errors);
+        return GeneralUtility::makeInstance(self::class, $errors, $code);
     }
 
     /**
      * @param GraphqlError[] $errors
      */
-    public function __construct(protected array $errors)
+    public function __construct(protected array $errors, protected int $code = Response::HTTP_BAD_REQUEST)
     {
         foreach ($this->errors as $error) {
             if (!$error instanceof GraphqlError) {
@@ -60,7 +60,7 @@ class GraphqlErrorCollection
     public function toJson(): string
     {
         try {
-            return json_encode(['errors' => $this->toArray()], JSON_THROW_ON_ERROR);
+            return json_encode(['code' => $this->code, 'errors' => $this->toArray()], JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
             throw new InternalErrorException('Could not encode graphql error to json: '.$e->getMessage());
         }
@@ -72,7 +72,7 @@ class GraphqlErrorCollection
 
         $response = $responseFactory
             ->createResponse()
-            ->withStatus(Response::HTTP_BAD_REQUEST)
+            ->withStatus($this->code)
             ->withHeader('Content-Type', 'application/json')
         ;
 

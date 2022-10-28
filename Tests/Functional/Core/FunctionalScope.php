@@ -7,17 +7,13 @@ namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RozbehSharahi\Graphql3\Builder\Node\LanguageListNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\LanguageNodeBuilder;
 use RozbehSharahi\Graphql3\Middleware\GraphqlRequestMiddleware;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Type\QueryType;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
-use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Frontend\Http\Application;
 
 class FunctionalScope
@@ -73,26 +69,6 @@ class FunctionalScope
         return $this->get(QueryType::class);
     }
 
-    public function getSiteFinder(): SiteFinder
-    {
-        return $this->get(SiteFinder::class);
-    }
-
-    public function getAccessChecker(): AccessChecker
-    {
-        return $this->get(AccessChecker::class);
-    }
-
-    public function getLanguageNode(): LanguageNodeBuilder
-    {
-        return $this->get(LanguageNodeBuilder::class);
-    }
-
-    public function getLanguageListNode(): LanguageListNodeBuilder
-    {
-        return $this->get(LanguageListNodeBuilder::class);
-    }
-
     public function doServerRequest(ServerRequestInterface $request): ResponseInterface
     {
         $user = $this->loggedInUser ?? [];
@@ -105,7 +81,9 @@ class FunctionalScope
     }
 
     /**
-     * @return array<string, mixed>>
+     * @return array<string, mixed>
+     *
+     * @deprecated use FunctionalScope::graphqlRequest instead
      */
     public function doGraphqlRequest(string $graphql): array
     {
@@ -129,6 +107,22 @@ class FunctionalScope
         } catch (Exception) {
             throw new \RuntimeException('Test failed since doGraphqlRequest return invalid graphql response');
         }
+    }
+
+    public function graphqlRequest(string $graphql): GraphqlResponse
+    {
+        try {
+            $bodyStream = (new StreamFactory())
+                ->createStream(json_encode(['query' => $graphql], JSON_THROW_ON_ERROR))
+            ;
+        } catch (Exception) {
+            throw new \RuntimeException('Could not create graphql request in test.');
+        }
+
+        $request = new ServerRequest('/test-app/graphql', 'POST', $bodyStream);
+        $response = $this->doServerRequest($request);
+
+        return GraphqlResponse::fromResponse($response);
     }
 
     /**

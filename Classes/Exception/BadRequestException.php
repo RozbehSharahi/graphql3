@@ -4,17 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Exception;
 
-use GraphQL\Error\ClientAware;
-
-class BadRequestException extends \RuntimeException implements ClientAware
+class BadRequestException extends \RuntimeException implements Graphql3ExceptionInterface
 {
-    public function isClientSafe(): bool
-    {
-        return true;
-    }
-
-    public function getCategory(): string
-    {
-        return 'bad-request';
-    }
 }

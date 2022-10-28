@@ -10,9 +10,11 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
+use RozbehSharahi\Graphql3\Handler\ErrorHandler;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
 use RozbehSharahi\Graphql3\Site\CurrentSite;
+use Throwable;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\UserAspect;
 use TYPO3\CMS\Core\Core\Environment;
@@ -32,6 +34,7 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
         protected GraphqlController $graphqlController,
         protected SchemaRegistry $schemaRegistry,
         protected CurrentSite $currentSite,
+        protected ErrorHandler $errorHandler,
         protected iterable $setups
     ) {
     }
@@ -67,9 +70,13 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        return $this->isGraphqlRoute($siteRoute)
-            ? $this->graphqlController->graphqlAction($request)
-            : $this->graphqlController->graphqlInterfaceAction($request);
+        try {
+            return $this->isGraphqlRoute($siteRoute)
+                ? $this->graphqlController->graphqlAction($request)
+                : $this->graphqlController->graphqlInterfaceAction($request);
+        } catch (Throwable $throwable) {
+            return $this->errorHandler->handle($throwable);
+        }
     }
 
     protected function isGraphqlRoute(SiteRouteResult $route): bool

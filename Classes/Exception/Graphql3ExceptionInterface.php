@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Exception;
 
-class UnexpectedStateException extends \RuntimeException
+interface Graphql3ExceptionInterface
 {
 }

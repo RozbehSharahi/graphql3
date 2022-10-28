@@ -8,13 +8,11 @@ use JsonException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlError;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlErrorCollection;
+use RozbehSharahi\Graphql3\Exception\BadRequestException;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
+use RozbehSharahi\Graphql3\Exception\ShouldNotHappenException;
 use RozbehSharahi\Graphql3\Executor\Executor;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use Throwable;
-use TYPO3\CMS\Core\Core\Environment;
 
 class GraphqlController
 {
@@ -34,31 +32,24 @@ class GraphqlController
         try {
             $input = json_decode((string) $request->getBody(), true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException) {
-            return GraphqlError::create(self::ERROR_MESSAGE_INVALID_INPUT)->toResponse();
+            throw new BadRequestException(self::ERROR_MESSAGE_INVALID_INPUT);
         }
 
         if (!is_array($input) || !is_string($input['query'] ?? null)) {
-            return GraphqlError::create(self::ERROR_MESSAGE_INVALID_INPUT)->toResponse();
+            throw new BadRequestException(self::ERROR_MESSAGE_INVALID_INPUT);
         }
 
-        try {
-            $output = $this
-                ->executor
-                ->withSchema($this->schemaRegistry->getSchema())
-                ->withQuery($input['query'])
-                ->withVariables($input['variables'] ?? [])
-                ->execute()
-            ;
-        } catch (Throwable $e) {
-            $this->throwIfTestingMode($e->getMessage());
+        $output = $this
+            ->executor
+            ->withSchema($this->schemaRegistry->getSchema())
+            ->withQuery($input['query'])
+            ->withVariables($input['variables'] ?? [])
+            ->execute()
+        ;
 
-            return GraphqlError::create($e->getMessage())->toResponse();
-        }
-
+        // Current error handling should avoid this state and instead throw exceptions
         if ($output['errors'] ?? null) {
-            $this->throwIfTestingMode($output['errors']);
-
-            return GraphqlErrorCollection::createFromOutput($output['errors'])->toResponse();
+            throw new ShouldNotHappenException('Output contained errors without being thrown as exception.', $output);
         }
 
         $response = $this->responseFactory
@@ -81,19 +72,5 @@ class GraphqlController
         $response->getBody()->write(file_get_contents(__DIR__.'/../../Resources/Private/Graphiql/Index.html'));
 
         return $response;
-    }
-
-    protected function throwIfTestingMode(mixed $data): self
-    {
-        if (self::CONTEXT_TESTING_PRODUCTION === (string) Environment::getContext()) {
-            return $this;
-        }
-
-        if (Environment::getContext()->isTesting()) {
-            /* @noinspection JsonEncodingApiUsageInspection */
-            throw new InternalErrorException('An exception was thrown in test: '.json_encode($data));
-        }
-
-        return $this;
     }
 }

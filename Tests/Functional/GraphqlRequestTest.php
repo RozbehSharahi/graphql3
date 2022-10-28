@@ -96,7 +96,6 @@ class GraphqlRequestTest extends TestCase
     {
         $response = $this
             ->getFunctionalScopeBuilder()
-            ->withContext(GraphqlController::CONTEXT_TESTING_PRODUCTION)
             ->build()
             ->doServerRequest(
                 new ServerRequest('/test-app/graphql', 'POST', (new StreamFactory())->createStream('"bla"'))
