@@ -296,7 +296,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
-use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Domain\Model\Record;use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
 
 class GraphqlSetup implements SetupInterface
@@ -315,10 +315,10 @@ class GraphqlSetup implements SetupInterface
                 'fields' => [
                     'page' => [
                         'type' => $this->recordTypeBuilder->for('pages')->build(),
-                        'resolve' => fn () => [
+                        'resolve' => fn () => Record::create('pages', [
                             'uid' => 1, 
                             'title' => 'A hard coded page, which should be loaded by a resolver'
-                        ],
+                        ]),
                     ],
                 ],
             ]),
