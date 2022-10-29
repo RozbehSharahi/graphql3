@@ -48,7 +48,7 @@ class SecurityTest extends TestCase
         self::assertNotEmpty($payload);
         self::assertNotEmpty($signature);
 
-        self::assertTrue($jwtManager->verify($token));
+        self::assertTrue($jwtManager->isValid($token));
 
         $tokenData = $jwtManager->read($token);
 

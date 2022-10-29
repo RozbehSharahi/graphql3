@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Security\Voter;
 
-use RozbehSharahi\Graphql3\Domain\Model\FrontendUser;
+use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
@@ -30,12 +30,12 @@ class RecordVoter implements VoterInterface
         // At this point we should have a user or else deny access
         $user = $token->getUser();
 
-        if (!$user instanceof FrontendUser) {
+        if (!$user instanceof JwtUser) {
             return self::ACCESS_DENIED;
         }
 
-        foreach ($user->getGroupIds() as $groupId) {
-            if (in_array($groupId, $subject->getFrontendGroups(), false)) {
+        foreach ($subject->getFrontendGroups() as $subjectUserGroupId) {
+            if ($user->hasGroupId((int) $subjectUserGroupId)) {
                 return self::ACCESS_GRANTED;
             }
         }

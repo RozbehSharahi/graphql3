@@ -86,11 +86,6 @@ class FunctionScopeBuilder
 
     protected string $context = self::DEFAULT_CONTEXT;
 
-    /**
-     * @var array<string,int|boolean|string|null>|null
-     */
-    protected ?array $loggedInUser = null;
-
     protected ContainerInterface $container;
 
     protected Application $application;
@@ -205,25 +200,6 @@ class FunctionScopeBuilder
         return $clone;
     }
 
-    /**
-     * @return array<string, mixed>|null
-     */
-    public function getLoggedInUser(): ?array
-    {
-        return $this->loggedInUser;
-    }
-
-    /**
-     * @param array<string, string|int|boolean|null>|null $loggedInUser
-     */
-    public function withLoggedInUser(?array $loggedInUser): self
-    {
-        $clone = clone $this;
-        $clone->loggedInUser = $loggedInUser;
-
-        return $clone;
-    }
-
     public function getContext(): string
     {
         return $this->context;
@@ -317,13 +293,7 @@ class FunctionScopeBuilder
             throw new \RuntimeException('Expected to have symfony container interface, but didnt');
         }
 
-        $scope = new FunctionalScope($container, $this->loggedInUser);
-
-        if ($this->loggedInUser) {
-            $scope->createRecord('fe_users', $this->loggedInUser);
-        }
-
-        return $scope;
+        return new FunctionalScope($container);
     }
 
     protected function createHomepage(): self

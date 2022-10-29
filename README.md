@@ -627,6 +627,7 @@ automatically added to the stack of voters, no matter where you place it.
 
 namespace RozbehSharahi\Graphql3\Security\Voter;
 
+use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
@@ -637,11 +638,8 @@ class PageVoter implements VoterInterface
         if (!$subject instanceof Record || $subject->getTable()->getName() !== 'pages') {
             return self::ACCESS_ABSTAIN;
         }
-
-        // do your access check here
-        $allowed = true;
         
-        return $allowed ? self::ACCESS_GRANTED : self::ACCESS_DENIED;
+        return !$token->getUser() instanceof JwtUser ? self::ACCESS_DENIED : self::ACCESS_GRANTED;
     }
 }
 ```

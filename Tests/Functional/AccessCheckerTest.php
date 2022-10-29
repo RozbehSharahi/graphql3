@@ -6,6 +6,7 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Exception\UnauthorizedException;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
@@ -17,9 +18,7 @@ class AccessCheckerTest extends TestCase
 
     public function testLoginProtectedPageIsAccessChecked(): void
     {
-        $scope = $this->createScope(
-            rootPage: ['uid' => 1, 'title' => 'Root', 'fe_group' => '-2']
-        );
+        $scope = $this->createScope(['uid' => 1, 'title' => 'Root', 'fe_group' => '-2']);
 
         $response = $scope->graphqlRequest('{
             page(uid: 1, publicRequest: false) {
@@ -30,10 +29,7 @@ class AccessCheckerTest extends TestCase
         self::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
         self::assertSame(UnauthorizedException::DEFAULT_MESSAGE, $response->get('errors.0.message'));
 
-        $scope = $this->createScope(
-            rootPage: ['uid' => 1, 'title' => 'Root', 'fe_group' => '-2'],
-            frontendUser: ['uid' => 1, 'username' => 'test-user']
-        );
+        $scope->loginUser(new JwtUser('test-user', ['ROLE_USER']));
 
         $response = $scope->graphqlRequest('{
             page(uid: 1, publicRequest: false) {
@@ -46,10 +42,8 @@ class AccessCheckerTest extends TestCase
 
     public function testFeGroupProtectedPageIsAccessChecked(): void
     {
-        $scope = $this->createScope(
-            rootPage: ['uid' => 1, 'title' => 'Root', 'fe_group' => '1'],
-            frontendUser: ['uid' => 1, 'username' => 'test-user']
-        );
+        $scope = $this->createScope(['uid' => 1, 'title' => 'Root', 'fe_group' => '1']);
+        $scope->loginUser(new JwtUser('test-user', ['ROLE_USER']));
 
         $response = $scope->graphqlRequest('{
             page(uid: 1, publicRequest: false) {
@@ -60,12 +54,7 @@ class AccessCheckerTest extends TestCase
         self::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
         self::assertSame(UnauthorizedException::DEFAULT_MESSAGE, $response->get('errors.0.message'));
 
-        $scope = $this->createScope(
-            rootPage: ['uid' => 1, 'title' => 'Root', 'fe_group' => '1'],
-            frontendUser: ['uid' => 1, 'username' => 'test-user', 'usergroup' => 1]
-        );
-
-        $scope->createRecord('fe_groups', ['uid' => 1, 'title' => 'Some group']);
+        $scope->loginUser(new JwtUser('test-user', [JwtUser::createGroupIdRole(1)]));
 
         $response = $scope->graphqlRequest('{
             page(uid: 1, publicRequest: false) {
@@ -78,9 +67,7 @@ class AccessCheckerTest extends TestCase
 
     public function testFeGroupProtectedContentIsAccessChecked(): void
     {
-        $scope = $this->createScope(
-            rootPage: ['uid' => 1, 'title' => 'Root']
-        );
+        $scope = $this->createScope(['uid' => 1, 'title' => 'Root']);
 
         $scope->createRecord('tt_content', ['uid' => 1, 'header' => 'my content', 'fe_group' => '-2']);
 
@@ -93,12 +80,7 @@ class AccessCheckerTest extends TestCase
         self::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
         self::assertSame(UnauthorizedException::DEFAULT_MESSAGE, $response->get('errors.0.message'));
 
-        $scope = $this->createScope(
-            rootPage: ['uid' => 1, 'title' => 'Root'],
-            frontendUser: ['uid' => 1, 'username' => 'test-user']
-        );
-
-        $scope->createRecord('tt_content', ['uid' => 1, 'header' => 'my content', 'fe_group' => '-2']);
+        $scope->loginUser(new JwtUser('test-user', ['ROLE_USER']));
 
         $response = $scope->graphqlRequest('{
             content(uid: 1, publicRequest: false) {
@@ -110,17 +92,16 @@ class AccessCheckerTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed>      $rootPage
-     * @param array<string, mixed>|null $frontendUser
+     * @param array<string, mixed> $rootPage
      */
-    protected function createScope(array $rootPage, ?array $frontendUser = null): FunctionalScope
+    protected function createScope(array $rootPage): FunctionalScope
     {
-        $scope = $this->getFunctionalScopeBuilder()
+        $scope = $this
+            ->getFunctionalScopeBuilder()
             ->withAutoCreateHomepage(false)
             ->withAutoCreateSchema(true)
             ->withAutoCreateSite(true)
             ->withAutoCreateGraphqlSchema(false)
-            ->withLoggedInUser($frontendUser)
             ->build()
         ;
 

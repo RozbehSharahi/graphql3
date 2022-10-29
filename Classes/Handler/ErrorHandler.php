@@ -75,9 +75,13 @@ class ErrorHandler
             return GraphqlError::create($exception->getPublicMessage())->toResponse();
         }
 
+        // Unhandled errors become internals
+        $exception = new InternalErrorException($exception->getMessage());
         $this->logger->critical('Unhandled exception: '.$exception->getMessage());
 
-        return GraphqlError::create(InternalErrorException::PUBLIC_MESSAGE)->toResponse();
+        return !$this->isInternalEnvironment()
+            ? GraphqlError::create($exception->getPublicMessage())->toResponse()
+            : GraphqlError::create($exception->getPrivateMessage())->toResponse();
     }
 
     public function isInternalEnvironment(): bool

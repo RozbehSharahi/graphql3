@@ -12,7 +12,7 @@ use RozbehSharahi\Graphql3\Exception\BadRequestException;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Operator\ApplyFilterArrayToQueryOperator;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
-use RozbehSharahi\Graphql3\Site\CurrentSite;
+use RozbehSharahi\Graphql3\Session\CurrentSite;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 

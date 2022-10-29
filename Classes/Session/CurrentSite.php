@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RozbehSharahi\Graphql3\Site;
+namespace RozbehSharahi\Graphql3\Session;
 
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use TYPO3\CMS\Core\SingletonInterface;

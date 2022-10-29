@@ -1,4 +1,5 @@
 SetEnv TYPO3_CONTEXT Development/Build
+CGIPassAuth On
 
 #####
 #

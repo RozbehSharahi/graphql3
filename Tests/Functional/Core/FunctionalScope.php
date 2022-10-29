@@ -7,8 +7,9 @@ namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RozbehSharahi\Graphql3\Middleware\GraphqlRequestMiddleware;
+use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Security\JwtManager;
 use RozbehSharahi\Graphql3\Type\QueryType;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -18,16 +19,17 @@ use TYPO3\CMS\Frontend\Http\Application;
 
 class FunctionalScope
 {
-    /**
-     * @param array<string|mixed>|null $loggedInUser
-     */
-    public function __construct(protected ContainerInterface $container, protected ?array $loggedInUser)
+    private ?JwtUser $user = null;
+
+    public function __construct(protected ContainerInterface $container)
     {
     }
 
-    public function getContainer(): ContainerInterface
+    public function loginUser(?JwtUser $jwtUser): self
     {
-        return $this->container;
+        $this->user = $jwtUser;
+
+        return $this;
     }
 
     /**
@@ -71,11 +73,15 @@ class FunctionalScope
 
     public function doServerRequest(ServerRequestInterface $request): ResponseInterface
     {
-        $user = $this->loggedInUser ?? [];
+        if ($this->user) {
+            $token = $this
+                ->get(JwtManager::class)
+                ->withEnvironmentVariables()
+                ->create(new \DateTime('now + 60 seconds'), $this->user->toPayload())
+            ;
 
-        $request = $request->withQueryParams([
-            GraphqlRequestMiddleware::PARAMETER_LOGGED_IN_TEST_USER => $user['uid'] ?? null,
-        ]);
+            $request = $request->withHeader('Authorization', 'Bearer '.$token);
+        }
 
         return $this->getApplication()->handle($request);
     }

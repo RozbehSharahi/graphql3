@@ -33,6 +33,7 @@
             "mkdir -p ./public/",
             "ln -snf ./../../ ./extensions/graphql3",
             "ln -snf ./../../Tests/Fixture/Graphql3TestExtension ./extensions/graphql3-test-extension",
+            "ln -snf ./../Tests ./Tests",
             "cp _.htaccess public/.htaccess"
         ],
         "pre-install-cmd": "@setup",

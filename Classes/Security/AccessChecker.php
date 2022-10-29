@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Security;
 
+use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
+use RozbehSharahi\Graphql3\Exception\BadRequestException;
 use RozbehSharahi\Graphql3\Exception\UnauthorizedException;
 use RozbehSharahi\Graphql3\Security\Voter\VoterInterface;
+use RozbehSharahi\Graphql3\Session\CurrentRequest;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
 use Symfony\Component\Security\Core\Authorization\Strategy\UnanimousStrategy;
 
@@ -16,8 +19,11 @@ class AccessChecker
     /**
      * @param iterable<VoterInterface> $voters
      */
-    public function __construct(protected iterable $voters)
-    {
+    public function __construct(
+        protected CurrentRequest $currentRequest,
+        protected JwtManager $jwtManager,
+        protected iterable $voters
+    ) {
         $this->decisionManager = new AccessDecisionManager($voters, new UnanimousStrategy(true));
     }
 
@@ -26,7 +32,23 @@ class AccessChecker
      */
     public function check(array $attributes, mixed $object = null): bool
     {
-        return $this->decisionManager->decide(new Token(), $attributes, $object, true);
+        $token = new Token();
+
+        $jwtManager = $this->jwtManager->withEnvironmentVariables();
+
+        if ($this->currentRequest->hasToken() && $jwtManager->isExpired($this->currentRequest->getToken())) {
+            throw new BadRequestException('Expired jwt token provided.');
+        }
+
+        if ($this->currentRequest->hasToken() && !$jwtManager->isValid($this->currentRequest->getToken())) {
+            throw new BadRequestException('Invalid jwt token.');
+        }
+
+        if ($this->currentRequest->hasToken()) {
+            $token->setUser(JwtUser::createFromPayload($jwtManager->read($this->currentRequest->getToken())));
+        }
+
+        return $this->decisionManager->decide($token, $attributes, $object, true);
     }
 
     /**

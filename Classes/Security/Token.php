@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Security;
 
-use RozbehSharahi\Graphql3\Domain\Model\FrontendUser;
+use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Exception\NotImplementedException;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -12,19 +12,20 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class Token implements TokenInterface
 {
-    public function __construct(protected ?FrontendUser $frontendUser = null)
+    private JwtUser $user;
+
+    public function __construct()
     {
-        $this->frontendUser = $this->frontendUser ?: FrontendUser::fromContext();
     }
 
     public function __toString(): string
     {
-        return 'user:'.$this->frontendUser->getUserIdentifier();
+        return 'user::'.$this->getUserIdentifier();
     }
 
     public function getUserIdentifier(): string
     {
-        return $this->frontendUser->getUserIdentifier() ?: 'anonymous';
+        return $this->getUser()?->getUserIdentifier() ?: 'anonymous';
     }
 
     /**
@@ -32,21 +33,21 @@ class Token implements TokenInterface
      */
     public function getRoleNames(): array
     {
-        return $this->frontendUser->isLoggedIn() ? $this->frontendUser->getGroupNames() : [];
+        return $this->getUser()?->getRoles() ?: [];
     }
 
-    public function getUser(): ?UserInterface
+    public function getUser(): ?JwtUser
     {
-        return $this->frontendUser->isLoggedIn() ? $this->frontendUser : null;
+        return $this->user ?? null;
     }
 
     public function setUser(UserInterface $user): self
     {
-        if (!$user instanceof FrontendUser) {
-            throw new InternalErrorException('Can only set user of type: '.FrontendUser::class.' on token.');
+        if (!$user instanceof JwtUser) {
+            throw new InternalErrorException('Only jwt-users are allowed to be set on token.');
         }
 
-        $this->frontendUser = $user;
+        $this->user = $user;
 
         return $this;
     }
