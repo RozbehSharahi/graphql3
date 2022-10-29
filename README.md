@@ -669,12 +669,12 @@ A more in detail documentation will follow.
 
 #### Voting & ACL
 
-Under the hood, `PageNode` is using an in-house `PageResolver`, which is responsible to resolve a page based on the
-uid/slug given. However, the page-resolver does a bit more than that. For instance providing access control, which can
+Under the hood, `RecordNodeBuilder` is using an in-house `RecordResolve`, which is responsible to resolve a record based
+on the uid/slug given. However, the resolver does a bit more than that. For instance providing access control, which can
 be controlled on project level via `Voters`.
 
-Whenever a page is resolved, it is passed to `AccessDecisionManager` of the symfony package `symfony/security-core`.
-This is also the case inside of `PageListNode`, where every loaded page is checked for access.
+Whenever a record is resolved, it is passed to `AccessDecisionManager`. This is also the case inside
+of `RecordListNodeBuilder`, where every loaded record is checked for access.
 
 In order to modify/add access control to your project, you can simply create a class which
 implements `\RozbehSharahi\Graphql3\Security\Voter\VoterInterface`. When implementing the interface, your voter will be
@@ -699,10 +699,12 @@ class PageVoter implements VoterInterface
             return self::ACCESS_ABSTAIN;
         }
         
-        return !$token->getUser() instanceof JwtUser ? self::ACCESS_DENIED : self::ACCESS_GRANTED;
+        return $token->getUser() instanceof JwtUser ? self::ACCESS_GRANTED : self::ACCESS_DENIED;
     }
 }
 ```
+
+A voter as shown here, is of course not needed, as this is already handled by a generic in-house `RecordResolver`.
 
 The access-decision-manager is configured to use the `UnanimousStrategy`. This means all voters must grant or abstain
 access. If all voters abstain, access is given. Checkout `symfony/security` documentation for further understanding.
