@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use PHPUnit\Framework\TestCase;
+use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Security\JwtManager;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\UserAspect;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SecurityTest extends TestCase
 {
@@ -95,5 +99,24 @@ class SecurityTest extends TestCase
                 null,
             ],
         ];
+    }
+
+    public function testCanCreateJwtTokenFromSession(): void
+    {
+        $userAspect = $this->createMock(UserAspect::class);
+        $userAspect->method('isLoggedIn')->willReturn(true);
+        $userAspect->method('get')->willReturnCallback(fn ($param) => [
+            'username' => 'test-user',
+            'id' => 1,
+        ][$param]);
+        $userAspect->method('getGroupIds')->willReturn([-1, 0, '0', '-3', 2, 4]);
+
+        GeneralUtility::makeInstance(Context::class)
+            ->setAspect('frontend.user', $userAspect)
+        ;
+
+        $user = JwtUser::createFromSession();
+
+        self::assertEquals([JwtUser::createGroupIdRole(2), JwtUser::createGroupIdRole(4)], $user->getRoles());
     }
 }

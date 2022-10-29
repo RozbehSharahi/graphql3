@@ -8,6 +8,10 @@ use RozbehSharahi\Graphql3\Exception\BadRequestException;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Exception\NotImplementedException;
 use Symfony\Component\Security\Core\User\UserInterface;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
+use TYPO3\CMS\Core\Context\Exception\AspectPropertyNotFoundException;
+use TYPO3\CMS\Core\Context\UserAspect;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class JwtUser implements UserInterface
@@ -15,6 +19,14 @@ class JwtUser implements UserInterface
     public const PATTERN_ROLE_GROUP_ID = 'ROLE_GROUP_ID::%s';
 
     public const ERROR_COULD_NOT_MAP_JWT_TOKEN = 'Jwt token was present, but could not be mapped since it did not contain username (string) and roles (array).';
+
+    /**
+     * @param array<int, string> $roles
+     */
+    public static function create(string $username, array $roles): self
+    {
+        return GeneralUtility::makeInstance(self::class, $username, $roles);
+    }
 
     /**
      * @param array<string,mixed> $payload
@@ -30,12 +42,27 @@ class JwtUser implements UserInterface
         return GeneralUtility::makeInstance(self::class, $username, $roles);
     }
 
-    /**
-     * @param array<int, string> $roles
-     */
-    public static function create(string $username, array $roles): self
+    public static function createFromSession(): self
     {
-        return GeneralUtility::makeInstance(self::class, $username, $roles);
+        try {
+            /** @var UserAspect $userAspect */
+            $userAspect = GeneralUtility::makeInstance(Context::class)->getAspect('frontend.user');
+
+            if (!$userAspect->isLoggedIn()) {
+                throw new InternalErrorException('Can not create jwt-user from session without logged in user');
+            }
+
+            $username = $userAspect->get('username');
+            $groupIds = $userAspect->getGroupIds();
+            $groupIds = array_filter($groupIds, static fn (int $groupId) => $groupId > 0);
+
+            $roles = array_map(static fn (int $groupId) => self::createGroupIdRole($groupId), $groupIds);
+            $roles = array_values($roles);
+
+            return self::create($username, $roles);
+        } catch (AspectNotFoundException|AspectPropertyNotFoundException) {
+            throw new InternalErrorException('Could not create frontend user from session.');
+        }
     }
 
     public static function createGroupIdRole(int $id): string
