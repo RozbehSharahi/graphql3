@@ -6,7 +6,7 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Security\JwtManager;
-use RozbehSharahi\Graphql3\Tests\Fixture\Security\Jwt;
+use RozbehSharahi\Graphql3\Tests\Fixture\Security\JwtKeys;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 
 class SecurityTest extends TestCase
@@ -16,13 +16,18 @@ class SecurityTest extends TestCase
     /**
      * @dataProvider canCreateJwtTokenDataProvider
      */
-    public function testCanCreateJwtToken(string $algorithm, string $privateKey, ?string $publicKey): void
-    {
+    public function testCanCreateJwtToken(
+        string $algorithm,
+        string $privateKey,
+        ?string $publicKey,
+        ?string $passphrase
+    ): void {
         $scope = $this->getFunctionalScopeBuilder()->build();
 
         $jwtManager = $scope->get(JwtManager::class)
             ->withAlgorithm($algorithm)
             ->withPrivateKey($privateKey)
+            ->withPassphrase($passphrase)
         ;
 
         if ($publicKey) {
@@ -46,7 +51,7 @@ class SecurityTest extends TestCase
 
         self::assertTrue($jwtManager->verify($token));
 
-        $tokenData = $jwtManager->decode($token);
+        $tokenData = $jwtManager->read($token);
 
         self::assertTrue($tokenData['admin']);
         self::assertEquals(1234, $tokenData['object']['someProp']);
@@ -62,17 +67,26 @@ class SecurityTest extends TestCase
         return [
             'rs256' => [
                 JwtManager::ALGORITHM_RS256,
-                Jwt::TEST_PRIVATE_KEY,
-                Jwt::TEST_PUBLIC_KEY,
+                JwtKeys::KEY_PAIR__PRIVATE_KEY,
+                JwtKeys::KEY_PAIR__PUBLIC_KEY,
+                null,
+            ],
+            'rs256_passphrase' => [
+                JwtManager::ALGORITHM_RS256,
+                JwtKeys::KEY_PAIR_PASSPHRASE__PRIVATE_KEY,
+                JwtKeys::KEY_PAIR_PASSPHRASE__PUBLIC_KEY,
+                JwtKeys::KEY_PAIR_PASSPHRASE__PASSPHRASE,
             ],
             'hs256' => [
                 JwtManager::ALGORITHM_HS256,
                 'some-password',
                 'some-password',
+                null,
             ],
             'hs256 without public key (falls back to private-key)' => [
                 JwtManager::ALGORITHM_HS256,
                 'some-password',
+                null,
                 null,
             ],
         ];

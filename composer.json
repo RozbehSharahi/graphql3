@@ -18,7 +18,8 @@
         "webonyx/graphql-php": "^14.10.0",
         "symfony/security-core": "^v6.0.14",
         "doctrine/inflector": "2.0.6",
-        "firebase/php-jwt": "^6.3"
+        "firebase/php-jwt": "^6.3.0",
+        "ext-openssl": "*"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
