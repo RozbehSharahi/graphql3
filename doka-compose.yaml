@@ -2,5 +2,5 @@ version: '3.7'
 services:
   doka-app:
     environment:
-      - GRAPHQL3_JWT_PRIVATE_KEY=file://Tests/Fixture/Security/Rs256/private.pem
-      - GRAPHQL3_JWT_PUBLIC_KEY=file://Tests/Fixture/Security/Rs256/public.pem
+      - GRAPHQL3_JWT_PRIVATE_KEY=file://Tests/Fixture/KeyPairs/Rs256/private.pem
+      - GRAPHQL3_JWT_PUBLIC_KEY=file://Tests/Fixture/KeyPairs/Rs256/public.pem

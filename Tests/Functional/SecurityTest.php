@@ -6,7 +6,6 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Security\JwtManager;
-use RozbehSharahi\Graphql3\Tests\Fixture\Security\JwtKeys;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 
 class SecurityTest extends TestCase
@@ -67,15 +66,21 @@ class SecurityTest extends TestCase
         return [
             'rs256' => [
                 JwtManager::ALGORITHM_RS256,
-                JwtKeys::KEY_PAIR__PRIVATE_KEY,
-                JwtKeys::KEY_PAIR__PUBLIC_KEY,
+                file_get_contents(__DIR__.'/../Fixture/KeyPairs/Rs256/private.pem'),
+                file_get_contents(__DIR__.'/../Fixture/KeyPairs/Rs256/public.pem'),
+                null,
+            ],
+            'rs256_file_path' => [
+                JwtManager::ALGORITHM_RS256,
+                'file://Tests/Fixture/KeyPairs/Rs256/private.pem',
+                'file://Tests/Fixture/KeyPairs/Rs256/public.pem',
                 null,
             ],
             'rs256_passphrase' => [
                 JwtManager::ALGORITHM_RS256,
-                JwtKeys::KEY_PAIR_PASSPHRASE__PRIVATE_KEY,
-                JwtKeys::KEY_PAIR_PASSPHRASE__PUBLIC_KEY,
-                JwtKeys::KEY_PAIR_PASSPHRASE__PASSPHRASE,
+                file_get_contents(__DIR__.'/../Fixture/KeyPairs/Rs256Passphrase/private.pem'),
+                file_get_contents(__DIR__.'/../Fixture/KeyPairs/Rs256Passphrase/public.pem'),
+                file_get_contents(__DIR__.'/../Fixture/KeyPairs/Rs256Passphrase/passphrase.txt'),
             ],
             'hs256' => [
                 JwtManager::ALGORITHM_HS256,

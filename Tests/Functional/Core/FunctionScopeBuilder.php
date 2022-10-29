@@ -262,6 +262,7 @@ class FunctionScopeBuilder
         @mkdir($this->getInstancePath(), 0777, true);
         @mkdir($this->getPath('/public'), 0777, true);
         @mkdir($this->getPath('/public/typo3conf'), 0777, true);
+        @symlink(__DIR__.'/../../../Tests', $this->getPath('/Tests'));
 
         $configuration = $this->configuration;
         $configuration['DB']['Connections']['Default']['path'] = $this->getDatabasePath();

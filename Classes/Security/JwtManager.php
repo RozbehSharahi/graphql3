@@ -11,7 +11,6 @@ use Firebase\JWT\Key;
 use Firebase\JWT\SignatureInvalidException;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Exception\ShouldNotHappenException;
-use TYPO3\CMS\Core\Core\Environment;
 
 class JwtManager
 {
@@ -30,8 +29,6 @@ class JwtManager
     public const ENV_VAR_PUBLIC_KEY = 'GRAPHQL3_JWT_PUBLIC_KEY';
 
     public const ENV_VAR_PASSPHRASE = 'GRAPHQL3_JWT_PASSPHRASE';
-
-    public const FILE_REFERENCE_PREFIX = 'file://';
 
     protected string $algorithm = self::DEFAULT_ALGORITHM;
 
@@ -131,7 +128,7 @@ class JwtManager
         $payload['exp'] = $expiresAt->getTimestamp();
         $payload['iat'] = (new \DateTime())->getTimestamp();
 
-        $privateKey = $this->resolvePrivateKey();
+        $privateKey = $this->privateKey;
 
         if (self::ALGORITHM_HS256 === $this->algorithm) {
             return JWT::encode($payload, $privateKey, $this->algorithm);
@@ -185,21 +182,6 @@ class JwtManager
 
         /* @noinspection JsonEncodingApiUsageInspection */
         return json_decode(json_encode($data), true);
-    }
-
-    protected function resolvePrivateKey(): string
-    {
-        if (!str_starts_with($this->privateKey, self::FILE_REFERENCE_PREFIX)) {
-            return $this->privateKey;
-        }
-
-        $path = str_replace(
-            self::FILE_REFERENCE_PREFIX,
-            rtrim(Environment::getProjectPath(), '/').'/',
-            $this->privateKey
-        );
-
-        return file_get_contents($path);
     }
 
     protected function assertPrivateKey(): self
