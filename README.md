@@ -56,7 +56,8 @@ In order to have some real working TYPO3 code, continue to the next chapter `Get
 
 Although the extension already provides quite a lot of features it misses following essentials:
 
-- [ ] JWT Token authentication (90% done)
+- [x] JWT Token authentication (done)
+- [ ] Mapping from TYPO3 user to and from JWT user
 - [ ] Built-in mutations
 
 # Getting started
@@ -606,7 +607,67 @@ auto-complete, which options you have.
 
 ### Access control
 
-The access control of `graphql3` is implemented on top of `symfony/security-core` package.
+The access control of `graphql3` is implemented on top of `symfony/security-core` package. It is implemented as a jwt
+token secured application.
+
+#### JWT auth
+
+Graphql3 does not look up the current user session of TYPO3. The only thing it accepts is a token based authentication,
+which maybe set via an authorization header as a Bearer token. At the current state only JWT tokens are accepted which
+will be parsed in `\RozbehSharahi\Graphql3\Domain\Model\JwtUser::createFromPayload`. Having a username and an array of
+roles is mandatory as the implementation and exceptions will reveal.
+
+If you want to generate a token for your self, you might use following command:
+
+```shell
+vendor/bin/typo3 graphql3:create-user-token
+```
+
+The command will ask you to define username and roles manually. The result will be a valid jwt token if you already set
+up your environment vars correctly.
+
+Currently `graphql3` only supports following algorithms:
+
+- [x] RS256
+- [x] RS256 with password secured secret
+- [x] HS256
+
+Following env vars you will need to set. If no public key is defined it will fall back to private key for
+none-asymmetric signatures as HS256.
+
+- [x] Private key (needed for creating tokens, for instance `vendor/bin/typo3 graphql3:create-user-token`)
+- [x] Public key (needed on some algorithms like RS256 for validating tokens)
+- [x] Algorithm (for instance RS256, HS256, default RS256)
+- [x] Passphrase (needed if private key is password encrypted)
+
+The following example configuration should be the most common setup:
+
+```dotenv
+GRAPHQL3_JWT_ALGORITHM: "RS256"
+GRAPHQL3_JWT_PRIVATE_KEY: "file://my-path-to/private.pem"
+GRAPHQL3_JWT_PUBLIC_KEY: "file://my-path-to/public.pem"
+GRAPHQL3_JWT_PASSPHRASE: "" # Can stay empty if private key is not secured
+```
+
+With a correctly set up environment you can use the command to generate a token.
+
+Please make sure your apache configuration or nginx configuration allows authorization headers.
+
+```
+// on apache .htaccess this line might be needed.
+CGIPassAuth On
+```
+
+Frontend users are (as already mentioned) not fetch by graphql3. All is handled via jwt tokens and via JwtUser. You
+would rather pass your frontend user info to the jwt-user and implement some kind of method
+like `getFrontendUserByJwtUser` in order to map to TYPO3 frontend users.
+
+However, from `graphql3`'s perspective the system, does not care about the origin of your user, as the users might be
+stored anywhere, not only the current TYPO3 installation.
+
+A more in detail documentation will follow.
+
+#### Voting & ACL
 
 Under the hood, `PageNode` is using an in-house `PageResolver`, which is responsible to resolve a page based on the
 uid/slug given. However, the page-resolver does a bit more than that. For instance providing access control, which can
