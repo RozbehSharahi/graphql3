@@ -52,12 +52,13 @@ $schemaRegistry->register((new NoopQueryType());
 
 In order to have some real working TYPO3 code, continue to the next chapter `Getting started`.
 
-# Must have features still open
+# Must-have features for first version
 
 Although the extension already provides quite a lot of features it misses following essentials:
 
-- [ ] JWT Token authentication (not yet started)
-- [ ] Workspaces (not yet started)
+- [ ] JWT Token authentication (in progress)
+- [ ] Built-in mutations
+- [ ] Workspace integration
 
 # Getting started
 
