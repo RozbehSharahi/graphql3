@@ -665,7 +665,15 @@ like `getFrontendUserByJwtUser` in order to map to TYPO3 frontend users.
 However, from `graphql3`'s perspective the system, does not care about the origin of your user, as the users might be
 stored anywhere, not only the current TYPO3 installation.
 
-A more in detail documentation will follow.
+#### User group IDs
+
+In order to provide compatibility between `JwtUser::$roles` (array of strings) and TYPO3 a convention for mapping was
+implemented. Whenever a jwt-user shall match a TYPO3-Backend user group it has to contain a user role with following
+schema: `ROLE_GROUP_ID::[fe_group.uid]`. By this convention in-house voters will decide, whether the user has access to
+a specific record, which is restricted to certain typo3-user-groups. In order to abstract this convention there is a
+method `JwtUser::hasGroupId(x)` which will under the hood call `JwtUser::hasRole('ROLE_GROUP_ID::x')`.
+
+The `JwtUser` class has a method called `hasGroupId`
 
 #### Voting & ACL
 
