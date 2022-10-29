@@ -3,6 +3,9 @@ on: [push]
 jobs:
   pipeline:
     runs-on: ubuntu-latest
+    env:
+      GRAPHQL3_JWT_PRIVATE_KEY: "file://Tests/Fixture/KeyPairs/Rs256/private.pem"
+      GRAPHQL3_JWT_PUBLIC_KEY: "file://Tests/Fixture/KeyPairs/Rs256/public.pem"
     steps:
       - uses: shivammathur/setup-php@v2
         with:
