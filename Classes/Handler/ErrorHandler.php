@@ -15,7 +15,6 @@ use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Exception\NotImplementedException;
 use RozbehSharahi\Graphql3\Exception\ShouldNotHappenException;
 use RozbehSharahi\Graphql3\Exception\UnauthorizedException;
-use Throwable;
 use TYPO3\CMS\Core\Core\Environment;
 
 class ErrorHandler
@@ -24,7 +23,7 @@ class ErrorHandler
     {
     }
 
-    public function handle(Throwable $throwable): ResponseInterface
+    public function handle(\Throwable $throwable): ResponseInterface
     {
         // In some cases our exceptions are wrapped into a graphql error exception.
         // Probably those on execution time

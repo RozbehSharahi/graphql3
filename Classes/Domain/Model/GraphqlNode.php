@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
-use Closure;
 use GraphQL\Type\Definition\Type;
 
 class GraphqlNode
@@ -17,7 +16,7 @@ class GraphqlNode
     public function __construct(
         protected string $name,
         protected Type $type,
-        protected Closure $resolver,
+        protected \Closure $resolver,
         protected GraphqlArgumentCollection $arguments
     ) {
     }
@@ -61,12 +60,12 @@ class GraphqlNode
         return $clone;
     }
 
-    public function getResolver(): Closure
+    public function getResolver(): \Closure
     {
         return $this->resolver;
     }
 
-    public function withResolver(Closure $resolver): self
+    public function withResolver(\Closure $resolver): self
     {
         $clone = clone $this;
         $clone->resolver = $resolver;

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Security;
 
-use DateTime;
-use DateTimeInterface;
-use DomainException;
 use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
@@ -15,7 +12,6 @@ use Firebase\JWT\SignatureInvalidException;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Exception\ShouldNotHappenException;
 use TYPO3\CMS\Core\Core\Environment;
-use UnexpectedValueException;
 
 class JwtManager
 {
@@ -128,12 +124,12 @@ class JwtManager
     /**
      * @param array<string, mixed> $payload
      */
-    public function create(DateTimeInterface $expiresAt, array $payload): string
+    public function create(\DateTimeInterface $expiresAt, array $payload): string
     {
         $this->assertPrivateKey();
 
         $payload['exp'] = $expiresAt->getTimestamp();
-        $payload['iat'] = (new DateTime())->getTimestamp();
+        $payload['iat'] = (new \DateTime())->getTimestamp();
 
         $privateKey = $this->resolvePrivateKey();
 
@@ -154,7 +150,7 @@ class JwtManager
     {
         try {
             $this->read($token);
-        } catch (DomainException|UnexpectedValueException|SignatureInvalidException|BeforeValidException|ExpiredException) {
+        } catch (\DomainException|\UnexpectedValueException|SignatureInvalidException|BeforeValidException|ExpiredException) {
             return false;
         } catch (\Throwable $e) {
             throw new InternalErrorException('Unexpected issue on decoding jwt token: '.$e->getMessage());

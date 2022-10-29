@@ -54,7 +54,7 @@ class GraphqlController
 
         try {
             $response->getBody()->write(json_encode($output, JSON_THROW_ON_ERROR));
-        } catch (JsonException $e) {
+        } catch (\JsonException $e) {
             throw new InternalErrorException('Could not json encode graphql output: '.$e->getMessage());
         }
 

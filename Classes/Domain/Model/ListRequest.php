@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
-use Closure;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ListRequest
@@ -22,12 +21,12 @@ class ListRequest
     public const PARAMETER_PUBLIC_REQUEST = 'publicRequest';
     public const PARAMETER_LANGUAGE = 'language';
 
-    protected Closure $queryModifier;
+    protected \Closure $queryModifier;
 
     /**
      * @param array<string, mixed> $arguments
      */
-    public static function create(array $arguments = [], Closure $queryModifier = null): self
+    public static function create(array $arguments = [], \Closure $queryModifier = null): self
     {
         return GeneralUtility::makeInstance(self::class, $arguments, $queryModifier);
     }
@@ -35,7 +34,7 @@ class ListRequest
     /**
      * @param array<string, mixed> $arguments
      */
-    public function __construct(protected array $arguments = [], Closure $queryModifier = null)
+    public function __construct(protected array $arguments = [], \Closure $queryModifier = null)
     {
         $this->queryModifier = $queryModifier ?: static fn ($v) => $v;
     }
@@ -59,12 +58,12 @@ class ListRequest
         return $clone;
     }
 
-    public function getQueryModifier(): Closure
+    public function getQueryModifier(): \Closure
     {
         return $this->queryModifier;
     }
 
-    public function withQueryModifier(Closure $queryModifier): self
+    public function withQueryModifier(\Closure $queryModifier): self
     {
         $clone = clone $this;
         $clone->queryModifier = $queryModifier;

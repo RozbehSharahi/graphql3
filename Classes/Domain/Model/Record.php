@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
-use DateTimeImmutable;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
@@ -72,14 +71,14 @@ class Record
         return GeneralUtility::makeInstance(CurrentSite::class)->get()->getLanguageById($this->getLanguageUid());
     }
 
-    public function getCreationDate(): DateTimeImmutable
+    public function getCreationDate(): \DateTimeImmutable
     {
-        return (new DateTimeImmutable())->setTimestamp($this->data[$this->table->getCreatedAt()]);
+        return (new \DateTimeImmutable())->setTimestamp($this->data[$this->table->getCreatedAt()]);
     }
 
-    public function getUpdatedAt(): DateTimeImmutable
+    public function getUpdatedAt(): \DateTimeImmutable
     {
-        return (new DateTimeImmutable())->setTimestamp($this->data[$this->table->getUpdatedAt()]);
+        return (new \DateTimeImmutable())->setTimestamp($this->data[$this->table->getUpdatedAt()]);
     }
 
     public function isTranslation(): bool

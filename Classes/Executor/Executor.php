@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Executor;
 
-use Closure;
 use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
@@ -22,7 +21,7 @@ class Executor
 
     protected Schema $schema;
 
-    protected ?Closure $errorHandler = null;
+    protected ?\Closure $errorHandler = null;
 
     public function getQuery(): string
     {
@@ -58,12 +57,12 @@ class Executor
         return $clone;
     }
 
-    public function getErrorHandler(): Closure
+    public function getErrorHandler(): \Closure
     {
         return $this->errorHandler;
     }
 
-    public function withErrorHandler(?Closure $errorHandler): self
+    public function withErrorHandler(?\Closure $errorHandler): self
     {
         $clone = clone $this;
         $clone->errorHandler = $errorHandler;

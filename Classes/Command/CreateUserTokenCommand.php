@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Command;
 
-use DateTime;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Security\JwtManager;
 use Symfony\Component\Console\Command\Command;
@@ -42,7 +41,7 @@ class CreateUserTokenCommand extends Command
 
         $roles = explode(',', $roles);
 
-        $token = $jwtManager->create(new DateTime('now + 3600 seconds'), [
+        $token = $jwtManager->create(new \DateTime('now + 3600 seconds'), [
             'username' => $username,
             'roles' => $roles,
         ]);

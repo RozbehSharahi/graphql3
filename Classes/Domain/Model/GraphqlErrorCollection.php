@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Domain\Model;
 
-use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,7 +60,7 @@ class GraphqlErrorCollection
     {
         try {
             return json_encode(['code' => $this->code, 'errors' => $this->toArray()], JSON_THROW_ON_ERROR);
-        } catch (JsonException $e) {
+        } catch (\JsonException $e) {
             throw new InternalErrorException('Could not encode graphql error to json: '.$e->getMessage());
         }
     }
