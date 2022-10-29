@@ -56,9 +56,8 @@ In order to have some real working TYPO3 code, continue to the next chapter `Get
 
 Although the extension already provides quite a lot of features it misses following essentials:
 
-- [ ] JWT Token authentication (in progress)
+- [ ] JWT Token authentication (90% done)
 - [ ] Built-in mutations
-- [ ] Workspace integration
 
 # Getting started
 

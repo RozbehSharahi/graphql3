@@ -4,7 +4,7 @@ This is a temporary overview of already implemented features and coming features
 
 List of todos
 
-- [x] Update readme for record-type-builder
+- [x] TCA based record node type builders
 - [x] Default query type
 - [x] Page node
 - [x] Page list node
@@ -12,20 +12,20 @@ List of todos
 - [x] Page list node pagination
 - [x] Page list node extendability
 - [x] Pages children
-- [ ] Support languages on lists
+- [x] Support languages on lists
 - [x] Language type, node and relation on page type
 - [x] Access control via voters (incl. login and fe_group checks)
-- [ ] Remove nested resolver, nodes, ...
+- [x] Remove nested resolver, nodes, ... (cancelled)
 - [ ] None public requests should not be allowed without logged-in user
-- [ ] JWT token auth
+- [x] JWT token auth
+- [x] JWT token cli creator
 - [x] File type
 - [x] File type crop and configuration
 - [ ] Content type, node and relation on page type
-- [ ] Model nodes, types and relations (automatic setup)
 - [x] Disable sensitive data (example: page.fe_group)
 - [x] One to many relation field creator (missing query for relation)
-- [ ] Media relations
+- [x] Media relations
 - [ ] Flex-Form support
 - [ ] ManyToManyRelationFieldCreator
 - [ ] Faceting
-- [ ] Better exception handling (bad-request, internal errors, unauthorized, ... + logging)
+- [x] Exception handling (bad-request, internal errors, unauthorized, ... + logging)
