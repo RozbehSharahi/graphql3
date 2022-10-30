@@ -58,6 +58,8 @@ class CurrentSession implements SingletonInterface
     {
         try {
             return (bool) $this->getUser();
+        } catch (BadRequestException $badRequestException) {
+            throw $badRequestException;
         } catch (\Throwable) {
             return false;
         }
