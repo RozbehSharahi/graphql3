@@ -15,6 +15,12 @@ use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 
 class CurrentSession implements SingletonInterface
 {
+    public const ERROR_JWT_EXPIRED = 'Expired jwt token provided.';
+
+    public const ERROR_JWT_INVALID = 'Invalid jwt token provided.';
+
+    public const ERROR_NO_TOKEN_ON_REQUEST = 'Request did not contain jwt token, please use hasToken to avoid this exception.';
+
     protected SiteInterface $site;
 
     protected ServerRequest $request;
@@ -40,51 +46,56 @@ class CurrentSession implements SingletonInterface
         return $this->request->getAttribute('site');
     }
 
-    public function getUser(): JwtUser
-    {
-        return $this->hasToken() ? $this->fetchUserFromToken() : JwtUser::createFromTypo3Session();
-    }
-
-    public function getToken(): string
-    {
-        if (!$this->hasToken()) {
-            throw new InternalErrorException('Request did not contain jwt token, please use hasToken to avoid this exception.');
-        }
-
-        return str_replace('Bearer ', '', $this->getRequest()->getHeaderLine('Authorization'));
-    }
-
     public function hasUser(): bool
     {
         try {
             return (bool) $this->getUser();
-        } catch (BadRequestException $badRequestException) {
-            throw $badRequestException;
         } catch (\Throwable) {
             return false;
         }
+    }
+
+    public function getUser(): JwtUser
+    {
+        return $this->hasToken() ? $this->fetchUserFromToken() : JwtUser::createFromTypo3Session();
     }
 
     public function hasToken(): bool
     {
         return
             $this->getRequest()->hasHeader('Authorization') &&
-            str_starts_with($this->getRequest()->getHeaderLine('Authorization'), 'Bearer ')
-        ;
+            str_starts_with($this->getRequest()->getHeaderLine('Authorization'), 'Bearer ');
     }
 
-    protected function fetchUserFromToken(): JwtUser
+    public function getToken(): string
+    {
+        if (!$this->hasToken()) {
+            throw new InternalErrorException(self::ERROR_NO_TOKEN_ON_REQUEST);
+        }
+
+        return str_replace('Bearer ', '', $this->getRequest()->getHeaderLine('Authorization'));
+    }
+
+    public function assertTokenIsValid(): self
     {
         $token = $this->getToken();
         $jwtManager = $this->jwtManager->withEnvironmentVariables();
 
         if ($jwtManager->isExpired($token)) {
-            throw new BadRequestException('Expired jwt token provided.');
+            throw new BadRequestException(self::ERROR_JWT_EXPIRED);
         }
 
         if (!$jwtManager->isValid($token)) {
-            throw new BadRequestException('Invalid jwt token provided.');
+            throw new BadRequestException(self::ERROR_JWT_INVALID);
         }
+
+        return $this;
+    }
+
+    public function fetchUserFromToken(): JwtUser
+    {
+        $token = $this->assertTokenIsValid()->getToken();
+        $jwtManager = $this->jwtManager->withEnvironmentVariables();
 
         return JwtUser::createFromPayload($jwtManager->read($token));
     }

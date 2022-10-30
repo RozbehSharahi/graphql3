@@ -32,7 +32,13 @@ class AccessChecker
     {
         $token = (new Token());
 
-        $token->setUser($this->currentSession->hasUser() ? $this->currentSession->getUser() : null);
+        if ($this->currentSession->hasToken()) {
+            $this->currentSession->assertTokenIsValid();
+        }
+
+        if ($this->currentSession->hasUser()) {
+            $token->setUser($this->currentSession->getUser());
+        }
 
         return $this->decisionManager->decide($token, $attributes, $object, true);
     }

@@ -115,7 +115,10 @@ class FunctionalScope
         }
     }
 
-    public function graphqlRequest(string $graphql): GraphqlResponse
+    /**
+     * @param array<string,string> $headers
+     */
+    public function graphqlRequest(string $graphql, array $headers = []): GraphqlResponse
     {
         try {
             $bodyStream = (new StreamFactory())
@@ -125,7 +128,7 @@ class FunctionalScope
             throw new \RuntimeException('Could not create graphql request in test.');
         }
 
-        $request = new ServerRequest('/test-app/graphql', 'POST', $bodyStream);
+        $request = new ServerRequest('/test-app/graphql', 'POST', $bodyStream, $headers);
         $response = $this->doServerRequest($request);
 
         return GraphqlResponse::fromResponse($response);
