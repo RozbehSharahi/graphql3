@@ -65,6 +65,25 @@ class JwtUser implements UserInterface
         }
     }
 
+    /**
+     * @param array<string, mixed> $frontendUser
+     */
+    public static function createFromFrontendUserRow(array $frontendUser): self
+    {
+        ['username' => $username, 'usergroup' => $groupIds] = $frontendUser;
+
+        if (empty($groupIds)) {
+            return self::create($username, []);
+        }
+
+        $groupIds = explode(',', $groupIds);
+        $groupIds = array_filter($groupIds, static fn ($v) => (int) $v > 0);
+        $groupIds = array_values($groupIds);
+        $groupIds = array_map(static fn ($v) => self::createGroupIdRole((int) $v), $groupIds);
+
+        return self::create($username, $groupIds);
+    }
+
     public static function createGroupIdRole(int $id): string
     {
         return sprintf(self::PATTERN_ROLE_GROUP_ID, $id);

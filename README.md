@@ -612,15 +612,23 @@ token secured application.
 
 #### JWT auth
 
-All access control related code on `graphql3` is based on jwt-authentication, which is abstract withing the
+All access control related code on `graphql3` is based on jwt-authentication, which is abstract within the
 class `\RozbehSharahi\Graphql3\Domain\Model\JwtUser`. From core code perspective there is only authentication via JWT
 auth headers (Bearer token, header-line: Authorization). The core code will therefore not know the origin of the token
 but will require two fields to be set on jwt token `username` (string) and `roles` (array of string).
 
-You can manually create a token of via cli `vendor/bin/typo3 graphql3:create-user-token`.
+In order to create an access token you can use following commands:
+
+```shell
+# Manual creation of a token (asks for username and roles)
+vendor/bin/typo3 graphql3:create-token:manual
+
+# Creation of a token by frontend-user in database
+vendor/bin/typo3 graphql3:create-token:frontend-user [user-uid]
+```
 
 All code will always act as if jwt-token authentication has taken place, however if `graphql3` finds a currently logged
-in fe-user it will map that user to a jwt-token. This is reflected withing the
+in fe-user it will map that user to a jwt-token. This is reflected within the
 implemented `\RozbehSharahi\Graphql3\Domain\Model\JwtUser::createFromTypo3Session`.
 
 In order to provide compatibility between `JwtUser::$roles` (array of strings) and TYPO3, a convention for mapping was
@@ -644,7 +652,7 @@ Currently `graphql3` only supports following algorithms:
 Following env vars you will need to set. If no public key is defined it will fall back to private key for
 none-asymmetric signatures as HS256.
 
-- [x] Private key (needed for creating tokens, for instance `vendor/bin/typo3 graphql3:create-user-token`)
+- [x] Private key (needed for creating tokens, for instance `vendor/bin/typo3 graphql3:create-token:manual`)
 - [x] Public key (needed on some algorithms like RS256 for validating tokens)
 - [x] Algorithm (for instance RS256, HS256, default RS256)
 - [x] Passphrase (needed if private key is password encrypted)

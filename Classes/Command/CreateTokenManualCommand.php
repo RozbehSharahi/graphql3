@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
-class CreateUserTokenCommand extends Command
+class CreateTokenManualCommand extends Command
 {
     public function __construct(protected JwtManager $jwtManager)
     {
