@@ -6,13 +6,13 @@ namespace RozbehSharahi\Graphql3\Resolver;
 
 use RozbehSharahi\Graphql3\Domain\Model\ItemRequest;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
-use RozbehSharahi\Graphql3\Session\CurrentSite;
+use RozbehSharahi\Graphql3\Session\CurrentSession;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 
 class LanguageResolver
 {
     public function __construct(
-        protected CurrentSite $currentSite,
+        protected CurrentSession $currentSession,
         protected AccessChecker $accessChecker
     ) {
     }
@@ -20,7 +20,7 @@ class LanguageResolver
     public function resolve(ItemRequest $request): ?SiteLanguage
     {
         try {
-            $language = $this->currentSite->get()->getLanguageById($request->get('id'));
+            $language = $this->currentSession->getSite()->getLanguageById($request->get('id'));
         } catch (\Throwable) {
             return null;
         }

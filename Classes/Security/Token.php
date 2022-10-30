@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 class Token implements TokenInterface
 {
-    private JwtUser $user;
+    private ?JwtUser $user;
 
     public function __construct()
     {
@@ -41,9 +41,9 @@ class Token implements TokenInterface
         return $this->user ?? null;
     }
 
-    public function setUser(UserInterface $user): self
+    public function setUser(?UserInterface $user): self
     {
-        if (!$user instanceof JwtUser) {
+        if ($user && !$user instanceof JwtUser) {
             throw new InternalErrorException('Only jwt-users are allowed to be set on token.');
         }
 

@@ -115,7 +115,7 @@ class SecurityTest extends TestCase
             ->setAspect('frontend.user', $userAspect)
         ;
 
-        $user = JwtUser::createFromSession();
+        $user = JwtUser::createFromTypo3Session();
 
         self::assertEquals([JwtUser::createGroupIdRole(2), JwtUser::createGroupIdRole(4)], $user->getRoles());
     }

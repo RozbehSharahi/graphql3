@@ -7,7 +7,7 @@ namespace RozbehSharahi\Graphql3\Domain\Model;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
-use RozbehSharahi\Graphql3\Session\CurrentSite;
+use RozbehSharahi\Graphql3\Session\CurrentSession;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -68,7 +68,7 @@ class Record
 
     public function getLanguage(): SiteLanguage
     {
-        return GeneralUtility::makeInstance(CurrentSite::class)->get()->getLanguageById($this->getLanguageUid());
+        return GeneralUtility::makeInstance(CurrentSession::class)->getSite()->getLanguageById($this->getLanguageUid());
     }
 
     public function getCreationDate(): \DateTimeImmutable

@@ -42,7 +42,7 @@ class JwtUser implements UserInterface
         return GeneralUtility::makeInstance(self::class, $username, $roles);
     }
 
-    public static function createFromSession(): self
+    public static function createFromTypo3Session(): self
     {
         try {
             /** @var UserAspect $userAspect */

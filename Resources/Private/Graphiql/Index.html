@@ -62,7 +62,7 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(graphQLParams),
-                credentials: 'omit',
+                credentials: 'same-origin',
             },
         ).then(function (response) {
             return response.json().catch(function () {

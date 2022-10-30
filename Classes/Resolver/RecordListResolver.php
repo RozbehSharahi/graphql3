@@ -12,7 +12,7 @@ use RozbehSharahi\Graphql3\Exception\BadRequestException;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Operator\ApplyFilterArrayToQueryOperator;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
-use RozbehSharahi\Graphql3\Session\CurrentSite;
+use RozbehSharahi\Graphql3\Session\CurrentSession;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
@@ -24,7 +24,7 @@ class RecordListResolver
         protected ConnectionPool $connectionPool,
         protected ApplyFilterArrayToQueryOperator $applyFilterArrayToQueryOperator,
         protected AccessChecker $accessChecker,
-        protected CurrentSite $currentSite
+        protected CurrentSession $currentSession
     ) {
     }
 
@@ -145,11 +145,11 @@ class RecordListResolver
             return $this;
         }
 
-        if (!$this->currentSite->isLanguageCodeAvailable($request->getLanguage())) {
+        if (!$this->currentSession->isLanguageCodeAvailable($request->getLanguage())) {
             throw new BadRequestException('Given language code is not available on current site.');
         }
 
-        $language = $this->currentSite->getLanguageByCode($request->getLanguage());
+        $language = $this->currentSession->getLanguageByCode($request->getLanguage());
 
         $query->andWhere($query->expr()->eq('sys_language_uid', $language->getLanguageId()));
 

@@ -11,8 +11,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
 use RozbehSharahi\Graphql3\Handler\ErrorHandler;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Session\CurrentRequest;
-use RozbehSharahi\Graphql3\Session\CurrentSite;
+use RozbehSharahi\Graphql3\Session\CurrentSession;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\ServerRequest;
@@ -26,8 +25,7 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
     public function __construct(
         protected GraphqlController $graphqlController,
         protected SchemaRegistry $schemaRegistry,
-        protected CurrentSite $currentSite,
-        protected CurrentRequest $currentRequest,
+        protected CurrentSession $currentSession,
         protected ErrorHandler $errorHandler,
         protected iterable $setups
     ) {
@@ -52,11 +50,8 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
             return $handler->handle($request);
         }
 
-        // setup current site
-        $this->currentSite->set($siteRoute->getSite());
-
-        // setup current request
-        $this->currentRequest->set($request);
+        // Make current request available
+        $this->currentSession->setRequest($request);
 
         // Call all instances of GraphqlSetupInterface
         foreach ($this->setups as $setup) {

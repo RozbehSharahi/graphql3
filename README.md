@@ -612,19 +612,28 @@ token secured application.
 
 #### JWT auth
 
-Graphql3 does not look up the current user session of TYPO3. The only thing it accepts is a token based authentication,
-which maybe set via an authorization header as a Bearer token. At the current state only JWT tokens are accepted which
-will be parsed in `\RozbehSharahi\Graphql3\Domain\Model\JwtUser::createFromPayload`. Having a username and an array of
-roles is mandatory as the implementation and exceptions will reveal.
+All access control related code on `graphql3` is based on jwt-authentication, which is abstract withing the
+class `\RozbehSharahi\Graphql3\Domain\Model\JwtUser`. From core code perspective there is only authentication via JWT
+auth headers (Bearer token, header-line: Authorization). The core code will therefore not know the origin of the token
+but will require two fields to be set on jwt token `username` (string) and `roles` (array of string).
 
-If you want to generate a token for your self, you might use following command:
+You can manually create a token of via cli `vendor/bin/typo3 graphql3:create-user-token`.
 
-```shell
-vendor/bin/typo3 graphql3:create-user-token
-```
+All code will always act as if jwt-token authentication has taken place, however if `graphql3` finds a currently logged
+in fe-user it will map that user to a jwt-token. This is reflected withing the
+implemented `\RozbehSharahi\Graphql3\Domain\Model\JwtUser::createFromTypo3Session`.
 
-The command will ask you to define username and roles manually. The result will be a valid jwt token if you already set
-up your environment vars correctly.
+In order to provide compatibility between `JwtUser::$roles` (array of strings) and TYPO3, a convention for mapping was
+implemented. Whenever a jwt-user shall match a TYPO3-Backend user group it has to contain a user-role with following
+scheme: `ROLE_GROUP_ID::[fe_group.uid]`. By this convention in-house voters will decide, whether the user has access to
+a specific record, which is restricted to certain typo3-user-groups. In order to abstract this convention there is a
+method `JwtUser::hasGroupId(x)`, which will under the hood call `JwtUser::hasRole('ROLE_GROUP_ID::x')`.
+
+**The mapping of TYPO3 users to JwtUser is currently very basic. Most of the cases should be satisfied by that.
+Nevertheless, if you for instance need user-group inheritance, an extension of `graphql3` is necessary. Please let me
+know in an Issue-Entry on Github if you happen to need such.**
+
+##### Jwt auth setup / configuration
 
 Currently `graphql3` only supports following algorithms:
 
@@ -657,23 +666,6 @@ Please make sure your apache configuration or nginx configuration allows authori
 // on apache .htaccess this line might be needed.
 CGIPassAuth On
 ```
-
-Frontend users are (as already mentioned) not fetch by graphql3. All is handled via jwt tokens and via JwtUser. You
-would rather pass your frontend user info to the jwt-user and implement some kind of method
-like `getFrontendUserByJwtUser` in order to map to TYPO3 frontend users.
-
-However, from `graphql3`'s perspective the system, does not care about the origin of your user, as the users might be
-stored anywhere, not only the current TYPO3 installation.
-
-#### User group IDs
-
-In order to provide compatibility between `JwtUser::$roles` (array of strings) and TYPO3 a convention for mapping was
-implemented. Whenever a jwt-user shall match a TYPO3-Backend user group it has to contain a user role with following
-schema: `ROLE_GROUP_ID::[fe_group.uid]`. By this convention in-house voters will decide, whether the user has access to
-a specific record, which is restricted to certain typo3-user-groups. In order to abstract this convention there is a
-method `JwtUser::hasGroupId(x)` which will under the hood call `JwtUser::hasRole('ROLE_GROUP_ID::x')`.
-
-The `JwtUser` class has a method called `hasGroupId`
 
 #### Voting & ACL
 
