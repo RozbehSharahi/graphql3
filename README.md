@@ -57,7 +57,7 @@ In order to have some real working TYPO3 code, continue to the next chapter `Get
 Although the extension already provides quite a lot of features it misses following essentials:
 
 - [x] JWT Token authentication (done)
-- [ ] Mapping from TYPO3 user to and from JWT user
+- [x] Mapping from TYPO3 user to and from JWT user (done)
 - [ ] Built-in mutations
 
 # Getting started
