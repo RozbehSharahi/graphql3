@@ -16,11 +16,12 @@ use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Security\JwtManager;
-use RozbehSharahi\Graphql3\Security\Voter\VoterInterface;
-use RozbehSharahi\Graphql3\Session\CurrentSite;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
+use RozbehSharahi\Graphql3\Type\MutationType;
+use RozbehSharahi\Graphql3\Type\MutationTypeExtenderInterface;
 use RozbehSharahi\Graphql3\Type\QueryType;
 use RozbehSharahi\Graphql3\Type\QueryTypeExtenderInterface;
+use RozbehSharahi\Graphql3\Voter\VoterInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use TYPO3\CMS\Core\Core\Environment;
@@ -38,6 +39,10 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
     $containerBuilder
         ->registerForAutoconfiguration(QueryTypeExtenderInterface::class)
         ->addTag('graphql3.query_type_extender');
+
+    $containerBuilder
+        ->registerForAutoconfiguration(MutationTypeExtenderInterface::class)
+        ->addTag('graphql3.mutation_type_extender');
 
     $containerBuilder
         ->registerForAutoconfiguration(VoterInterface::class)
@@ -60,10 +65,10 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         $containerBuilder->registerForAutoconfiguration(AccessChecker::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(LanguageListNodeBuilder::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(LanguageNodeBuilder::class)->setPublic(true);
-        $containerBuilder->registerForAutoconfiguration(CurrentSite::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(RecordNodeBuilder::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(RecordListNodeBuilder::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(RecordResolver::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(JwtManager::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(MutationType::class)->setPublic(true);
     }
 };

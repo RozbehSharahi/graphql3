@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace RozbehSharahi\Graphql3\Security\Voter;
+namespace RozbehSharahi\Graphql3\Voter;
 
 use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class RecordVoter implements VoterInterface
+class RecordViewVoter implements VoterInterface
 {
     /**
      * @param array<int, string> $attributes
      */
     public function vote(TokenInterface $token, mixed $subject, array $attributes): int
     {
-        if (!$subject instanceof Record) {
+        if ($attributes !== [self::ATTRIBUTE_VIEW] || !$subject instanceof Record) {
             return self::ACCESS_ABSTAIN;
         }
 

@@ -52,14 +52,6 @@ $schemaRegistry->register((new NoopQueryType());
 
 In order to have some real working TYPO3 code, continue to the next chapter `Getting started`.
 
-# Must-have features for first version
-
-Although the extension already provides quite a lot of features it misses following essentials:
-
-- [x] JWT Token authentication (done)
-- [x] Mapping from TYPO3 user to and from JWT user (done)
-- [ ] Built-in mutations
-
 # Getting started
 
 We assume you have a working TYPO3 extension and a `Configuration/Services.yaml` (as following), which will make
@@ -685,7 +677,7 @@ Whenever a record is resolved, it is passed to `AccessDecisionManager`. This is 
 of `RecordListNodeBuilder`, where every loaded record is checked for access.
 
 In order to modify/add access control to your project, you can simply create a class which
-implements `\RozbehSharahi\Graphql3\Security\Voter\VoterInterface`. When implementing the interface, your voter will be
+implements `\RozbehSharahi\Graphql3\Voter\VoterInterface`. When implementing the interface, your voter will be
 automatically added to the stack of voters, no matter where you place it.
 
 > Make sure to implement the `Graphql3` variant of `VoterInterface`, instead of the `Symfony` `VoterInterface`.
@@ -693,10 +685,11 @@ automatically added to the stack of voters, no matter where you place it.
 ```php
 <?php
 
-namespace RozbehSharahi\Graphql3\Security\Voter;
+namespace Your\Extension;
 
 use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
+use RozbehSharahi\Graphql3\Voter\VoterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class PageVoter implements VoterInterface
@@ -717,8 +710,77 @@ A voter as shown here, is of course not needed, as this is already handled by a 
 The access-decision-manager is configured to use the `UnanimousStrategy`. This means all voters must grant or abstain
 access. If all voters abstain, access is given. Checkout `symfony/security` documentation for further understanding.
 
-Modifying the existing `\RozbehSharahi\Graphql3\Security\Voter\PageVoter` can be done via symfony's dependency injection
+Modifying the existing `\RozbehSharahi\Graphql3\Voter\RecordVoter` can be done via symfony's dependency injection
 container in any extension's `Configuration/Services.yaml`.
+
+### Mutations
+
+For demonstration purposes `graphql3` comes with a mutation for creating `sys_news` items. However, the implementation
+of mutations is very project & context specific work and `graphql3` will not make any assumptions. Therefore,
+the `sys_news` mutation is only available in dev mode. Mutations can be added via `MutationTypeExtenderInterface` and of
+course you can implement access-control by injection `AccessChecker`.
+
+Following code shows the implementation of a mutation:
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace Your\Extension;
+
+use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\Type;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Security\AccessChecker;
+use RozbehSharahi\Graphql3\Type\MutationTypeExtenderInterface;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+
+class CreateSysNewsMutationTypeExtender implements MutationTypeExtenderInterface
+{
+    public function __construct(protected ConnectionPool $connectionPool)
+    {
+    }
+
+    public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
+    {
+        return $nodes->add(
+            GraphqlNode::create('createSysNews')
+                ->withType(Type::int())
+                ->withArguments(
+                    GraphqlArgumentCollection::create()->add(
+                        GraphqlArgument::create('item')->withType(Type::nonNull(
+                            new InputObjectType([
+                                'name' => 'SysNewsInput',
+                                'fields' => fn () => GraphqlNodeCollection::create()
+                                    ->add(GraphqlNode::create('title')->withType(Type::string()))
+                                    ->add(GraphqlNode::create('content')->withType(Type::string()))
+                                    ->toArray(),
+                            ])
+                        ))
+                    )
+                )
+                ->withResolver(function ($rootValue, $args) {
+                    $query = $this->connectionPool->getQueryBuilderForTable('sys_news');
+                    $query->insert('sys_news')->values([
+                        'title' => $args['item']['title'],
+                        'content' => $args['item']['content'],
+                    ]);
+                    $query->executeStatement();
+
+                    return $query->getConnection()->lastInsertId('sys_news');
+                })
+        );
+    }
+}
+```
+
+In fact there is no difference between mutations and queries as you can also read up in `webonyx/graphql` documentation,
+therefore you can use the same methods and classes you use for queries on mutations.
 
 ## Contribution & known issues
 

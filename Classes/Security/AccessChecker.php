@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Security;
 
 use RozbehSharahi\Graphql3\Exception\UnauthorizedException;
-use RozbehSharahi\Graphql3\Security\Voter\VoterInterface;
 use RozbehSharahi\Graphql3\Session\CurrentSession;
+use RozbehSharahi\Graphql3\Voter\VoterInterface;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
 use Symfony\Component\Security\Core\Authorization\Strategy\UnanimousStrategy;
 

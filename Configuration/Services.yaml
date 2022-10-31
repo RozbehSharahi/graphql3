@@ -16,6 +16,10 @@ services:
     arguments:
       $extenders: !tagged_iterator graphql3.query_type_extender
 
+  RozbehSharahi\Graphql3\Type\MutationType:
+    arguments:
+      $extenders: !tagged_iterator graphql3.mutation_type_extender
+
   RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder:
     arguments:
       $extenders: !tagged_iterator graphql3.record_node_extender
