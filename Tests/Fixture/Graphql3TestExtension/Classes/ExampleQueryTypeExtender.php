@@ -7,8 +7,8 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3TestExtension;
 
 use GraphQL\Type\Definition\Type;
-use RozbehSharahi\Graphql3\Builder\Node\RecordListNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Type\QueryTypeExtenderInterface;

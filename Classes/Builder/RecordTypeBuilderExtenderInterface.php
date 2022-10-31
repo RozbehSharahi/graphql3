@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RozbehSharahi\Graphql3\Builder\Type;
+namespace RozbehSharahi\Graphql3\Builder;
 
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;

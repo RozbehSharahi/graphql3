@@ -3,15 +3,15 @@
 declare(strict_types=1);
 namespace RozbehSharahi\Graphql3;
 
-use RozbehSharahi\Graphql3\Builder\FieldCreator\FieldCreatorInterface;
-use RozbehSharahi\Graphql3\Builder\Node\LanguageListNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\LanguageNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\RecordListNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\RecordNodeExtenderInterface;
-use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
-use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
+use RozbehSharahi\Graphql3\Builder\LanguageListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\LanguageNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordNodeExtenderInterface;
+use RozbehSharahi\Graphql3\Builder\RecordTypeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
+use RozbehSharahi\Graphql3\FieldCreator\FieldCreatorInterface;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 use RozbehSharahi\Graphql3\Security\AccessChecker;

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Type;
 
 use GraphQL\Type\Definition\ObjectType;
-use RozbehSharahi\Graphql3\Builder\Node\LanguageListNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\LanguageNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\RecordListNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\LanguageListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\LanguageNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 
 class QueryType extends ObjectType

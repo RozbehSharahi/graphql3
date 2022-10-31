@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RozbehSharahi\Graphql3\Builder\FieldCreator;
+namespace RozbehSharahi\Graphql3\FieldCreator;
 
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;

@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace RozbehSharahi\Graphql3\Builder\Node;
+namespace RozbehSharahi\Graphql3\Builder;
 
 use GraphQL\Type\Definition\Type;
-use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;

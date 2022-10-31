@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RozbehSharahi\Graphql3\Builder\Type;
+namespace RozbehSharahi\Graphql3\Builder;
 
 use GraphQL\Type\Definition\ObjectType;
 

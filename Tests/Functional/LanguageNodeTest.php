@@ -9,7 +9,7 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-use RozbehSharahi\Graphql3\Builder\Node\LanguageNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\LanguageNodeBuilder;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 

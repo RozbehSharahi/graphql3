@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Resolver;
 
-use RozbehSharahi\Graphql3\Builder\Node\RecordNodeExtenderInterface;
+use RozbehSharahi\Graphql3\Builder\RecordNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Domain\Model\ItemRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;

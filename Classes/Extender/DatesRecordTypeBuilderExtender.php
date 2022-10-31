@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace RozbehSharahi\Graphql3\Builder\Type\Extender;
+namespace RozbehSharahi\Graphql3\Extender;
 
 use GraphQL\Type\Definition\Type;
-use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
+use RozbehSharahi\Graphql3\Builder\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;

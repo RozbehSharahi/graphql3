@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace RozbehSharahi\Graphql3\Builder\Type\Extender;
+namespace RozbehSharahi\Graphql3\Extender;
 
-use RozbehSharahi\Graphql3\Builder\Type\RecordListTypeBuilder;
-use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
+use RozbehSharahi\Graphql3\Builder\RecordListTypeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;

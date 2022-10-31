@@ -6,10 +6,10 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-use RozbehSharahi\Graphql3\Builder\Node\LanguageListNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\LanguageNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\RecordListNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\LanguageListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\LanguageNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;

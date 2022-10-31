@@ -178,10 +178,8 @@ declare(strict_types=1);
 
 namespace Your\Extension;
 
-use GraphQL\Type\Definition\Type;
-use RozbehSharahi\Graphql3\Builder\Node\RecordListNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Type\QueryTypeExtenderInterface;
 
@@ -285,11 +283,11 @@ In the following example a page node on root query is created with the help of r
 
 namespace Your\Extension;
 
-use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
-use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder;
-use RozbehSharahi\Graphql3\Domain\Model\Record;use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use GraphQL\Type\Schema;
+use RozbehSharahi\Graphql3\Builder\RecordTypeBuilder;
+use RozbehSharahi\Graphql3\Domain\Model\Record;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
 
 class GraphqlSetup implements SetupInterface
@@ -328,7 +326,7 @@ The given example only passes a hard-coded page array to the type.
 Apart from just creating the record type on the fly, the builder will also provide extendability and type caching.
 
 Any extension can hook into the type creation of any table by
-implementing `\RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface`.
+implementing `\RozbehSharahi\Graphql3\Builder\RecordTypeBuilderExtenderInterface`.
 
 The following code shows how the pages type can be extended by an additional node `md5`.
 
@@ -339,9 +337,10 @@ declare(strict_types=1);
 
 namespace Your\Extension;
 
-use RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface;
+use RozbehSharahi\Graphql3\Builder\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 
 class Md5PageTypeExtender implements RecordTypeBuilderExtenderInterface
 {
@@ -361,7 +360,7 @@ class Md5PageTypeExtender implements RecordTypeBuilderExtenderInterface
 }
 ```
 
-> As long as the class implements `\RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilderExtenderInterface` the position
+> As long as the class implements `\RozbehSharahi\Graphql3\Builder\RecordTypeBuilderExtenderInterface` the position
 > does not matter. Symfony dependency injection will take care of loading the extender. **However, clear the caches!**
 
 It is also possible to remove or edit existing fields by extenders. For this check out `GraphqlNodeCollection`
@@ -376,7 +375,7 @@ Every node builder implements `NodeBuilderInterface` which by definition means i
 an instance of `GraphqlNode`.
 
 In following sections the record-type-builder is taken as an example. Check
-out `vendor/rozbehsharahi/graphql3/Classes/Builder/Node` to see which other builders exist and can be used.
+out `vendor/rozbehsharahi/graphql3/Classes/Builder` to see which other builders exist and can be used.
 
 ---
 
@@ -397,7 +396,7 @@ namespace Your\Extension;
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
-use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Setup\SetupInterface;
 
@@ -427,7 +426,7 @@ Under the hood this will:
 
 - [x] Create an argument `uid`
 - [x] Create a resolver via `\RozbehSharahi\Graphql3\Resolver\RecordResolver`
-- [x] Create the page type via `\RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder`
+- [x] Create the page type via `\RozbehSharahi\Graphql3\Builder\RecordTypeBuilder`
 
 There is a lot of features which will be activated by this. For instance:
 
@@ -456,10 +455,7 @@ declare(strict_types=1);
 
 namespace Your\Extension;
 
-use GraphQL\Type\Definition\Type;
-use RozbehSharahi\Graphql3\Builder\Node\RecordListNodeBuilder;
-use RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Type\QueryTypeExtenderInterface;
 

@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace RozbehSharahi\Graphql3\Builder\Type;
+namespace RozbehSharahi\Graphql3\Builder;
 
 use GraphQL\Type\Definition\ObjectType;
-use RozbehSharahi\Graphql3\Builder\FieldCreator\FieldCreatorInterface;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
+use RozbehSharahi\Graphql3\FieldCreator\FieldCreatorInterface;
 
 class RecordTypeBuilder implements TypeBuilderInterface
 {
