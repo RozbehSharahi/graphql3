@@ -20,7 +20,7 @@ services:
     arguments:
       $extenders: !tagged_iterator graphql3.mutation_type_extender
 
-  RozbehSharahi\Graphql3\Builder\Node\RecordNodeBuilder:
+  RozbehSharahi\Graphql3\Builder\RecordNodeBuilder:
     arguments:
       $extenders: !tagged_iterator graphql3.record_node_extender
 
@@ -32,7 +32,7 @@ services:
     arguments:
       $voters: !tagged_iterator graphql3.voter
 
-  RozbehSharahi\Graphql3\Builder\Type\RecordTypeBuilder:
+  RozbehSharahi\Graphql3\Builder\RecordTypeBuilder:
     arguments:
       $fieldCreators: !tagged_iterator { tag: graphql3.field_creator, default_priority_method: getPriority }
       $extenders: !tagged_iterator graphql3.record_type_builder_extender
