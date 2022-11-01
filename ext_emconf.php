@@ -1,5 +1,6 @@
 <?php
 
+/** @noinspection PhpUndefinedVariableInspection */
 $EM_CONF[$_EXTKEY] = [
     'title' => 'GraphQL3',
     'description' => 'A graphql extension for TYPO3',
