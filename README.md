@@ -1,6 +1,12 @@
 # GraphQL3
 
-> > **Caution: Currently only as pre-release version v1.0.0-alpha available.**
+---
+
+> **This extension is brand-new still and lacks testing of real users.
+> You are very welcome to contribute by testing and using the 
+> [issue board](https://github.com/RozbehSharahi/graphql3/issues).**
+
+---
 
 As this is a very new extension, I can not yet recommend to use in production yet. It is not well tested yet. It is very
 welcome to inform me about [issues](https://github.com/RozbehSharahi/graphql3/issues).
