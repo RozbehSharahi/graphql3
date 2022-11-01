@@ -8,11 +8,6 @@
 
 ---
 
-As this is a very new extension, I can not yet recommend to use in production yet. It is not well tested yet. It is very
-welcome to inform me about [issues](https://github.com/RozbehSharahi/graphql3/issues).
-
----
-
 This package enables you to register a graphql schema for your TYPO3 page.
 
 If you register a schema, it is accessible via the tail `/graphql` or `/graphiql` on your site's root-page:
