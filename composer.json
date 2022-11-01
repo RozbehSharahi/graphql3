@@ -9,12 +9,6 @@
             "email": "rozbeh.sharahi@gmail.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://github.com/oliverklee/tailor"
-        }
-    ],
     "require": {
         "ext-pdo": "*",
         "ext-openssl": "*",
@@ -32,8 +26,7 @@
         "typo3/cms-install": "^12.0",
         "phpunit/phpunit": "^9",
         "friendsofphp/php-cs-fixer": "dev-master",
-        "phpstan/phpstan": "1.8.x-dev",
-        "typo3/tailor": "dev-feature/symfony-6"
+        "phpstan/phpstan": "1.8.x-dev"
     },
     "config": {
         "allow-plugins": {
