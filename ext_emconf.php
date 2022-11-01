@@ -2,7 +2,7 @@
 
 /** @noinspection PhpUndefinedVariableInspection */
 $EM_CONF[$_EXTKEY] = [
-    'title' => 'GraphQL 3',
+    'title' => 'GraphQL3',
     'description' => 'A graphql extension for TYPO3',
     'author' => 'Rozbeh Chiryai Sharahi',
     'author_email' => 'rozbeh.sharahi+graphql3@gmail.com',
