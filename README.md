@@ -791,6 +791,8 @@ class CreateSysNewsMutationTypeExtender implements MutationTypeExtenderInterface
 In fact there is no difference between mutations and queries as you can also read up in `webonyx/graphql` documentation,
 therefore you can use the same methods and classes you use for queries on mutations.
 
-## Contribution & known issues
+## Contribution
+
+Checkout the contribution guide if you want to actively support this project or add features.
 
 [Continue here](CONTRIBUTING.md)

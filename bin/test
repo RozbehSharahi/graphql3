@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+bin/cache-clear
+bin/php-cs-fixer fix
+bin/phpstan
+bin/phpunit

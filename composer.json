@@ -48,25 +48,5 @@
         "typo3/cms": {
             "extension-key": "graphql3"
         }
-    },
-    "scripts": {
-        "cache-clear": [
-            "rm -rf var/cache",
-            "rm -rf .build/var/cache",
-            "rm -rf var/tests"
-        ],
-        "tests": [
-            "@cache-clear",
-            "vendor/bin/php-cs-fixer fix",
-            "vendor/bin/phpstan",
-            "vendor/bin/phpunit"
-        ],
-        "coverage": [
-            "@cache-clear",
-            "vendor/bin/php-cs-fixer fix",
-            "vendor/bin/phpstan",
-            "vendor/bin/phpunit --coverage-html .build/public/coverage",
-            "echo 'Checkout http:\/\/localhost:8080\/coverage\/' > /dev/null"
-        ]
     }
 }
