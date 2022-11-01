@@ -1,0 +1,33 @@
+version: '3.7'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Docker/php8-apache/Dockerfile
+      args:
+        - APACHE_DOCUMENT_ROOT=/var/www/html/Build/public/
+        - HOST_USER_ID=1001
+    environment:
+      - XDEBUG_MODE=debug
+      - XDEBUG_CONFIG=client_host=host.docker.internal client_port=9003
+      - XDEBUG_SESSION=1
+      - PHP_IDE_CONFIG=serverName=graphql3
+      - GRAPHQL3_JWT_PRIVATE_KEY=file://Tests/Fixture/KeyPairs/Rs256/private.pem
+      - GRAPHQL3_JWT_PUBLIC_KEY=file://Tests/Fixture/KeyPairs/Rs256/public.pem
+    volumes:
+      - './:/var/www/html'
+    ports:
+      - '8080:80'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+  mysql:
+    build: Docker/mysql
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: main
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - '13306:3306'
+

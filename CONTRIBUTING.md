@@ -1,30 +1,60 @@
 ## Contributing
 
-When interested in contribution, you will need to set up your own test environment (php, xdebug, imagemagick,...). I
-personally use my own repo https://github.com/RozbehSharahi/doka, which you are also free to use ofc.
+Starting development environment
 
-### Testing (and sniffing)
+```shell
+bin/docker up -d
+```
+
+`bin/docker` is basically a proxy for `docker-compose` so you can do the same things as you would do
+with `docker-compose`.
 
 ```
-composer run tests
+bin/docker build
+bin/docker logs -f
+bin/docker down
+```
+
+## Testing
+
+Running tests
+
+```shell
+bin/phpunit
+```
+
+Running php-cs-fixer
+
+```shell
+bin/php-cs-fixer
+```
+
+Running phpstan
+
+```shell
+bin/phpstan
+```
+
+Running all at once:
+
+```shell
+bin/test
 ```
 
 ### Testing build
 
-In order to test your changes on an active TYPO3 installation you can use the `.build` directory, which contains
-a `composer.json` that should be able to setup your build.
+In order to test your changes on an active TYPO3 installation you can use the `./Build` directory, which contains
+a `composer.json` that should be able to set up your build.
 
 In order to install the build do:
 
 ```
-cd .build
+bin/cli
+cd Build
 composer install
 ```
 
-This will create a fresh TYPO3 installation. Navigate to `http://[HOST]:[PORT]/`, where it should ask you to create
+This will create a fresh TYPO3 installation. Navigate to `http://localhost:8080/`, where it should ask you to create
 a `FIRST_INSTALL` file.
 
 Installation steps should be fast and easy if you use sqlite (hopefully :)).
-
-When using my `doka` package, the path would be `http://localhost:8080/typo3/install.php`, according to configuration
-in `.doka.env`.
