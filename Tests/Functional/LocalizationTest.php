@@ -26,7 +26,7 @@ class LocalizationTest extends TestCase
 
         $scope
             ->getSchemaRegistry()
-            ->register(new Schema(['query' => $scope->get(QueryType::class)]))
+            ->registerCreator(fn () => new Schema(['query' => $scope->get(QueryType::class)]))
         ;
 
         $response = $scope->doGraphqlRequest('{ 
@@ -65,7 +65,7 @@ class LocalizationTest extends TestCase
 
         $scope
             ->getSchemaRegistry()
-            ->register(new Schema(['query' => $scope->get(QueryType::class)]))
+            ->registerCreator(fn () => new Schema(['query' => $scope->get(QueryType::class)]))
         ;
 
         $response = $scope->doGraphqlRequest('{ 

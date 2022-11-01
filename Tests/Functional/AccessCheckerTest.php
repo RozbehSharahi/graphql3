@@ -139,7 +139,7 @@ class AccessCheckerTest extends TestCase
 
         $scope->createRecord('pages', $rootPage);
 
-        $scope->getSchemaRegistry()->register(new Schema([
+        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
             'query' => $scope->getQueryType(),
         ]));
 

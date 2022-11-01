@@ -19,7 +19,7 @@ use GraphQL\Type\Schema;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 
 /** @var SchemaRegistry $schemaRegistry */
-$schemaRegistry->register(new Schema([
+$schemaRegistry->registerCreator(fn() => new Schema([
     'query' => new ObjectType([
         'name' => 'Query',
         'fields' => [
@@ -47,7 +47,7 @@ use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Type\NoopQueryType;
 
 /** @var SchemaRegistry $schemaRegistry */
-$schemaRegistry->register((new NoopQueryType());
+$schemaRegistry->registerCreator(fn () => (new NoopQueryType());
 ```
 
 In order to have some real working TYPO3 code, continue to the next chapter `Getting started`.
@@ -94,7 +94,7 @@ class GraphqlSetup implements SetupInterface
 
     public function setup(): void
     {
-        $this->schemaRegistry->register(new Schema([
+        $this->schemaRegistry->registerCreator(fn() => new Schema([
             'query' => $this->queryType,
         ]));
     }
@@ -249,7 +249,7 @@ class GraphqlSetup implements SetupInterface
 
     public function setup(): void
     {
-        $this->schemaRegistry->register(new Schema([
+        $this->schemaRegistry->registerCreator(fn() => new Schema([
             'query' => $this->queryType,
         ]));
     }
@@ -300,7 +300,7 @@ class GraphqlSetup implements SetupInterface
 
     public function setup(): void
     {
-        $this->schemaRegistry->register(new Schema([
+        $this->schemaRegistry->registerCreator(fn() => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [
@@ -410,7 +410,7 @@ class GraphqlSetup implements SetupInterface
 
     public function setup(): void
     {
-        $this->schemaRegistry->register(new Schema([
+        $this->schemaRegistry->registerCreator(fn() => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [
@@ -712,9 +712,11 @@ container in any extension's `Configuration/Services.yaml`.
 ### Mutations
 
 For demonstration purposes `graphql3` comes with a mutation for creating `sys_news` items. However, the implementation
-of mutations is very project & context specific work and `graphql3` will not make any assumptions. Therefore,
-the `sys_news` mutation is only available in dev mode. Mutations can be added via `MutationTypeExtenderInterface` and of
-course you can implement access-control by injection `AccessChecker`.
+of mutations is very project & context specific and `graphql3` will not make any assumptions on that. The existing
+example mutation `createSysNews` will only be available, when having a token with a role `ROLE_CREATE::sys_news`.
+
+Mutations can be added via `MutationTypeExtenderInterface` and of course you can implement access-control by
+injection of `AccessChecker`.
 
 Following code shows the implementation of a mutation:
 
@@ -738,12 +740,16 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 
 class CreateSysNewsMutationTypeExtender implements MutationTypeExtenderInterface
 {
-    public function __construct(protected ConnectionPool $connectionPool)
+    public function __construct(protected ConnectionPool $connectionPool, protected AccessChecker $accessChecker)
     {
     }
 
     public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
     {
+        if (!$this->accessChecker->check(['ROLE_CREATE::sys_news'])) {
+            return $nodes;
+        }
+
         return $nodes->add(
             GraphqlNode::create('createSysNews')
                 ->withType(Type::int())

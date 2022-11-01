@@ -27,7 +27,7 @@ class LanguageNodeTest extends TestCase
             ->build()
         ;
 
-        $scope->getSchemaRegistry()->register(new Schema([
+        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [

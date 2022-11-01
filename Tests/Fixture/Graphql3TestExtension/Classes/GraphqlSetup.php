@@ -23,7 +23,7 @@ class GraphqlSetup implements SetupInterface
 
     public function setup(): void
     {
-        $this->schemaRegistry->register(new Schema([
+        $this->schemaRegistry->registerCreator(fn () => new Schema([
             'query' => $this->queryType,
             'mutation' => $this->mutationType,
         ]));

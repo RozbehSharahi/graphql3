@@ -9,26 +9,31 @@ use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 
 class SchemaRegistry
 {
-    protected ?Schema $schema = null;
+    protected \Closure|null $schemaCreator = null;
 
-    public function register(Schema $schema): self
+    public function registerCreator(\Closure $schemaCreator): self
     {
-        $this->schema = $schema;
+        $this->schemaCreator = $schemaCreator;
 
         return $this;
     }
 
-    public function getSchema(): Schema
+    public function create(): Schema
     {
-        if (empty($this->schema)) {
+        return $this->getSchemaCreator()();
+    }
+
+    protected function getSchemaCreator(): \Closure
+    {
+        if (empty($this->schemaCreator)) {
             throw new InternalErrorException('No schema registered. Did you call `'.self::class.'::registerSchema`. For instance in a middleware?');
         }
 
-        return $this->schema;
+        return $this->schemaCreator;
     }
 
     public function isRegistered(): bool
     {
-        return !empty($this->schema);
+        return !empty($this->schemaCreator);
     }
 }

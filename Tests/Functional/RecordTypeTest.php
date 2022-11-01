@@ -27,7 +27,7 @@ class RecordTypeTest extends TestCase
         // Register schema
         $scope
             ->getSchemaRegistry()
-            ->register(new Schema([
+            ->registerCreator(fn () => new Schema([
                 'query' => new ObjectType([
                     'name' => 'Query',
                     'fields' => [
@@ -97,7 +97,7 @@ class RecordTypeTest extends TestCase
         // Register schema
         $scope
             ->getSchemaRegistry()
-            ->register(new Schema([
+            ->registerCreator(fn () => new Schema([
                 'query' => new ObjectType([
                     'name' => 'Query',
                     'fields' => [

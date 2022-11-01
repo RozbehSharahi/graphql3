@@ -8,6 +8,7 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
@@ -26,9 +27,11 @@ class MutationQueryTest extends TestCase
             ->build()
         ;
 
-        $scope->get(SchemaRegistry::class)->register(new Schema([
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
             'mutation' => $scope->get(MutationType::class),
         ]));
+
+        $scope->loginUser(new JwtUser('test-user', ['ROLE_CREATE::sys_news']));
 
         $response = $scope->graphqlRequest('
             mutation {

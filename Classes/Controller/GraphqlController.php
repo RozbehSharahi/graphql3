@@ -40,7 +40,7 @@ class GraphqlController
 
         $output = $this
             ->executor
-            ->withSchema($this->schemaRegistry->getSchema())
+            ->withSchema($this->schemaRegistry->create())
             ->withQuery($input['query'])
             ->withVariables($input['variables'] ?? [])
             ->withErrorHandler(fn ($errors) => throw reset($errors))

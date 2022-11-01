@@ -58,7 +58,7 @@ class RecordTypeBuilderTest extends TestCase
 
         $builder = $scope->get(RecordTypeBuilder::class);
 
-        $scope->get(SchemaRegistry::class)->register(new Schema([
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => fn () => [
@@ -105,7 +105,7 @@ class RecordTypeBuilderTest extends TestCase
 
         $builder = $scope->get(RecordTypeBuilder::class);
 
-        $scope->get(SchemaRegistry::class)->register(new Schema([
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => fn () => [
@@ -146,7 +146,7 @@ class RecordTypeBuilderTest extends TestCase
 
         $builder = $scope->get(RecordTypeBuilder::class);
 
-        $scope->get(SchemaRegistry::class)->register(new Schema([
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => fn () => [

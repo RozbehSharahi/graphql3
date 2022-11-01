@@ -284,7 +284,7 @@ class FunctionScopeBuilder
         if ($this->autoCreateGraphqlSchema) {
             /** @var SchemaRegistry $schemaRegistry */
             $schemaRegistry = $container->get(SchemaRegistry::class);
-            $schemaRegistry->register(new Schema(['query' => new NoopQueryType()]));
+            $schemaRegistry->registerCreator(fn () => new Schema(['query' => new NoopQueryType()]));
         }
 
         $this->clearSiteFinderCache();

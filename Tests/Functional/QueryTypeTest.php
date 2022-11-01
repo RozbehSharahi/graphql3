@@ -24,7 +24,7 @@ class QueryTypeTest extends TestCase
     {
         $scope = $this->getFunctionalScopeBuilder()->withAutoCreateGraphqlSchema(false)->build();
 
-        $scope->getSchemaRegistry()->register(new Schema([
+        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
             'query' => $scope->getQueryType(),
         ]));
 
@@ -41,7 +41,7 @@ class QueryTypeTest extends TestCase
     {
         $scope = $this->getFunctionalScopeBuilder()->withAutoCreateGraphqlSchema(false)->build();
 
-        $scope->getSchemaRegistry()->register(new Schema([
+        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
             'query' => new QueryType(
                 $scope->get(RecordNodeBuilder::class),
                 $scope->get(RecordListNodeBuilder::class),

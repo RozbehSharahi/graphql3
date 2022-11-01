@@ -10,24 +10,24 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Type\MutationTypeExtenderInterface;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
  * This extender only exists to act as a template for project specific mutations.
  *
- * Feel free to copy and paste.
+ * Feel free to copy, extend, remove or override it via your services.yaml.
  */
 class CreateSysNewsMutationTypeExtender implements MutationTypeExtenderInterface
 {
-    public function __construct(protected ConnectionPool $connectionPool)
+    public function __construct(protected ConnectionPool $connectionPool, protected AccessChecker $accessChecker)
     {
     }
 
     public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
     {
-        if (Environment::getContext()->isProduction()) {
+        if (!$this->accessChecker->check(['ROLE_CREATE::sys_news'])) {
             return $nodes;
         }
 

@@ -34,7 +34,7 @@ class RecordListNodeTest extends TestCase
             ->createRecord('pages', ['uid' => 4, 'title' => 'Page 4'])
         ;
 
-        $scope->getSchemaRegistry()->register(new Schema([
+        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [
@@ -91,7 +91,7 @@ class RecordListNodeTest extends TestCase
             ->createRecord('pages', ['uid' => 7, 'title' => 'Page 7', 'subtitle' => 'pink'])
         ;
 
-        $scope->getSchemaRegistry()->register(new Schema([
+        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [

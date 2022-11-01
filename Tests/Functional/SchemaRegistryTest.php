@@ -24,7 +24,7 @@ class SchemaRegistryTest extends TestCase
             ->build()
         ;
 
-        $scope->getSchemaRegistry()->register(new Schema([
+        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => GraphqlNodeCollection::create([
@@ -42,6 +42,6 @@ class SchemaRegistryTest extends TestCase
     public function testThrowsExceptionOnNoneRegisteredSchema(): void
     {
         $this->expectExceptionMessageMatches('/No schema registered/');
-        (new SchemaRegistry())->getSchema();
+        (new SchemaRegistry())->create();
     }
 }
