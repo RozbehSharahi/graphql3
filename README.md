@@ -1,4 +1,4 @@
-# GraphQL 3
+# GraphQL3
 
 This package enables you to register a graphql schema for your TYPO3 page.
 
