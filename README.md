@@ -1,6 +1,11 @@
 # GraphQL3
 
->> **Caution: Currently only as pre-release version v1.0.0-alpha available.**
+> > **Caution: Currently only as pre-release version v1.0.0-alpha available.**
+
+As this is a very new extension, I can not yet recommend to use in production yet. It is not well tested yet. It is very
+welcome to inform me about [issues](https://github.com/RozbehSharahi/graphql3/issues).
+
+---
 
 This package enables you to register a graphql schema for your TYPO3 page.
 
@@ -717,8 +722,8 @@ For demonstration purposes `graphql3` comes with a mutation for creating `sys_ne
 of mutations is very project & context specific and `graphql3` will not make any assumptions on that. The existing
 example mutation `createSysNews` will only be available, when having a token with a role `ROLE_CREATE::sys_news`.
 
-Mutations can be added via `MutationTypeExtenderInterface` and of course you can implement access-control by
-injection of `AccessChecker`.
+Mutations can be added via `MutationTypeExtenderInterface` and of course you can implement access-control by injection
+of `AccessChecker`.
 
 Following code shows the implementation of a mutation:
 
