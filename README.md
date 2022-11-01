@@ -1,5 +1,7 @@
 # GraphQL3
 
+>> **Caution: Currently only as pre-release version v1.0.0-alpha available.**
+
 This package enables you to register a graphql schema for your TYPO3 page.
 
 If you register a schema, it is accessible via the tail `/graphql` or `/graphiql` on your site's root-page:
