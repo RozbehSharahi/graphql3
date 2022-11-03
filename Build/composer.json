@@ -21,9 +21,12 @@
     ],
     "require": {
         "rozbehsharahi/graphql3": "@dev",
-        "rozbehsharahi/graphql3-test-extension": "@dev"
+        "rozbehsharahi/graphql3-test-extension": "@dev",
+        "typo3/cms-rte-ckeditor": "^12.0",
+        "typo3/cms-tstemplate": "^12.0"
     },
     "require-dev": {
+        "roave/security-advisories": "dev-latest",
         "typo3/cms-install": "^12.0",
         "typo3/cms-lowlevel": "^12.0",
         "typo3/cms-felogin": "^12.0",

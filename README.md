@@ -145,6 +145,13 @@ Try for instance:
         imageUrl(variant: "default", maxHeight: 100)
       }
     }
+    contents {
+      items {
+        header
+        bodytext
+        rendered
+      }
+    }
   }
 }
 ```
