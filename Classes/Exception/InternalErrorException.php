@@ -6,7 +6,7 @@ namespace RozbehSharahi\Graphql3\Exception;
 
 class InternalErrorException extends \RuntimeException implements Graphql3ExceptionInterface
 {
-    public const PUBLIC_MESSAGE = 'An internal error occurred. ';
+    public const PUBLIC_MESSAGE = 'An internal error occurred';
 
     public function getPublicMessage(): string
     {
@@ -15,6 +15,6 @@ class InternalErrorException extends \RuntimeException implements Graphql3Except
 
     public function getPrivateMessage(): string
     {
-        return self::PUBLIC_MESSAGE.$this->message;
+        return self::PUBLIC_MESSAGE.': '.$this->message;
     }
 }

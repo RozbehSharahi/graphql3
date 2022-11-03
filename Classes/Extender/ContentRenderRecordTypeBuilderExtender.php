@@ -23,6 +23,12 @@ use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
 {
+    public const ERROR_COULD_NOT_CREATE_FRONTEND_CONTROLLER = 'Error on creating typo3 frontend controller. Did your create a sys_template for your site?';
+
+    public const ERROR_COULD_NOT_RESOLVE_SITE = 'No site available for content rendering.';
+
+    public const ERROR_UNEXPECTED_DIRECT_RESPONSE = 'TSFE gave a direct response on determineId. Is there a page that conflicts with your graphql3 route?';
+
     public function __construct(protected CurrentSession $currentSession)
     {
     }
@@ -77,7 +83,7 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
         $pageArguments = new PageArguments($pid, '0', []); // from row
 
         if (!$site instanceof SiteInterface) {
-            throw new InternalErrorException('No site available for content rendering.');
+            throw new InternalErrorException(self::ERROR_COULD_NOT_RESOLVE_SITE);
         }
 
         $tsfe = GeneralUtility::makeInstance(
@@ -91,7 +97,7 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
 
         $directResponse = $tsfe->determineId($request);
         if ($directResponse) {
-            throw new InternalErrorException('TSFE gave a direct response on determineId. Is there a page that conflicts with your graphql3 route?');
+            throw new InternalErrorException(self::ERROR_UNEXPECTED_DIRECT_RESPONSE);
         }
 
         // Should not be here !
@@ -101,7 +107,7 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
         try {
             $tsfe->getFromCache($request);
         } catch (\Throwable $e) {
-            throw new InternalErrorException('Error on creating typo3 frontend controller. Did your create a sys_template for your site? '.$e->getMessage());
+            throw new InternalErrorException(self::ERROR_COULD_NOT_CREATE_FRONTEND_CONTROLLER.': '.$e->getMessage());
         }
 
         return $tsfe;
