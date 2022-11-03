@@ -144,6 +144,11 @@ class ColumnConfiguration
         return 'select' === $this->getType() && 'selectSingle' === $this->getRenderType() && $this->getForeignTable();
     }
 
+    public function isSingleSelect(): bool
+    {
+        return 'select' === $this->getType() && 'selectSingle' === $this->getRenderType() && !$this->getForeignTable();
+    }
+
     public function isLanguage(): bool
     {
         return 'language' === $this->getType();

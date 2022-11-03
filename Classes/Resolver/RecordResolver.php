@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Resolver;
 
-use RozbehSharahi\Graphql3\Builder\RecordNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Domain\Model\ItemRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
@@ -17,13 +16,9 @@ class RecordResolver
 {
     protected TableConfiguration $table;
 
-    /**
-     * @param iterable<RecordNodeExtenderInterface> $extenders
-     */
     public function __construct(
         protected ConnectionPool $connectionPool,
-        protected AccessChecker $accessChecker,
-        protected iterable $extenders,
+        protected AccessChecker $accessChecker
     ) {
     }
 
@@ -60,12 +55,6 @@ class RecordResolver
         $query = $this->createQuery();
         $query->where($query->expr()->eq('uid', $query->createNamedParameter($identifier)));
         $this->applyPublicRequestFilters($query, $request);
-
-        foreach ($this->extenders as $extender) {
-            if ($extender->supportsTable($this->table)) {
-                $query = $extender->extendQuery($this->table, $query, $request->getArguments());
-            }
-        }
 
         try {
             $row = $query->executeQuery()->fetchAssociative();

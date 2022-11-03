@@ -18,10 +18,14 @@ class RecordListNodeBuilder implements NodeBuilderInterface
 {
     protected TableConfiguration $table;
 
+    /**
+     * @param iterable<RecordListNodeExtenderInterface> $extenders
+     */
     public function __construct(
         protected RecordListTypeBuilder $recordListTypeBuilder,
         protected OrderItemInputType $orderFieldType,
-        protected FilterInputType $filterInputType
+        protected FilterInputType $filterInputType,
+        protected iterable $extenders
     ) {
     }
 
@@ -59,6 +63,12 @@ class RecordListNodeBuilder implements NodeBuilderInterface
 
         if ($this->table->hasLanguage()) {
             $arguments = $arguments->add(GraphqlArgument::create('language')->withType(Type::string()));
+        }
+
+        foreach ($this->extenders as $extender) {
+            if ($extender->supportsTable($this->table)) {
+                $arguments = $extender->extend($this->table, $arguments);
+            }
         }
 
         return GraphqlNode::create($this->table->getCamelPluralName())

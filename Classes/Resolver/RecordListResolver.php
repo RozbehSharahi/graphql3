@@ -20,11 +20,15 @@ class RecordListResolver
 {
     protected TableConfiguration $table;
 
+    /**
+     * @param iterable<RecordListResolverExtenderInterface> $extenders
+     */
     public function __construct(
         protected ConnectionPool $connectionPool,
         protected ApplyFilterArrayToQueryOperator $applyFilterArrayToQueryOperator,
         protected AccessChecker $accessChecker,
-        protected CurrentSession $currentSession
+        protected CurrentSession $currentSession,
+        protected iterable $extenders
     ) {
     }
 
@@ -66,6 +70,12 @@ class RecordListResolver
             ->applyListRequestModification($query, $request)
         ;
 
+        foreach ($this->extenders as $extender) {
+            if ($extender->supports($this->table)) {
+                $query = $extender->extend($this->table, $request, clone $query);
+            }
+        }
+
         try {
             $rows = $query->executeQuery()->fetchAllAssociative();
         } catch (Exception $e) {
@@ -91,6 +101,12 @@ class RecordListResolver
             ->applyListRequestModification($query, $request)
             ->applyPublicRequestFilters($query, $request)
         ;
+
+        foreach ($this->extenders as $extender) {
+            if ($extender->supports($this->table)) {
+                $query = $extender->extend($this->table, $request, clone $query);
+            }
+        }
 
         try {
             return $query->selectLiteral('count(*) as count')->executeQuery()->fetchAssociative()['count'];

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 use RozbehSharahi\Graphql3\Type\QueryType;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 
 class PageTest extends TestCase
 {
@@ -112,6 +113,92 @@ class PageTest extends TestCase
         self::assertSame('user_upload/whatever.txt', $response['data']['page']['media'][0]['publicUrl']);
         self::assertSame('txt', $response['data']['page']['media'][0]['extension']);
         self::assertNull($response['data']['page']['media'][0]['imageUrl']);
+    }
+
+    public function testPagesAreFilteredByDoktype(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $scope->getSchemaRegistry()->registerCreator(
+            fn () => new Schema(['query' => $scope->get(QueryType::class)])
+        );
+
+        $scope
+            ->createRecord('pages', [
+                'pid' => 1,
+                'title' => 'some title',
+                'doktype' => PageRepository::DOKTYPE_DEFAULT,
+            ])
+            ->createRecord('pages', [
+                'pid' => 1,
+                'title' => 'some title',
+                'doktype' => PageRepository::DOKTYPE_SHORTCUT,
+            ])
+            ->createRecord('pages', [
+                'pid' => 1,
+                'title' => 'some title',
+                'doktype' => PageRepository::DOKTYPE_BE_USER_SECTION,
+            ])
+            ->createRecord('pages', [
+                'pid' => 1,
+                'title' => 'some title',
+                'doktype' => PageRepository::DOKTYPE_LINK,
+            ])
+            ->createRecord('pages', [
+                'pid' => 1,
+                'title' => 'some title',
+                'doktype' => PageRepository::DOKTYPE_MOUNTPOINT,
+            ])
+            ->createRecord('pages', [
+                'pid' => 1,
+                'title' => 'some title',
+                'doktype' => PageRepository::DOKTYPE_RECYCLER,
+            ])
+            ->createRecord('pages', [
+                'pid' => 1,
+                'title' => 'some title',
+                'doktype' => PageRepository::DOKTYPE_SPACER,
+            ])
+            ->createRecord('pages', [
+                'pid' => 1,
+                'title' => 'some title',
+                'doktype' => PageRepository::DOKTYPE_SYSFOLDER,
+            ])
+        ;
+
+        $response = $scope->graphqlRequest('{
+            pages {
+                count
+                items {
+                    doktype
+                }
+            }
+        }');
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(5, $response->get('data.pages.count')); // don't forget homepage
+
+        $doktypes = array_map(static fn ($v) => $v['doktype'], $response->get('data.pages.items'));
+        self::assertContainsEquals('0', $doktypes);
+        self::assertContainsEquals(PageRepository::DOKTYPE_DEFAULT, $doktypes);
+        self::assertContainsEquals(PageRepository::DOKTYPE_SHORTCUT, $doktypes);
+        self::assertContainsEquals(PageRepository::DOKTYPE_LINK, $doktypes);
+        self::assertContainsEquals(PageRepository::DOKTYPE_SPACER, $doktypes);
+
+        $response = $scope->graphqlRequest('{
+            pages(allDoktypes: true) {
+                count
+                items {
+                    doktype
+                }
+            }
+        }');
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(9, $response->get('data.pages.count')); // don't forget homepage
+
+        $doktypes = array_map(static fn ($v) => $v['doktype'], $response->get('data.pages.items'));
+        self::assertContainsEquals(PageRepository::DOKTYPE_SYSFOLDER, $doktypes);
     }
 
     private function createScope(): FunctionalScope

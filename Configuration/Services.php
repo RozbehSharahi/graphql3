@@ -6,6 +6,7 @@ namespace RozbehSharahi\Graphql3;
 use RozbehSharahi\Graphql3\Builder\LanguageListNodeBuilder;
 use RozbehSharahi\Graphql3\Builder\LanguageNodeBuilder;
 use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordListNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
 use RozbehSharahi\Graphql3\Builder\RecordNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Builder\RecordTypeBuilder;
@@ -13,6 +14,7 @@ use RozbehSharahi\Graphql3\Builder\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
 use RozbehSharahi\Graphql3\FieldCreator\FieldCreatorInterface;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
+use RozbehSharahi\Graphql3\Resolver\RecordListResolverExtenderInterface;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Security\JwtManager;
@@ -55,6 +57,14 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
     $containerBuilder
         ->registerForAutoconfiguration(RecordTypeBuilderExtenderInterface::class)
         ->addTag('graphql3.record_type_builder_extender');
+
+    $containerBuilder
+        ->registerForAutoconfiguration(RecordListResolverExtenderInterface::class)
+        ->addTag('graphql3.record_list_resolver_extender');
+
+    $containerBuilder
+        ->registerForAutoconfiguration(RecordListNodeExtenderInterface::class)
+        ->addTag('graphql3.record_list_node_extender');
 
     if(Environment::getContext()->isTesting()) {
         $containerBuilder->registerForAutoconfiguration(RecordTypeBuilder::class)->setPublic(true);
