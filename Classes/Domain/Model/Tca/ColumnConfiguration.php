@@ -82,6 +82,16 @@ class ColumnConfiguration
         return !empty($this->configuration['config']['MM']);
     }
 
+    public function hasManyToManyOpposite(): bool
+    {
+        return !empty($this->configuration['config']['MM_opposite_field']);
+    }
+
+    public function getManyToManyOpposite(): string
+    {
+        return $this->configuration['config']['MM_opposite_field'];
+    }
+
     public function getRelationTable(): string
     {
         return $this->configuration['config']['MM'];
@@ -142,6 +152,11 @@ class ColumnConfiguration
     public function isManyToOne(): bool
     {
         return 'select' === $this->getType() && 'selectSingle' === $this->getRenderType() && $this->getForeignTable();
+    }
+
+    public function isManyToMany(): bool
+    {
+        return $this->hasRelationTable() && in_array($this->getType(), ['select', 'inline'], true);
     }
 
     public function isSingleSelect(): bool
