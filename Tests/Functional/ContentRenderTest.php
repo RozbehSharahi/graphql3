@@ -6,6 +6,7 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use RozbehSharahi\Graphql3\Extender\ContentRenderRecordTypeBuilderExtender;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 use RozbehSharahi\Graphql3\Type\QueryType;
@@ -121,5 +122,29 @@ class ContentRenderTest extends TestCase
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('Content', $response->get('data.contents.items.0.rendered'));
         self::assertSame('Override', $response->get('data.contents.items.1.rendered'));
+    }
+
+    public function testCanCommunicateMissingTypoScriptTemplate(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
+            'query' => $scope->get(QueryType::class),
+        ]));
+
+        $scope->createRecord('tt_content', ['uid' => 1, 'pid' => 1, 'header' => 'Some content']);
+
+        $response = $scope->graphqlRequest('{
+            content(uid: 1) {
+                header
+                rendered
+            }
+        }');
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertStringContainsString(
+            ContentRenderRecordTypeBuilderExtender::ERROR_COULD_NOT_CREATE_FRONTEND_CONTROLLER,
+            $response->get('errors.0.message')
+        );
     }
 }
