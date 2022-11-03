@@ -58,6 +58,16 @@ class ListRequest
         return $clone;
     }
 
+    public function hasArgument(string $name): bool
+    {
+        return array_key_exists($name, $this->arguments);
+    }
+
+    public function getArgument(string $name): mixed
+    {
+        return $this->arguments[$name];
+    }
+
     public function getQueryModifier(): \Closure
     {
         return $this->queryModifier;

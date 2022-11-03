@@ -15,9 +15,7 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
-use RozbehSharahi\Graphql3\Security\AccessChecker;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
-use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 
 class RecordNodeTest extends TestCase
 {
@@ -56,15 +54,6 @@ class RecordNodeTest extends TestCase
                         ->add(GraphqlArgument::create('removeRestrictions')->withType(Type::boolean()))
                     ;
                 }
-
-                public function extendQuery(TableConfiguration $table, QueryBuilder $query, array $arguments): QueryBuilder
-                {
-                    if ($arguments['removeRestrictions'] ?? false) {
-                        $query->getRestrictions()->removeAll();
-                    }
-
-                    return $query;
-                }
             },
         ];
 
@@ -74,20 +63,20 @@ class RecordNodeTest extends TestCase
                 'fields' => [
                     'page' => (new RecordNodeBuilder(
                         $scope->get(RecordTypeBuilder::class),
-                        new RecordResolver($scope->getConnectionPool(), $scope->get(AccessChecker::class), $extenders),
+                        $scope->get(RecordResolver::class),
                         $extenders
                     ))->for('pages')->build()->toArray(),
                 ],
             ]),
         ]));
 
-        $response = $scope->doGraphqlRequest('{
+        $response = $scope->graphqlRequest('{
             page (uid: 2, removeRestrictions: true) {
               title
             }
         }');
 
-        self::assertSame('Second level page', $response['data']['page']['title']);
+        self::assertSame(200, $response->getStatusCode());
     }
 
     public function skippedTestPublicRequestCausesNullInsteadOfAccessDeniedOnRestrictedPage(): void

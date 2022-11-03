@@ -24,9 +24,13 @@ services:
     arguments:
       $extenders: !tagged_iterator graphql3.record_node_extender
 
-  RozbehSharahi\Graphql3\Resolver\RecordResolver:
+  RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder:
     arguments:
-      $extenders: !tagged_iterator graphql3.record_node_extender
+      $extenders: !tagged_iterator graphql3.record_list_node_extender
+
+  RozbehSharahi\Graphql3\Resolver\RecordListResolver:
+    arguments:
+      $extenders: !tagged_iterator graphql3.record_list_resolver_extender
 
   RozbehSharahi\Graphql3\Security\AccessChecker:
     arguments:
