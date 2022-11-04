@@ -20,13 +20,13 @@ class GraphqlRequestTest extends TestCase
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
 
-        $response = $scope->doServerRequest($this->createGraphqlRequest('{
-          noop
-        }'));
+        $response = $scope->graphqlRequest('{
+            noop
+        }');
 
-        self::assertEquals(200, (string) $response->getStatusCode());
+        self::assertEquals(200, $response->getStatusCode());
+        self::assertSame('noop', $response->get('data.noop'));
         self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
-        self::assertEquals('{"data":{"noop":"noop"}}', (string) $response->getBody());
     }
 
     public function testGraphqlInterfaceRequestOnlyInDevelopmentMode(): void

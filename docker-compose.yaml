@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Docker/php8-apache/Dockerfile
       args:
-        - APACHE_DOCUMENT_ROOT=/var/www/html/Build/public/
+        - APACHE_DOCUMENT_ROOT=/var/www/html/public/
         - HOST_USER_ID=1001
     environment:
       - XDEBUG_MODE=debug

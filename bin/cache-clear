@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
 bin/docker exec app rm -rf var/cache
-bin/docker exec app rm -rf Build/var/cache
 bin/docker exec app rm -rf var/tests
 echo Caches cleaned
