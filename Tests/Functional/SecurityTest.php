@@ -98,6 +98,16 @@ class SecurityTest extends TestCase
                 null,
                 null,
             ],
+            'EdDSA' => (static function () {
+                $sodiumKeyPair = sodium_crypto_sign_keypair();
+
+                return [
+                    JwtManager::ALGORITHM_ED_DSA,
+                    base64_encode(sodium_crypto_sign_secretkey($sodiumKeyPair)),
+                    base64_encode(sodium_crypto_sign_publickey($sodiumKeyPair)),
+                    null,
+                ];
+            })(),
         ];
     }
 

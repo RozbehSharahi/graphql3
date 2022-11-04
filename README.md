@@ -646,18 +646,19 @@ know in an Issue-Entry on Github if you happen to need such.**
 
 ##### Jwt auth setup / configuration
 
-Currently `graphql3` only supports following algorithms:
+Currently `graphql3` supports following algorithms:
 
 - [x] RS256
 - [x] RS256 with password secured secret
 - [x] HS256
+- [x] EdDSA
 
 Following env vars you will need to set. If no public key is defined it will fall back to private key for
 none-asymmetric signatures as HS256.
 
 - [x] Private key (needed for creating tokens, for instance `vendor/bin/typo3 graphql3:create-token:manual`)
 - [x] Public key (needed on some algorithms like RS256 for validating tokens)
-- [x] Algorithm (for instance RS256, HS256, default RS256)
+- [x] Algorithm (for instance RS256, HS256, EdDSA, default RS256)
 - [x] Passphrase (needed if private key is password encrypted)
 
 The following example configuration should be the most common setup:
