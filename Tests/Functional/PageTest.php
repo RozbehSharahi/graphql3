@@ -6,6 +6,7 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 use RozbehSharahi\Graphql3\Type\QueryType;
@@ -199,6 +200,26 @@ class PageTest extends TestCase
 
         $doktypes = array_map(static fn ($v) => $v['doktype'], $response->get('data.pages.items'));
         self::assertContainsEquals(PageRepository::DOKTYPE_SYSFOLDER, $doktypes);
+    }
+
+    public function testPageChildrenHasNoLanguageAttribute(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
+            'query' => $scope->get(QueryType::class),
+        ]));
+
+        $response = $scope->graphqlRequest('{
+            page(uid: 1) {
+                children(language: "en") {
+                    count
+                }
+            }
+        }');
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertStringContainsString('Unknown argument "language"', $response->getErrorMessage());
     }
 
     private function createScope(): FunctionalScope

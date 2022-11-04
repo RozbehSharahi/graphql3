@@ -16,13 +16,6 @@ class LanguageListResolver
     ) {
     }
 
-    public function getCallable(): callable
-    {
-        return function () {
-            return $this->resolve();
-        };
-    }
-
     /**
      * @return array<int, SiteLanguage>
      */
