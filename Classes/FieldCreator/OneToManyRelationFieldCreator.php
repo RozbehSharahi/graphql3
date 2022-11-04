@@ -36,13 +36,20 @@ class OneToManyRelationFieldCreator implements FieldCreatorInterface
             ->withType($recordListNodeBuilder->buildType())
             ->withArguments($recordListNodeBuilder->buildArguments()->remove('language'))
             ->withResolver(function (Record $record, array $args) use ($column) {
-                return ListRequest::create($args)
-                    ->withLanguageFromRecord($record)
+                $listRequest = ListRequest::create()
+                    ->withArguments($args)
                     ->withQueryModifier(
-                        fn (QueryBuilder $q) => $q
-                            ->andWhere($q->expr()->eq($column->getForeignField(), $record->get($column)))
+                        fn (QueryBuilder $q) => $q->andWhere($q->expr()->eq(
+                            $column->getForeignField(), $record->getUid()
+                        ))
                     )
                 ;
+
+                if ($column->getForeignTable()->hasLanguage()) {
+                    $listRequest = $listRequest->withLanguageFromRecord($record);
+                }
+
+                return $listRequest;
             })
         ;
     }

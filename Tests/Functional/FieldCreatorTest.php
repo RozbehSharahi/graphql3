@@ -139,4 +139,43 @@ class FieldCreatorTest extends TestCase
         self::assertSame('page 3', $response->get('data.page.children.items.0.title'));
         self::assertSame('page 4', $response->get('data.page.children.items.1.title'));
     }
+
+    public function testCanCreateOneToManyRelations(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
+            'query' => $scope->get(QueryType::class),
+        ]));
+
+        $scope
+            ->createRecord('sys_news', ['pid' => 1, 'title' => 'News 1'])
+            ->createRecord('sys_news', ['pid' => 1, 'title' => 'News 2'])
+            ->createRecord('sys_news', ['pid' => 1, 'title' => 'News 3 (hidden)', 'hidden' => 1])
+        ;
+
+        $GLOBALS['TCA']['pages']['columns']['news'] = [
+            'label' => 'News',
+            'config' => [
+                'type' => 'inline',
+                'foreign_table' => 'sys_news',
+                'foreign_field' => 'pid',
+            ],
+        ];
+
+        $response = $scope->graphqlRequest('{
+            page(uid: 1) {
+                news(page: 2, pageSize: 1) {
+                    count
+                    items {
+                        title
+                    }
+                }
+            }
+        }');
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(2, $response->get('data.page.news.count'));
+        self::assertSame('News 2', $response->get('data.page.news.items.0.title'));
+    }
 }
