@@ -6,7 +6,10 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional;
 
+use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
+use Doctrine\DBAL\Types\Type;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
@@ -177,5 +180,66 @@ class FieldCreatorTest extends TestCase
         self::assertSame(200, $response->getStatusCode());
         self::assertSame(2, $response->get('data.page.news.count'));
         self::assertSame('News 2', $response->get('data.page.news.items.0.title'));
+    }
+
+    public function testCanCreateManyToOneRelation(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->withAutoCreateHomepage(false)->build();
+
+        $tableDiff = new TableDiff('pages', [
+            (new Column('news', Type::getType('integer')))->setNotnull(false),
+        ]);
+
+        $scope->updateTable($tableDiff);
+
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
+            'query' => $scope->get(QueryType::class),
+        ]));
+
+        $scope
+            ->createRecord('pages', ['uid' => 1, 'title' => 'root-page', 'news' => 555])
+            ->createRecord('sys_news', ['uid' => 555, 'pid' => 1, 'title' => 'News 555'])
+        ;
+
+        $GLOBALS['TCA']['pages']['columns']['news'] = [
+            'label' => 'News',
+            'config' => [
+                'type' => 'select',
+                'renderType' => 'selectSingle',
+                'foreign_table' => 'sys_news',
+            ],
+        ];
+
+        $response = $scope->graphqlRequest('{
+            page(uid: 1) {
+                title
+                news {
+                    title
+                }
+            }
+        }');
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('News 555', $response->get('data.page.news.title'));
+    }
+
+    public function testLanguageParentHasNoUidParameter(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
+            'query' => $scope->get(QueryType::class),
+        ]));
+
+        $response = $scope->graphqlRequest('{
+          page(uid: 1) {
+            languageParent(uid: 123) {
+                title
+            }
+          }
+        }');
+
+        self::assertSame(400, $response->getStatusCode());
+        self::assertStringContainsString('Unknown argument "uid"', $response->getErrorMessage());
     }
 }

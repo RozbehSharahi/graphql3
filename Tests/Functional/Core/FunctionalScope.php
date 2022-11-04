@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Schema\TableDiff;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -169,21 +171,35 @@ class FunctionalScope
     public function createTable(Table $table): self
     {
         try {
-            $schemaManager = $this
-                ->getConnectionPool()
-                ->getConnectionForTable($table->getName())
-                ->createSchemaManager()
-            ;
-        } catch (\Doctrine\DBAL\Exception) {
-            throw new InternalErrorException('Could not create schema-manager in tests');
-        }
-
-        try {
-            $schemaManager->createTable($table);
+            $this->getSchemaManager()->createTable($table);
         } catch (\Doctrine\DBAL\Exception $e) {
             throw new InternalErrorException('Could not create table in tests: '.$e->getMessage());
         }
 
         return $this;
+    }
+
+    public function updateTable(TableDiff $tableDiff): self
+    {
+        try {
+            $this->getSchemaManager()->alterTable($tableDiff);
+        } catch (\Doctrine\DBAL\Exception $e) {
+            throw new InternalErrorException('Could not alter table in tests: '.$e->getMessage());
+        }
+
+        return $this;
+    }
+
+    protected function getSchemaManager(): AbstractSchemaManager
+    {
+        try {
+            return $this
+                ->getConnectionPool()
+                ->getConnectionByName('Default')
+                ->createSchemaManager()
+            ;
+        } catch (\Doctrine\DBAL\Exception) {
+            throw new InternalErrorException('Could not create schema-manager in tests');
+        }
     }
 }
