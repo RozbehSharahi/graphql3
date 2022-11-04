@@ -9,6 +9,12 @@
             "email": "rozbeh.sharahi@gmail.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "./Tests/Fixture/Graphql3TestExtension"
+        }
+    ],
     "require": {
         "ext-pdo": "*",
         "typo3/cms-core": "^12.0",
@@ -25,6 +31,12 @@
         "ext-sodium": "*",
         "roave/security-advisories": "dev-latest",
         "typo3/cms-install": "^12.0",
+        "typo3/cms-rte-ckeditor": "^12.0",
+        "typo3/cms-tstemplate": "^12.0",
+        "typo3/cms-lowlevel": "^12.0",
+        "typo3/cms-felogin": "^12.0",
+        "typo3/cms-fluid-styled-content": "^12.0",
+        "rozbehsharahi/graphql3-test-extension": "@dev",
         "phpunit/phpunit": "^9",
         "friendsofphp/php-cs-fixer": "dev-master",
         "phpstan/phpstan": "1.8.x-dev"
@@ -44,6 +56,14 @@
         "psr-4": {
             "RozbehSharahi\\Graphql3\\Tests\\": "Tests"
         }
+    },
+    "scripts": {
+        "setup": [
+            "mkdir -p ./public/",
+            "cp Tests/Fixture/Apache/_.htaccess public/.htaccess"
+        ],
+        "pre-install-cmd": "@setup",
+        "pre-update-cmd": "@setup"
     },
     "extra": {
         "typo3/cms": {

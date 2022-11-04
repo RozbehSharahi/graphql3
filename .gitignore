@@ -1,7 +1,3 @@
-/Build/**
-!Build/composer.json
-!Build/_.htaccess
-
 /vendor/
 /doka/
 /var/
