@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 
+use Doctrine\DBAL\Schema\Table;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Security\JwtManager;
 use RozbehSharahi\Graphql3\Type\QueryType;
@@ -162,5 +164,26 @@ class FunctionalScope
         } catch (\Throwable) {
             throw new \RuntimeException('Could not fetch page with ID: '.$uid.' in test scope.');
         }
+    }
+
+    public function createTable(Table $table): self
+    {
+        try {
+            $schemaManager = $this
+                ->getConnectionPool()
+                ->getConnectionForTable($table->getName())
+                ->createSchemaManager()
+            ;
+        } catch (\Doctrine\DBAL\Exception) {
+            throw new InternalErrorException('Could not create schema-manager in tests');
+        }
+
+        try {
+            $schemaManager->createTable($table);
+        } catch (\Doctrine\DBAL\Exception $e) {
+            throw new InternalErrorException('Could not create table in tests: '.$e->getMessage());
+        }
+
+        return $this;
     }
 }
