@@ -27,10 +27,8 @@ class PageChildrenRecordTypeBuilderExtender implements RecordTypeBuilderExtender
         return 'pages' === $table->getName();
     }
 
-    public function extendNodes(
-        TableConfiguration $table,
-        GraphqlNodeCollection $nodes
-    ): GraphqlNodeCollection {
+    public function extendNodes(TableConfiguration $table, GraphqlNodeCollection $nodes): GraphqlNodeCollection
+    {
         $recordListNodeBuilder = $this->recordListNodeBuilder->for('pages');
 
         return $nodes->add(

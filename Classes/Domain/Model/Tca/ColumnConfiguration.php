@@ -67,9 +67,14 @@ class ColumnConfiguration
         return $this->table;
     }
 
-    public function getForeignTable(): ?string
+    public function hasForeignTable(): bool
     {
-        return $this->configuration['config']['foreign_table'] ?? null;
+        return !empty($this->configuration['config']['foreign_table']);
+    }
+
+    public function getForeignTable(): TableConfiguration
+    {
+        return TableConfiguration::create($this->configuration['config']['foreign_table']);
     }
 
     public function getForeignField(): ?string
@@ -139,19 +144,25 @@ class ColumnConfiguration
 
     public function isOneToMany(): bool
     {
-        return !$this->hasRelationTable() && 'inline' === $this->getType() && $this->getForeignTable();
+        return !$this->hasRelationTable() && 'inline' === $this->getType() && $this->hasForeignTable();
     }
 
     public function isFile(): bool
     {
-        return
-            'file' === $this->getType() ||
-            ('inline' === $this->getType() && 'sys_file_reference' === $this->getForeignTable());
+        if ('file' === $this->getType()) {
+            return true;
+        }
+
+        if ('inline' !== $this->getType()) {
+            return false;
+        }
+
+        return $this->hasForeignTable() && 'sys_file_reference' === $this->getForeignTable()->getName();
     }
 
     public function isManyToOne(): bool
     {
-        return 'select' === $this->getType() && 'selectSingle' === $this->getRenderType() && $this->getForeignTable();
+        return 'select' === $this->getType() && 'selectSingle' === $this->getRenderType() && $this->hasForeignTable();
     }
 
     public function isManyToMany(): bool
@@ -161,7 +172,7 @@ class ColumnConfiguration
 
     public function isSingleSelect(): bool
     {
-        return 'select' === $this->getType() && 'selectSingle' === $this->getRenderType() && !$this->getForeignTable();
+        return 'select' === $this->getType() && 'selectSingle' === $this->getRenderType() && !$this->hasForeignTable();
     }
 
     public function isLanguage(): bool

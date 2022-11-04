@@ -20,10 +20,8 @@ class DatesRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterfa
         return true;
     }
 
-    public function extendNodes(
-        TableConfiguration $table,
-        GraphqlNodeCollection $nodes
-    ): GraphqlNodeCollection {
+    public function extendNodes(TableConfiguration $table, GraphqlNodeCollection $nodes): GraphqlNodeCollection
+    {
         $arguments = GraphqlArgumentCollection::create([
             GraphqlArgument::create('format')->withType(Type::nonNull(Type::string()))->withDefaultValue('Y-m-d H:i'),
         ]);
