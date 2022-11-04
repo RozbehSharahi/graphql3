@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
+use RozbehSharahi\Graphql3\Type\QueryType;
 
 class FieldCreatorTest extends TestCase
 {
@@ -102,5 +103,40 @@ class FieldCreatorTest extends TestCase
         self::assertSame('First news', $response->get('data.page.news.items.0.title'));
         self::assertSame('Second news', $response->get('data.page.news.items.1.title'));
         self::assertSame('root page', $response->get('data.sysNews.pages.items.0.title'));
+    }
+
+    public function testCanSetListArgumentsAlsoIfNested(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+        $scope
+            ->createRecord('pages', ['pid' => 1, 'title' => 'page 1'])
+            ->createRecord('pages', ['pid' => 1, 'title' => 'page 2'])
+            ->createRecord('pages', ['pid' => 1, 'title' => 'page 3'])
+            ->createRecord('pages', ['pid' => 1, 'title' => 'page 4'])
+            ->createRecord('pages', ['pid' => 1, 'title' => 'page 5'])
+            ->createRecord('pages', ['pid' => 1, 'title' => 'page 6'])
+        ;
+
+        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
+            'query' => $scope->get(QueryType::class),
+        ]));
+
+        $response = $scope->graphqlRequest('{
+            page(uid: 1) {
+                title
+                children(page: 2, pageSize: 2) {
+                  count
+                  items {
+                    title
+                  }
+                }
+            }
+        }');
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(6, $response->get('data.page.children.count'));
+        self::assertCount(2, $response->get('data.page.children.items'));
+        self::assertSame('page 3', $response->get('data.page.children.items.0.title'));
+        self::assertSame('page 4', $response->get('data.page.children.items.1.title'));
     }
 }

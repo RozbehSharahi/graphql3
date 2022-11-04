@@ -36,14 +36,28 @@ class LanguageNodeBuilder implements NodeBuilderInterface
 
     public function build(): GraphqlNode
     {
-        return GraphqlNode::create($this->name)
-            ->withType($this->languageTypeBuilder->build())
-            ->withArguments(
-                GraphqlArgumentCollection::create([
-                    GraphqlArgument::create('id')->withType(Type::nonNull(Type::int())),
-                ])
-            )
-            ->withResolver(fn ($_, $args) => $this->languageResolver->resolve(ItemRequest::create($args)))
+        return GraphqlNode::create()
+            ->withName($this->name)
+            ->withType($this->buildType())
+            ->withArguments($this->buildArguments())
+            ->withResolver($this->buildResolver())
         ;
+    }
+
+    public function buildArguments(): GraphqlArgumentCollection
+    {
+        return GraphqlArgumentCollection::create([
+            GraphqlArgument::create('id')->withType(Type::nonNull(Type::int())),
+        ]);
+    }
+
+    public function buildType(): Type
+    {
+        return $this->languageTypeBuilder->build();
+    }
+
+    public function buildResolver(): \Closure
+    {
+        return fn ($_, $args) => $this->languageResolver->resolve(ItemRequest::create($args));
     }
 }

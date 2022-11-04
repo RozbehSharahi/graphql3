@@ -11,5 +11,5 @@ interface RecordListNodeExtenderInterface
 {
     public function supportsTable(TableConfiguration $table): bool;
 
-    public function extend(TableConfiguration $table, GraphqlArgumentCollection $arguments): GraphqlArgumentCollection;
+    public function extendArguments(TableConfiguration $table, GraphqlArgumentCollection $arguments): GraphqlArgumentCollection;
 }

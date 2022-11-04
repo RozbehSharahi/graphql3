@@ -15,6 +15,8 @@ use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 
 class RecordNodeBuilder implements NodeBuilderInterface
 {
+    public const ERROR_NO_TABLE_PROVIDED = 'No table given, did you forget to call ->for?';
+
     protected TableConfiguration $table;
 
     /**
@@ -47,9 +49,19 @@ class RecordNodeBuilder implements NodeBuilderInterface
 
     public function build(): GraphqlNode
     {
-        if (empty($this->table)) {
-            throw new InternalErrorException('No table given, did you forget to call ->for?');
-        }
+        $this->assertTable();
+
+        return GraphqlNode::create()
+            ->withName($this->table->getCamelSingularName())
+            ->withType($this->buildType())
+            ->withArguments($this->buildArguments())
+            ->withResolver($this->buildResolver())
+        ;
+    }
+
+    public function buildArguments(): GraphqlArgumentCollection
+    {
+        $this->assertTable();
 
         $arguments = GraphqlArgumentCollection::create([
             GraphqlArgument::create('uid')->withType(Type::nonNull(Type::int())),
@@ -62,12 +74,31 @@ class RecordNodeBuilder implements NodeBuilderInterface
             }
         }
 
-        return GraphqlNode::create($this->table->getCamelSingularName())
-            ->withType($this->recordTypeBuilder->for($this->table)->build())
-            ->withArguments($arguments)
-            ->withResolver(fn ($_, $args) => $this
-                ->recordResolver
-                ->for($this->table)->resolve(ItemRequest::create($args)))
-        ;
+        return $arguments;
+    }
+
+    public function buildType(): Type
+    {
+        $this->assertTable();
+
+        return $this->recordTypeBuilder->for($this->table)->build();
+    }
+
+    public function buildResolver(): \Closure
+    {
+        $this->assertTable();
+
+        return fn ($_, $args) => $this
+            ->recordResolver
+            ->for($this->table)->resolve(ItemRequest::create($args));
+    }
+
+    protected function assertTable(): self
+    {
+        if (empty($this->table)) {
+            throw new InternalErrorException(self::ERROR_NO_TABLE_PROVIDED);
+        }
+
+        return $this;
     }
 }

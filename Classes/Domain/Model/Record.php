@@ -130,7 +130,11 @@ class Record
 
     public function assertRootPageLanguageIntegrity(): self
     {
-        if ('pages' === $this->table->getName() && $this->isRoot() && $this->isTranslation() && !$this->hasLanguageParent()) {
+        if ('pages' !== $this->table->getName() || !$this->isRoot()) {
+            return $this;
+        }
+
+        if ($this->isTranslation() && !$this->hasLanguageParent()) {
             throw new InternalErrorException('Integrity failure found on resolving page children. A root page (uid='.$this->data['uid'].') was found of language='.$this->getLanguageUid().' but without parent-language relation (l10n_parent).');
         }
 

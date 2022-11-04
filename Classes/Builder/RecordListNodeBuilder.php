@@ -16,6 +16,7 @@ use RozbehSharahi\Graphql3\Type\OrderItemInputType;
 
 class RecordListNodeBuilder implements NodeBuilderInterface
 {
+    public const ERROR_NO_TABLE_SET = 'Can not create node without table give, did you call ->for?';
     protected TableConfiguration $table;
 
     /**
@@ -49,9 +50,19 @@ class RecordListNodeBuilder implements NodeBuilderInterface
 
     public function build(): GraphqlNode
     {
-        if (empty($this->table)) {
-            throw new InternalErrorException('Can not create node without table give, did you call ->for?');
-        }
+        $this->assertTable();
+
+        return GraphqlNode::create()
+            ->withName($this->table->getCamelPluralName())
+            ->withArguments($this->buildArguments())
+            ->withType($this->buildType())
+            ->withResolver($this->buildResolver())
+        ;
+    }
+
+    public function buildArguments(): GraphqlArgumentCollection
+    {
+        $this->assertTable();
 
         $arguments = GraphqlArgumentCollection::create([
             GraphqlArgument::create('page')->withType(Type::nonNull(Type::int()))->withDefaultValue(1),
@@ -67,14 +78,31 @@ class RecordListNodeBuilder implements NodeBuilderInterface
 
         foreach ($this->extenders as $extender) {
             if ($extender->supportsTable($this->table)) {
-                $arguments = $extender->extend($this->table, $arguments);
+                $arguments = $extender->extendArguments($this->table, $arguments);
             }
         }
 
-        return GraphqlNode::create($this->table->getCamelPluralName())
-            ->withArguments($arguments)
-            ->withType($this->recordListTypeBuilder->for($this->table)->build())
-            ->withResolver(fn ($_, $args) => ListRequest::create($args))
-        ;
+        return $arguments;
+    }
+
+    public function buildType(): Type
+    {
+        $this->assertTable();
+
+        return $this->recordListTypeBuilder->for($this->table)->build();
+    }
+
+    public function buildResolver(): \Closure
+    {
+        return static fn ($_, $args) => ListRequest::create($args);
+    }
+
+    protected function assertTable(): self
+    {
+        if (empty($this->table)) {
+            throw new InternalErrorException(self::ERROR_NO_TABLE_SET);
+        }
+
+        return $this;
     }
 }

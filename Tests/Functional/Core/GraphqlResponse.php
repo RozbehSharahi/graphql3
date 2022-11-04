@@ -39,4 +39,9 @@ class GraphqlResponse extends Response
     {
         return ArrayUtility::getValueByPath($this->getData(), $path, '.');
     }
+
+    public function getErrorMessage(): string
+    {
+        return $this->get('errors.0.message');
+    }
 }
