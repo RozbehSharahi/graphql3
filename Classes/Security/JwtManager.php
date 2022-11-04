@@ -15,13 +15,21 @@ use TYPO3\CMS\Core\Core\Environment;
 
 class JwtManager
 {
-    public const SUPPORTED_ALGORITHMS = [self::ALGORITHM_RS256, self::ALGORITHM_HS256];
+    public const ERROR_UNHANDLED_ALGORITHM = 'Algorithm was given, but not handled.';
+
+    public const ERROR_SODIUM_NOT_AVAILABLE = 'Trying to use algorithm EdRSA in jwt-manager but sodium is not installed.';
+
+    public const ERROR_OPENSSL_NOT_AVAILABLE = 'Trying to use jwt-manager with algorithm rs256 but php extension "openssl" is not installed.';
+
+    public const SUPPORTED_ALGORITHMS = [self::ALGORITHM_RS256, self::ALGORITHM_HS256, self::ALGORITHM_ED_DSA];
+
+    public const DEFAULT_ALGORITHM = self::ALGORITHM_RS256;
 
     public const ALGORITHM_RS256 = 'RS256';
 
-    public const DEFAULT_ALGORITHM = 'RS256';
-
     public const ALGORITHM_HS256 = 'HS256';
+
+    public const ALGORITHM_ED_DSA = 'EdDSA';
 
     public const ENV_VAR_ALGORITHM = 'GRAPHQL3_JWT_ALGORITHM';
 
@@ -138,13 +146,27 @@ class JwtManager
             return JWT::encode($payload, $privateKey, $this->algorithm);
         }
 
-        if (self::ALGORITHM_RS256 === $this->algorithm) {
-            $privateKey = !$this->passphrase ? $privateKey : openssl_pkey_get_private($privateKey, $this->passphrase);
+        if (self::ALGORITHM_ED_DSA === $this->algorithm) {
+            if (!function_exists('sodium_crypto_sign_keypair')) {
+                throw new InternalErrorException(self::ERROR_SODIUM_NOT_AVAILABLE);
+            }
 
             return JWT::encode($payload, $privateKey, $this->algorithm);
         }
 
-        throw new ShouldNotHappenException('Algorithm was given, but not handled.', ['alg' => $this->algorithm]);
+        if (self::ALGORITHM_RS256 === $this->algorithm) {
+            if (!extension_loaded('openssl')) {
+                throw new InternalErrorException(self::ERROR_OPENSSL_NOT_AVAILABLE);
+            }
+
+            $privateKey = !$this->passphrase
+                ? $privateKey
+                : openssl_pkey_get_private($privateKey, $this->passphrase);
+
+            return JWT::encode($payload, $privateKey, $this->algorithm);
+        }
+
+        throw new ShouldNotHappenException(self::ERROR_UNHANDLED_ALGORITHM, ['alg' => $this->algorithm]);
     }
 
     public function isValid(string $token): bool
