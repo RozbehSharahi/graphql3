@@ -46,7 +46,7 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
             ->withResolver(function (Record $record) {
                 return $this->run(function () use ($record) {
                     $request = $this->currentSession->getRequest();
-                    $tsfe = $this->initFrontendController($request, $record->getPid());
+                    $tsfe = $this->initFrontendController($request, $record);
                     $renderer = $this->createRendererByFrontendController($tsfe);
 
                     $renderedContent = $renderer->cObjGetSingle('RECORDS', [
@@ -76,11 +76,11 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
         return $nodes->add($node);
     }
 
-    protected function initFrontendController(ServerRequest $request, int $pid): TypoScriptFrontendController
+    protected function initFrontendController(ServerRequest $request, Record $record): TypoScriptFrontendController
     {
         $site = $request->getAttribute('site');
-        $language = $site->getDefaultLanguage(); // from row
-        $pageArguments = new PageArguments($pid, '0', []); // from row
+        $language = $record->getLanguage();
+        $pageArguments = new PageArguments($record->getPid(), '0', []);
 
         if (!$site instanceof SiteInterface) {
             throw new InternalErrorException(self::ERROR_COULD_NOT_RESOLVE_SITE);

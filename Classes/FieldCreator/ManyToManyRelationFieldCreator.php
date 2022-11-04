@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\FieldCreator;
 
-use RozbehSharahi\Graphql3\Builder\RecordListTypeBuilder;
+use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\ListRequest;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
@@ -18,7 +18,7 @@ class ManyToManyRelationFieldCreator implements FieldCreatorInterface
         return 0;
     }
 
-    public function __construct(protected RecordListTypeBuilder $recordListTypeBuilder)
+    public function __construct(protected RecordListNodeBuilder $recordListNodeBuilder)
     {
     }
 
@@ -29,9 +29,12 @@ class ManyToManyRelationFieldCreator implements FieldCreatorInterface
 
     public function createField(ColumnConfiguration $column): GraphqlNode
     {
+        $recordListNodeBuilder = $this->recordListNodeBuilder->for($column->getForeignTable());
+
         return GraphqlNode::create()
             ->withName($column->getGraphqlName())
-            ->withType($this->recordListTypeBuilder->for($column->getForeignTable())->build())
+            ->withType($recordListNodeBuilder->buildType())
+            ->withArguments($recordListNodeBuilder->buildArguments()->remove('language'))
             ->withResolver(function (Record $record, array $args) use ($column) {
                 $relationTable = $column->getRelationTable();
                 $localField = 'uid_local';
@@ -42,7 +45,7 @@ class ManyToManyRelationFieldCreator implements FieldCreatorInterface
                     $foreignField = 'uid_local';
                 }
 
-                return ListRequest::create()
+                $listRequest = ListRequest::create()
                     ->withArguments($args)
                     ->withQueryModifier(
                         fn (QueryBuilder $q) => $q->andWhere(
@@ -54,6 +57,12 @@ class ManyToManyRelationFieldCreator implements FieldCreatorInterface
                         )
                     )
                 ;
+
+                if ($column->getForeignTable()->hasLanguage()) {
+                    $listRequest = $listRequest->withLanguageFromRecord($record);
+                }
+
+                return $listRequest;
             })
         ;
     }

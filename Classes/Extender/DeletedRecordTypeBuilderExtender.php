@@ -18,10 +18,8 @@ class DeletedRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInter
         return true;
     }
 
-    public function extendNodes(
-        TableConfiguration $table,
-        GraphqlNodeCollection $nodes
-    ): GraphqlNodeCollection {
+    public function extendNodes(TableConfiguration $table, GraphqlNodeCollection $nodes): GraphqlNodeCollection
+    {
         return $nodes->add(
             GraphqlNode::create()
                 ->withName('deleted')

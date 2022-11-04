@@ -26,10 +26,8 @@ class PidRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
         return true;
     }
 
-    public function extendNodes(
-        TableConfiguration $table,
-        GraphqlNodeCollection $nodes
-    ): GraphqlNodeCollection {
+    public function extendNodes(TableConfiguration $table, GraphqlNodeCollection $nodes): GraphqlNodeCollection
+    {
         return $nodes->add(
             GraphqlNode::create()
                 ->withName('parentPage')
