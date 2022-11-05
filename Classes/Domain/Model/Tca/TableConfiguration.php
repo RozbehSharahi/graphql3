@@ -43,7 +43,7 @@ class TableConfiguration
 
     public function getColumn(string $column): ColumnConfiguration
     {
-        return ColumnConfiguration::create($this->name, $column);
+        return ColumnConfiguration::create($this, $column);
     }
 
     /**

@@ -17,6 +17,7 @@ use RozbehSharahi\Graphql3\Type\OrderItemInputType;
 class RecordListNodeBuilder implements NodeBuilderInterface
 {
     public const ERROR_NO_TABLE_SET = 'Can not create node without table give, did you call ->for?';
+
     protected TableConfiguration $table;
 
     /**

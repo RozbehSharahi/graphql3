@@ -15,5 +15,7 @@ class Graphql3TcaSetup
         $GLOBALS['TCA']['pages']['columns']['php_tree_stop']['config']['graphql3']['active'] = false;
         $GLOBALS['TCA']['pages']['columns']['extendToSubpages']['config']['graphql3']['active'] = false;
         $GLOBALS['TCA']['pages']['columns']['lastUpdated']['config']['graphql3']['active'] = false;
+
+        $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['graphql3']['name'] = 'data';
     }
 }

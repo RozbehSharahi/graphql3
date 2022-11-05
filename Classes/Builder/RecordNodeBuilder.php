@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Builder;
 
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
@@ -77,7 +78,7 @@ class RecordNodeBuilder implements NodeBuilderInterface
         return $arguments;
     }
 
-    public function buildType(): Type
+    public function buildType(): ObjectType
     {
         $this->assertTable();
 
