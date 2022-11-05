@@ -16,9 +16,11 @@ class ColumnConfiguration
         'crdate' => 'createdAt',
     ];
 
-    public static function create(string $tableName, string $columnName): self
+    public static function create(string|TableConfiguration $table, string $columnName): self
     {
-        $table = TableConfiguration::create($tableName);
+        if (is_string($table)) {
+            $table = TableConfiguration::create($table);
+        }
 
         $configuration = $table->toArray()['columns'][$columnName] ?? null;
 
@@ -39,6 +41,14 @@ class ColumnConfiguration
     ) {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    public function getConfiguration(): array
+    {
+        return $this->configuration;
+    }
+
     public function getName(): string
     {
         return $this->name;
@@ -47,6 +57,11 @@ class ColumnConfiguration
     public function getCamelName(): string
     {
         return $this->getConverter()->toCamel($this->name);
+    }
+
+    public function getPascalGraphqlName(): string
+    {
+        return $this->getConverter()->toPascal($this->getGraphqlName());
     }
 
     public function getGraphqlName(): ?string
@@ -90,6 +105,34 @@ class ColumnConfiguration
     public function hasManyToManyOpposite(): bool
     {
         return !empty($this->configuration['config']['MM_opposite_field']);
+    }
+
+    public function hasDataStructure(): bool
+    {
+        return !empty($this->configuration['config']['ds']);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getDataStructure(): array
+    {
+        return $this->configuration['config']['ds'];
+    }
+
+    public function hasDataStructurePointer(): bool
+    {
+        return !empty($this->configuration['config']['ds_pointerField']);
+    }
+
+    public function getDataStructurePointer(): string
+    {
+        return $this->configuration['config']['ds_pointerField'];
+    }
+
+    public function hasInheritedDataStructure(): bool
+    {
+        return !empty($this->configuration['config']['ds_pointerField_searchParent']);
     }
 
     public function getManyToManyOpposite(): string
@@ -188,6 +231,11 @@ class ColumnConfiguration
     public function isImageManipulation(): bool
     {
         return 'imageManipulation' === $this->getType();
+    }
+
+    public function isFlex(): bool
+    {
+        return 'flex' === $this->getType();
     }
 
     protected function getConverter(): CaseConverter
