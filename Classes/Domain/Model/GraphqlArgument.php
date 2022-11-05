@@ -11,7 +11,7 @@ class GraphqlArgument
 {
     public const DEFAULT_VALUE_UNDEFINED = '#### THIS IS A KEY FOR AN UNDEFINED DEFAULT VALUE ####';
 
-    public static function create(string $name): self
+    public static function create(string $name = 'unnamed'): self
     {
         return GeneralUtility::makeInstance(self::class, $name, Type::string(), self::DEFAULT_VALUE_UNDEFINED);
     }
