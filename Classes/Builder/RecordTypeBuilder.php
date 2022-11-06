@@ -7,12 +7,20 @@ namespace RozbehSharahi\Graphql3\Builder;
 use GraphQL\Type\Definition\ObjectType;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\FieldCreator\FieldCreatorInterface;
+use RozbehSharahi\Graphql3\FlexFormFieldCreator\FlexFormFieldCreatorInterface;
 
 class RecordTypeBuilder implements TypeBuilderInterface
 {
+    public const ERROR_MISSING_FLEX_FORM_POINTER = 'Missing graphql3 flex form field pointer on %s.';
+
+    public const ERROR_INVALID_FLEX_FORM_POINTER = 'Graphql3 flex form field pointer on %s is in valid. Correct type: [table-field-name]::[flex-form-field-path]';
+
+    public const ERROR_COULD_NOT_CREATE_FLEX_FORM_FIELD = 'The flex-form-field %s was configured via TCA, however, there was no flex-form-field-creator that could handle it. Either remove the field from TCA or introduce your own flex-form-field-creator that can handle the field.';
+
     /**
      * @var array<string, ObjectType>
      */
@@ -27,10 +35,12 @@ class RecordTypeBuilder implements TypeBuilderInterface
 
     /**
      * @param iterable<FieldCreatorInterface>              $fieldCreators
+     * @param iterable<FlexFormFieldCreatorInterface>      $flexFormFieldCreators
      * @param iterable<RecordTypeBuilderExtenderInterface> $extenders
      */
     public function __construct(
         protected iterable $fieldCreators,
+        protected iterable $flexFormFieldCreators,
         protected iterable $extenders
     ) {
     }
@@ -59,8 +69,26 @@ class RecordTypeBuilder implements TypeBuilderInterface
                 'fields' => function () {
                     $fields = GraphqlNodeCollection::create();
 
-                    foreach ($this->table->getColumns() as $columnName) {
-                        $node = $this->resolveNode($columnName);
+                    foreach ($this->table->getColumns() as $column) {
+                        $node = $this->resolveNode($column);
+
+                        if (!$node) {
+                            continue;
+                        }
+
+                        $fields = $fields->add($node);
+                    }
+
+                    foreach ($this->table->getGraphqlFlexFormColumns() as $column) {
+                        if (!$column->hasFlexFormPointer()) {
+                            throw new InternalErrorException(sprintf(self::ERROR_MISSING_FLEX_FORM_POINTER, $column->getFullName()));
+                        }
+
+                        if (!$column->isValidFlexFormPointer()) {
+                            throw new InternalErrorException(sprintf(self::ERROR_INVALID_FLEX_FORM_POINTER, $column->getFullName()));
+                        }
+
+                        $node = $this->resolveFlexFormNode($column);
 
                         if (!$node) {
                             continue;
@@ -80,10 +108,8 @@ class RecordTypeBuilder implements TypeBuilderInterface
             ]);
     }
 
-    protected function resolveNode(string $columnName): ?GraphqlNode
+    protected function resolveNode(ColumnConfiguration $column): ?GraphqlNode
     {
-        $column = $this->table->getColumn($columnName);
-
         if (!$column->isGraphqlActive()) {
             return null;
         }
@@ -95,5 +121,20 @@ class RecordTypeBuilder implements TypeBuilderInterface
         }
 
         return null;
+    }
+
+    protected function resolveFlexFormNode(ColumnConfiguration $column): ?GraphqlNode
+    {
+        if (!$column->isGraphqlActive()) {
+            return null;
+        }
+
+        foreach ($this->flexFormFieldCreators as $flexFormFieldCreator) {
+            if ($flexFormFieldCreator->supportsField($column)) {
+                return $flexFormFieldCreator->createField($column);
+            }
+        }
+
+        return throw new InternalErrorException(sprintf(self::ERROR_COULD_NOT_CREATE_FLEX_FORM_FIELD, $column->getFullName()));
     }
 }
