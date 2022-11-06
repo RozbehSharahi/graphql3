@@ -73,7 +73,7 @@ class RecordTypeTest extends TestCase
     {
         $scope = $this->createScope();
 
-        $recordTypeBuilder = new RecordTypeBuilder([], [
+        $recordTypeBuilder = new RecordTypeBuilder([], [], [
             new class() implements RecordTypeBuilderExtenderInterface {
                 public function supportsTable(TableConfiguration $table): bool
                 {
@@ -110,13 +110,13 @@ class RecordTypeTest extends TestCase
             ]))
         ;
 
-        $response = $scope->doGraphqlRequest('{ 
+        $response = $scope->graphqlRequest('{ 
             page {
                 titleHash 
             }
         }');
 
-        self::assertSame(md5('My title'), $response['data']['page']['titleHash']);
+        self::assertSame(md5('My title'), $response->get('data.page.titleHash'));
     }
 
     private function createScope(): FunctionalScope

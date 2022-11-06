@@ -8,7 +8,9 @@ use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Session\CurrentSession;
+use TYPO3\CMS\Core\Service\FlexFormService;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class Record
@@ -39,6 +41,23 @@ class Record
         }
 
         return $this->data[$column] ?? null;
+    }
+
+    public function getFlexFormValue(string $pointer): mixed
+    {
+        if (!str_contains($pointer, '::')) {
+            throw new InternalErrorException('Trying to fetch flex-form-field with invalid pointer: '.$pointer);
+        }
+
+        [$field, $path] = explode('::', $pointer);
+
+        try {
+            $data = GeneralUtility::makeInstance(FlexFormService::class)->convertFlexFormContentToArray($this->get($field));
+
+            return ArrayUtility::getValueByPath($data, $path, '.');
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     public function getTable(): TableConfiguration

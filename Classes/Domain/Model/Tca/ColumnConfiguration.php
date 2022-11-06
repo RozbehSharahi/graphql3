@@ -54,6 +54,11 @@ class ColumnConfiguration
         return $this->name;
     }
 
+    public function getFullName(): string
+    {
+        return $this->table->getName().'::'.$this->name;
+    }
+
     public function getCamelName(): string
     {
         return $this->getConverter()->toCamel($this->name);
@@ -158,6 +163,21 @@ class ColumnConfiguration
     public function getFormat(): string
     {
         return $this->configuration['config']['format'] ?? 'integer';
+    }
+
+    public function hasFlexFormPointer(): bool
+    {
+        return !empty($this->configuration['config']['flexFormPointer']);
+    }
+
+    public function isValidFlexFormPointer(): bool
+    {
+        return str_contains($this->getFlexFormPointer(), '::');
+    }
+
+    public function getFlexFormPointer(): string
+    {
+        return $this->configuration['config']['flexFormPointer'];
     }
 
     public function isBool(): bool

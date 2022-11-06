@@ -3,7 +3,7 @@
 ---
 
 > **This extension is brand-new still and lacks testing of real users.
-> You are very welcome to contribute by testing and using the 
+> You are very welcome to contribute by testing and using the
 > [issue board](https://github.com/RozbehSharahi/graphql3/issues).**
 
 ---
@@ -530,84 +530,6 @@ be set as a filter to the query. A none-available language will cause an excepti
 Languages are inherited to child-relations. For instance fetching a page record for language "en" will result in
 children to be filtered for language "en" as well.
 
-### GraphqlNode and GraphqlNodeCollection
-
-When extending one of the build-in nodes/type/... you will receive relevant schema parts in your extender, which you are
-free to change. For instance a query type extender implementing the `QueryTypeExtenderInterface`, would receive the
-root-query nodes, which then can be edited. However, this will not be an array as you might expect. It will be
-a `GraphqlNodeCollection`.
-
-This chapter will give an intro on how `GraphqlNode` and `GraphqlNodeCollection` work.
-
-`GraphqlNode` is simply a representation of a `webonyx/graphql-php` array. It is used to have auto-complete and can
-simply be converted to an array.
-
-```php
-<?php
-
-namespace Your\Namespace;
-
-use GraphQL\Type\Definition\Type;use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
-
-$graphqlNode = GraphqlNode::create()
-    ->withType(Type::string())
-    ->withResolver(fn() => 'hey')
-    ->toArray();
-
-// is equivalent to
-
-$graphqlNode = [
-    'type' => Type::string(),
-    'resolve' => fn() => 'hey'
-];
-```
-
-On the other hand you have `GraphqlNodeCollection`, which is a collection of `GraphqlNode` objects.
-
-```php
-<?php
-
-namespace Your\Namespace;
-
-use GraphQL\Type\Definition\Type;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
-
-$nodes = (new GraphqlNodeCollection())
-    ->add(GraphqlNode::create('myNode')->withType(Type::int()))
-    ->add(GraphqlNode::create('myOtherNode')->withType(Type::string()))
-    ->toArray();
-
-// is equivalent to
-
-$nodes = [
-    'myNode' => [
-        'type' => Type::int()
-    ],
-    'myOtherNode' => [
-        'type' => Type::string()
-    ]
-];
-```
-
-Be aware, that graphql-nodes and -collections are immutables. Therefore, when calling methods like `add` or `remove`
-you will need to use return value.
-
-```php
-<?php
-
-namespace Your\Namespace;
-
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
-
-$nodes = GraphqlNodeCollection::create();
-$nodes = $nodes->add(GraphqlNode::create('aNewNode'));
-```
-
-The implementation of `GraphqlArgument` and `GraphqlArgumentCollection`, is pretty much the same. Checkout via
-auto-complete, which options you have.
-
 ### Access control
 
 The access control of `graphql3` is implemented on top of `symfony/security-core` package. It is implemented as a jwt
@@ -725,6 +647,102 @@ access. If all voters abstain, access is given. Checkout `symfony/security` docu
 Modifying the existing `\RozbehSharahi\Graphql3\Voter\RecordVoter` can be done via symfony's dependency injection
 container in any extension's `Configuration/Services.yaml`.
 
+### Flex form
+
+While graphql is a strongly typed query language, flex-forms are more loose. At least on database side. The data of
+flex-forms is typed, however if you step deeper in to TYPO3 logic you will see that things can get very washy.
+
+It is possible to type a field, for instance `settings.page` as an integer on a flexform xml. However, due to TYPO3's
+feature of having dynamic flex form definitions for the same database-field (for instance `pi_flexform`) based on
+another table field (for instance `list_type` or even more complex `list_type, CType` see TCA documentation) it is not
+possible to verify that the field `settings.page` is always of type x. It would be possible to spread each flex-form
+definition into its own scope automatically, nevertheless it would cause heavy xml processing on creating the schema,
+and it would bring a lot of complexity to the code. Most probably the effort of implementation outweighs the usefulness
+of such an automatic schema creation.
+
+Based on these thoughts `graphql3` delegates the integration of flex-form fields to the user of the extension instead of
+magically building up huge schemas. However, it tries to facilitate the procedure.
+
+Let's say there is a flex-form field `settings.myField` on `pi_flexform` on `tt_content`-table.
+
+For simple use-cases it is possible to use a none-type-safe variant of accessing the field, without further programming.
+
+```
+{
+  content(uid: 1) {
+    piFlexform
+  }
+}
+```
+
+This will return a none-type-safe array, which is basically a json representation of the flex-form xml.
+
+```json
+{
+  "data": {
+    "content": {
+      "piFlexform": {
+        "settings": {
+          "myField": "..."
+        }
+      }
+    }
+  }
+}
+```
+
+However, if the content element is for instance not saved yet, this could also return `null`. Also, there is no kind of
+nested records, relation, ... This is simply a json representation of the flex-form value for the record.
+
+Following are two approaches that could bring the power of graphql to your flex-form fields.
+
+1. Create a record-type-extender and integrate the fields you need manually, by using TYPO3's flex-form-service for
+   instance.
+2. Take advantage of flex-form-field-creators and `graphql3`'s TCA additions.
+
+The second approach is, which is going to be explained now.
+
+Following TCA configuration to the `tt_content` table will let `graphql3` try to auto generate a flex-form
+node `myField` on content node.
+
+```php
+$GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
+    'myField' => [
+        'config' => [
+            'type' => 'input',
+            'flexFormPointer' => 'pi_flexform::settings.myField'
+        ]  
+    ]
+];
+```
+
+The configuration of flex-form-columns is exactly the same as TCA configurations. Of course only relevant fields are
+going to be used, but the config will be always be in sync with TYPO3's TCA definitions. The only addition is a
+mandatory `flexFormPointer`-field, which will describe the database field where the flexform is stored and the path to
+the value.
+
+If you forget to set this pointer, `graphql3` will throw a descriptive exception. Also, if the value is invalid.
+
+Depending on the configuration `graphql3` will do the rest to make the field available in the correct type. However,
+flex-form-columns do not yet support as many types, as normal database columns. Step by step more types will be
+provided.
+
+Here a list of type which are already supported and others which will follow:
+
+- [x] string type
+- [x] int type
+- [x] float type
+- [x] bool type
+- [ ] 1:n type
+- [ ] n:1 type
+- [ ] m:n type
+- [ ] language type
+- [ ] file-reference type
+- [ ] ...
+
+In case you need not-yet-implemented types you can either wait for newer version or implement your own field-creator to
+handle this via `FlexFormFieldCreatorInterface`.
+
 ### Mutations
 
 For demonstration purposes `graphql3` comes with a mutation for creating `sys_news` items. However, the implementation
@@ -799,6 +817,84 @@ class CreateSysNewsMutationTypeExtender implements MutationTypeExtenderInterface
 
 In fact there is no difference between mutations and queries as you can also read up in `webonyx/graphql` documentation,
 therefore you can use the same methods and classes you use for queries on mutations.
+
+### GraphqlNode and GraphqlNodeCollection
+
+When extending one of the build-in nodes/type/... you will receive relevant schema parts in your extender, which you are
+free to change. For instance a query type extender implementing the `QueryTypeExtenderInterface`, would receive the
+root-query nodes, which then can be edited. However, this will not be an array as you might expect. It will be
+a `GraphqlNodeCollection`.
+
+This chapter will give an intro on how `GraphqlNode` and `GraphqlNodeCollection` work.
+
+`GraphqlNode` is simply a representation of a `webonyx/graphql-php` array. It is used to have auto-complete and can
+simply be converted to an array.
+
+```php
+<?php
+
+namespace Your\Namespace;
+
+use GraphQL\Type\Definition\Type;use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+
+$graphqlNode = GraphqlNode::create()
+    ->withType(Type::string())
+    ->withResolver(fn() => 'hey')
+    ->toArray();
+
+// is equivalent to
+
+$graphqlNode = [
+    'type' => Type::string(),
+    'resolve' => fn() => 'hey'
+];
+```
+
+On the other hand you have `GraphqlNodeCollection`, which is a collection of `GraphqlNode` objects.
+
+```php
+<?php
+
+namespace Your\Namespace;
+
+use GraphQL\Type\Definition\Type;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+
+$nodes = (new GraphqlNodeCollection())
+    ->add(GraphqlNode::create('myNode')->withType(Type::int()))
+    ->add(GraphqlNode::create('myOtherNode')->withType(Type::string()))
+    ->toArray();
+
+// is equivalent to
+
+$nodes = [
+    'myNode' => [
+        'type' => Type::int()
+    ],
+    'myOtherNode' => [
+        'type' => Type::string()
+    ]
+];
+```
+
+Be aware, that graphql-nodes and -collections are immutables. Therefore, when calling methods like `add` or `remove`
+you will need to use return value.
+
+```php
+<?php
+
+namespace Your\Namespace;
+
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
+
+$nodes = GraphqlNodeCollection::create();
+$nodes = $nodes->add(GraphqlNode::create('aNewNode'));
+```
+
+The implementation of `GraphqlArgument` and `GraphqlArgumentCollection`, is pretty much the same. Checkout via
+auto-complete, which options you have.
 
 ## Contribution
 

@@ -46,17 +46,37 @@ class TableConfiguration
         return ColumnConfiguration::create($this->name, $column);
     }
 
-    /**
-     * @return array<int, string>
-     */
-    public function getColumns(): array
-    {
-        return array_keys($this->configuration['columns'] ?? []);
-    }
-
     public function hasColumn(string $column): bool
     {
         return !empty($this->configuration['columns'][$column]);
+    }
+
+    /**
+     * @return array<int, ColumnConfiguration>
+     */
+    public function getColumns(): array
+    {
+        $columns = [];
+
+        foreach ($this->configuration['columns'] ?? [] as $columnName => $configuration) {
+            $columns[] = new ColumnConfiguration($this, $columnName, $configuration);
+        }
+
+        return $columns;
+    }
+
+    /**
+     * @return array<int, ColumnConfiguration>
+     */
+    public function getGraphqlFlexFormColumns(): array
+    {
+        $columns = [];
+
+        foreach ($this->configuration['graphql3']['flexFormColumns'] ?? [] as $columnName => $configuration) {
+            $columns[] = new ColumnConfiguration($this, $columnName, $configuration);
+        }
+
+        return $columns;
     }
 
     public function getLanguageParent(): string
