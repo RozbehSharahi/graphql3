@@ -88,13 +88,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
                             throw new InternalErrorException(sprintf(self::ERROR_INVALID_FLEX_FORM_POINTER, $column->getFullName()));
                         }
 
-                        $node = $this->resolveFlexFormNode($column);
-
-                        if (!$node) {
-                            continue;
-                        }
-
-                        $fields = $fields->add($node);
+                        $fields = $fields->add($this->resolveFlexFormNode($column));
                     }
 
                     foreach ($this->extenders as $extender) {
@@ -123,12 +117,8 @@ class RecordTypeBuilder implements TypeBuilderInterface
         return null;
     }
 
-    protected function resolveFlexFormNode(ColumnConfiguration $column): ?GraphqlNode
+    protected function resolveFlexFormNode(ColumnConfiguration $column): GraphqlNode
     {
-        if (!$column->isGraphqlActive()) {
-            return null;
-        }
-
         foreach ($this->flexFormFieldCreators as $flexFormFieldCreator) {
             if ($flexFormFieldCreator->supportsField($column)) {
                 return $flexFormFieldCreator->createField($column);
