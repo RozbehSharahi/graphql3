@@ -12,6 +12,7 @@ use Psr\Container\ContainerInterface;
 use RozbehSharahi\Graphql3\Builder\LanguageTypeBuilder;
 use RozbehSharahi\Graphql3\Builder\RecordListTypeBuilder;
 use RozbehSharahi\Graphql3\Builder\RecordTypeBuilder;
+use RozbehSharahi\Graphql3\Environment\Typo3Environment;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Type\NoopQueryType;
 use Symfony\Component\Yaml\Yaml;
@@ -357,10 +358,11 @@ class FunctionScopeBuilder
 
     protected function createDatabaseStructure(): self
     {
+        $version = $this->getTypo3Environment()->getMainVersion();
         $this->getConnection()->close();
 
         if (!$this->freshDatabase) {
-            copy(__DIR__.'/../../Fixture/Database/base-database.sqlite', $this->getDatabasePath());
+            copy(__DIR__."/../../Fixture/Database/base-database-typo3-v{$version}.sqlite", $this->getDatabasePath());
 
             return $this;
         }
@@ -383,6 +385,11 @@ class FunctionScopeBuilder
         $schemaMigrationService->importStaticData($insertStatements);
 
         return $this;
+    }
+
+    protected function getTypo3Environment(): Typo3Environment
+    {
+        return GeneralUtility::makeInstance(Typo3Environment::class);
     }
 
     protected function getConnectionPool(): ConnectionPool

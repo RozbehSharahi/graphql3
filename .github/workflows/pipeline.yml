@@ -3,15 +3,22 @@ on: [push]
 jobs:
   tests:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        version: [11.5, 12]
+
     env:
       GRAPHQL3_JWT_PRIVATE_KEY: "file://Tests/Fixture/KeyPairs/Rs256/private.pem"
       GRAPHQL3_JWT_PUBLIC_KEY: "file://Tests/Fixture/KeyPairs/Rs256/public.pem"
+
     steps:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.1"
           extensions: pdo, sqlite3, intl-70.1
       - uses: actions/checkout@v3
+      - run: sed -i 's/\^11\.5 || \^12/^${{ matrix.version }}/g' composer.json
       - run: composer install
       - run: vendor/bin/php-cs-fixer fix --dry-run
       - run: vendor/bin/phpstan
