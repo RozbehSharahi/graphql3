@@ -10,6 +10,7 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
+use RozbehSharahi\Graphql3\Environment\Typo3Environment;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Session\CurrentSession;
 use TYPO3\CMS\Core\Context\Context;
@@ -29,7 +30,7 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
 
     public const ERROR_UNEXPECTED_DIRECT_RESPONSE = 'TSFE gave a direct response on determineId. Is there a page that conflicts with your graphql3 route?';
 
-    public function __construct(protected CurrentSession $currentSession)
+    public function __construct(protected CurrentSession $currentSession, protected Typo3Environment $typo3Environment)
     {
     }
 
@@ -108,6 +109,14 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
             $tsfe->getFromCache($request);
         } catch (\Throwable $e) {
             throw new InternalErrorException(self::ERROR_COULD_NOT_CREATE_FRONTEND_CONTROLLER.': '.$e->getMessage());
+        }
+
+        if ($this->typo3Environment->isVersion(11)) {
+            try {
+                $tsfe->getConfigArray($request);
+            } catch (\Throwable $e) {
+                throw new InternalErrorException(self::ERROR_COULD_NOT_CREATE_FRONTEND_CONTROLLER.': '.$e->getMessage());
+            }
         }
 
         return $tsfe;

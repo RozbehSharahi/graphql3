@@ -22,6 +22,7 @@ class ContentRenderTest extends TestCase
         $scope->createRecord('sys_template', [
             'uid' => 1,
             'pid' => 1,
+            'root' => 1,
             'config' => '
                 page = PAGE
                 page.10 = TEXT
@@ -73,6 +74,7 @@ class ContentRenderTest extends TestCase
             ->createRecord('sys_template', [
                 'uid' => 1,
                 'pid' => 1,
+                'root' => 1,
                 'config' => '
                     page = PAGE
                     page.10 = TEXT
