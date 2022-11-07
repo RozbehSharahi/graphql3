@@ -737,7 +737,7 @@ Here a list of type which are already supported and others which will follow:
 - [ ] n:1 type
 - [ ] m:n type
 - [ ] language type
-- [ ] file-reference type
+- [x] file-reference type
 - [ ] ...
 
 In case you need not-yet-implemented types you can either wait for newer version or implement your own field-creator to

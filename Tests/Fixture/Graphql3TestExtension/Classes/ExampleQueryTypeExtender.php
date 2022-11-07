@@ -26,6 +26,8 @@ class ExampleQueryTypeExtender implements QueryTypeExtenderInterface
         return $nodes
             ->add($this->recordListNodeBuilder->for('sys_log')->build())
             ->add($this->recordNodeBuilder->for('sys_log')->build())
+            ->add($this->recordListNodeBuilder->for('sys_news')->build()->withName('news'))
+            ->add($this->recordNodeBuilder->for('sys_news')->build()->withName('newsItem'))
             ->add(GraphqlNode::create('someNode')->withType(Type::string())->withResolver(fn () => 'Hello World'))
         ;
     }
