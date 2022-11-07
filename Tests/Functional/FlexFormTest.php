@@ -182,4 +182,73 @@ class FlexFormTest extends TestCase
         self::assertSame(500, $response->getStatusCode());
         self::assertStringContainsString('no flex-form-field-creator that could handle', $response->getErrorMessage());
     }
+
+    public function testCanCreateMediaFlexFormField(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
+            'flexFormMedia' => [
+                'config' => [
+                    'type' => 'file',
+                    'flexFormPointer' => 'pi_flexform::media',
+                    'foreign_table_field' => 'tt_content',
+                    'foreign_match_fields' => [
+                        'fieldname' => 'pi_flexform.media',
+                    ],
+                ],
+            ],
+        ];
+
+        $scope
+            ->createRecord('tt_content', [
+                'uid' => 1,
+                'header' => 'some content element',
+            ])
+            ->createRecord('sys_file', [
+                'uid' => 200,
+                'identifier' => '/user_upload/whatever.txt',
+                'extension' => 'txt',
+                'name' => 'whatever.txt',
+            ])
+            ->createRecord('sys_file', [
+                'uid' => 300,
+                'identifier' => '/user_upload/whatever-2.txt',
+                'extension' => 'txt',
+                'name' => 'whatever-2.txt',
+            ])
+            ->createRecord('sys_file_reference', [
+                'uid' => 1,
+                'tablenames' => 'tt_content',
+                'fieldname' => 'pi_flexform.media',
+                'uid_local' => 200,
+                'uid_foreign' => 1,
+            ])
+            ->createRecord('sys_file_reference', [
+                'uid' => 2,
+                'tablenames' => 'tt_content',
+                'fieldname' => 'pi_flexform.media',
+                'uid_local' => 300,
+                'uid_foreign' => 1,
+            ])
+        ;
+
+        $scope
+            ->getSchemaRegistry()
+            ->registerCreator(fn () => new Schema(['query' => $scope->get(QueryType::class)]))
+        ;
+
+        $response = $scope->graphqlRequest('{ 
+            content(uid: 1) {
+                flexFormMedia {
+                  uid
+                  publicUrl
+                  extension
+                  imageUrl
+                }
+            }
+        }');
+
+        self::assertSame(200, $response->getStatusCode());
+    }
 }
