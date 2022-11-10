@@ -57,14 +57,6 @@
             "RozbehSharahi\\Graphql3\\Tests\\": "Tests"
         }
     },
-    "scripts": {
-        "setup": [
-            "mkdir -p ./public/",
-            "cp Tests/Fixture/Apache/_.htaccess public/.htaccess"
-        ],
-        "pre-install-cmd": "@setup",
-        "pre-update-cmd": "@setup"
-    },
     "extra": {
         "typo3/cms": {
             "extension-key": "graphql3"
