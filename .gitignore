@@ -4,6 +4,9 @@
 /public/
 /config/
 /coverage/
+/database/
 /composer.lock
+/composer.*.json
+/composer.*.lock
 /.phpunit.result.cache
 /.php-cs-fixer.cache

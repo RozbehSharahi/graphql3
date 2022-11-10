@@ -43,6 +43,15 @@ bin/test
 
 ### Testing application
 
-Navigate to `http://localhost:8080/`, where it should ask you to create a `FIRST_INSTALL` file.
+```shell
+bin/install-app-v12
+bin/install-app-v11
+```
 
-Installation steps should be fast and easy if you use sqlite (hopefully :)).
+Navigate to `http://localhost:8080/` and you should see the home.
+
+Navigate to `http://localhost:8080/graphiql` and you should see your graphql interface.
+
+
+> Known issue: On switching to v11 you might get an error 'Tried to instantiate a package object for package
+> "graphql3test" with a non-existing package'. In that case just run the script again. Idk yet were this comes from.

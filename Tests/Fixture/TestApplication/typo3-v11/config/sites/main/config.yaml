@@ -1,0 +1,29 @@
+base: 'http://localhost:8080/'
+errorHandling: {  }
+languages:
+  -
+    title: English
+    enabled: true
+    languageId: 0
+    base: /
+    typo3Language: default
+    locale: en_US.UTF-8
+    iso-639-1: en
+    navigationTitle: English
+    hreflang: en-us
+    direction: ltr
+    flag: us
+  -
+    title: German
+    enabled: true
+    languageId: 1
+    base: /de/
+    typo3Language: de
+    locale: de_DE.UTF-8
+    iso-639-1: en
+    navigationTitle: Deutsch
+    hreflang: de-de
+    direction: ltr
+    flag: de
+rootPageId: 1
+routes: {  }

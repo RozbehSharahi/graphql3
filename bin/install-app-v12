@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+bin/docker exec app rm -rf ./config/ ./public/ ./var/ ./database/
+bin/docker exec app cp -R ./Tests/Fixture/TestApplication/typo3-v12/* ./
+
+echo "Create temporary v12 composer.json"
+bin/docker exec app cp composer.json composer.v12.json
+
+echo "Now replace version numbers on version specific composer.*.json"
+bin/docker exec app sed -i 's/\^11\.5 || \^12/^12/g' composer.v12.json
+
+echo "Now calling composer update so typo3 sets up missing files in public directory."
+bin/docker exec --env COMPOSER=composer.v12.json app composer update
+
+echo "Now copy composer.v12.lock and delete temp files"
+bin/docker exec app cp composer.v12.lock composer.lock
+bin/docker exec app rm composer.v12.json composer.v12.lock
+
+echo "Set permissions until docker-composer is setup correctly."
+sudo chmod -R 777 database public config
