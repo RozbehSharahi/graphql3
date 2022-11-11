@@ -276,6 +276,43 @@ class FlexFormTest extends TestCase
         self::assertSame('some-other-value', $response->get('data.content.flexSingleSelect'));
     }
 
+    public function testCanCreateFlexFormLanguageType(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
+            'query' => $scope->get(QueryType::class),
+        ]));
+
+        $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
+            'flexLanguage' => [
+                'config' => [
+                    'type' => 'language',
+                    'flexFormPointer' => 'pi_flexform::flexLanguage',
+                ],
+            ],
+        ];
+
+        $scope
+            ->createRecord('tt_content', [
+                'uid' => 1,
+                'pi_flexform' => $this->createFlexFormData([
+                    'flexLanguage' => 1,
+                ]),
+            ])
+        ;
+
+        $response = $scope->graphqlRequest('{
+            content(uid: 1) {
+                flexLanguage {
+                    twoLetterIsoCode
+                }
+            }
+        }');
+
+        self::assertSame('de', $response->get('data.content.flexLanguage.twoLetterIsoCode'));
+    }
+
     /**
      * @param array<string, mixed> $data
      */
