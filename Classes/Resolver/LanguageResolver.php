@@ -20,7 +20,7 @@ class LanguageResolver
     public function resolve(ItemRequest $request): ?SiteLanguage
     {
         try {
-            $language = $this->currentSession->getSite()->getLanguageById($request->get('id'));
+            $language = $this->currentSession->getSite()->getLanguageById((int) $request->get('id'));
         } catch (\Throwable) {
             return null;
         }

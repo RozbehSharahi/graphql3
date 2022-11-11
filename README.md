@@ -733,10 +733,11 @@ Here a list of type which are already supported and others which will follow:
 - [x] int type
 - [x] float type
 - [x] bool type
+- [x] single select type
 - [ ] 1:n type
 - [ ] n:1 type
 - [ ] m:n type
-- [ ] language type
+- [x] language type
 - [x] file-reference type
 - [ ] ...
 
