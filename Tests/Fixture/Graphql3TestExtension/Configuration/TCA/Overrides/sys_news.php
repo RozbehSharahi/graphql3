@@ -7,7 +7,7 @@ $GLOBALS['TCA']['sys_news']['types']['1']['showitem'] .= ',flexform';
 $typo3Environment = new \RozbehSharahi\Graphql3\Environment\Typo3Environment();
 
 $filesFlexForm = '
-  <files>
+  <settings.files>
     <label>Files</label>
     <config>
         <type>inline</type>
@@ -56,17 +56,18 @@ $filesFlexForm = '
             </enabledControls>
         </appearance>
     </config>
-  </files>
+  </settings.files>
 ';
 
+// Currently, typo3 12 flexform handling is broken. Upload will not work !
 if (12 === $typo3Environment->getMainVersion()) {
     $filesFlexForm = '
-      <files>
+      <settings.files>
         <label>Files</label>
         <config>
           <type>file</type>
         </config>
-      </files>
+      </settings.files>
     ';
 }
 
@@ -81,7 +82,7 @@ $GLOBALS['TCA']['sys_news']['columns']['flexform'] = [
                     <type>array</type>
                     <el>
                       '.$filesFlexForm.'
-                      <color>
+                      <settings.color>
                         <label>Select color</label>
                         <config>
                           <type>select</type>
@@ -101,7 +102,7 @@ $GLOBALS['TCA']['sys_news']['columns']['flexform'] = [
                             </numIndex>
                           </items>
                         </config>
-                      </color>
+                      </settings.color>
                     </el>
                   </ROOT>
                 </T3DataStructure>
@@ -110,20 +111,6 @@ $GLOBALS['TCA']['sys_news']['columns']['flexform'] = [
     ],
 ];
 $GLOBALS['TCA']['sys_news']['graphql3']['flexFormColumns'] = [
-    'files' => [
-        'config' => [
-            'flexFormPointer' => 'flexform::files',
-            'type' => 'file',
-            'foreign_match_fields' => [
-                'fieldname' => 'files',
-            ],
-        ],
-    ],
-    'color' => [
-        'config' => [
-            'flexFormPointer' => 'flexform::color',
-            'type' => 'select',
-            'renderType' => 'selectSingle',
-        ],
-    ],
+    'flexform::default::settings.color',
+    'flexform::default::settings.files',
 ];

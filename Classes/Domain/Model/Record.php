@@ -40,6 +40,10 @@ class Record
             $column = $column->getName();
         }
 
+        if (str_starts_with($column, 'flex::')) {
+            return $this->getFlexFormValue(str_replace('flex::', '', $column)) ?: null;
+        }
+
         return $this->data[$column] ?? null;
     }
 

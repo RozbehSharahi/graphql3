@@ -11,7 +11,6 @@ use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\FieldCreator\FieldCreatorInterface;
-use RozbehSharahi\Graphql3\FlexFormFieldCreator\FlexFormFieldCreatorInterface;
 
 class RecordTypeBuilder implements TypeBuilderInterface
 {
@@ -35,12 +34,10 @@ class RecordTypeBuilder implements TypeBuilderInterface
 
     /**
      * @param iterable<FieldCreatorInterface>              $fieldCreators
-     * @param iterable<FlexFormFieldCreatorInterface>      $flexFormFieldCreators
      * @param iterable<RecordTypeBuilderExtenderInterface> $extenders
      */
     public function __construct(
         protected iterable $fieldCreators,
-        protected iterable $flexFormFieldCreators,
         protected iterable $extenders
     ) {
     }
@@ -69,7 +66,9 @@ class RecordTypeBuilder implements TypeBuilderInterface
                 'fields' => function () {
                     $fields = GraphqlNodeCollection::create();
 
-                    foreach ($this->table->getColumns() as $column) {
+                    $columns = [...$this->table->getColumns(), ...$this->table->getFlexFormColumns()];
+
+                    foreach ($columns as $column) {
                         $node = $this->resolveNode($column);
 
                         if (!$node) {
@@ -77,18 +76,6 @@ class RecordTypeBuilder implements TypeBuilderInterface
                         }
 
                         $fields = $fields->add($node);
-                    }
-
-                    foreach ($this->table->getGraphqlFlexFormColumns() as $column) {
-                        if (!$column->hasFlexFormPointer()) {
-                            throw new InternalErrorException(sprintf(self::ERROR_MISSING_FLEX_FORM_POINTER, $column->getFullName()));
-                        }
-
-                        if (!$column->isValidFlexFormPointer()) {
-                            throw new InternalErrorException(sprintf(self::ERROR_INVALID_FLEX_FORM_POINTER, $column->getFullName()));
-                        }
-
-                        $fields = $fields->add($this->resolveFlexFormNode($column));
                     }
 
                     foreach ($this->extenders as $extender) {
@@ -115,16 +102,5 @@ class RecordTypeBuilder implements TypeBuilderInterface
         }
 
         return null;
-    }
-
-    protected function resolveFlexFormNode(ColumnConfiguration $column): GraphqlNode
-    {
-        foreach ($this->flexFormFieldCreators as $flexFormFieldCreator) {
-            if ($flexFormFieldCreator->supportsField($column)) {
-                return $flexFormFieldCreator->createField($column);
-            }
-        }
-
-        return throw new InternalErrorException(sprintf(self::ERROR_COULD_NOT_CREATE_FLEX_FORM_FIELD, $column->getFullName()));
     }
 }

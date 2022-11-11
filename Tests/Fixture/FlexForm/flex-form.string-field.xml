@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<T3DataStructure>
+    <ROOT>
+        <type>array</type>
+        <el>
+            <settings.string>
+                <config>
+                    <type>input</type>
+                    <graphql3><name>string</name></graphql3>
+                </config>
+            </settings.string>
+        </el>
+    </ROOT>
+</T3DataStructure>

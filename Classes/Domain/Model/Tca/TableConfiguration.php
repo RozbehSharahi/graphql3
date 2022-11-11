@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Domain\Model\Tca;
 
 use RozbehSharahi\Graphql3\Converter\CaseConverter;
+use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class TableConfiguration
 {
+    public const ERROR_INVALID_FLEX_FORM_COLUMNS = 'Invalid flex form columns configuration found for %s';
+
     public static function create(string $name): self
     {
         return GeneralUtility::makeInstance(self::class, $name, $GLOBALS['TCA'][$name]);
@@ -68,12 +71,18 @@ class TableConfiguration
     /**
      * @return array<int, ColumnConfiguration>
      */
-    public function getGraphqlFlexFormColumns(): array
+    public function getFlexFormColumns(): array
     {
+        $paths = $GLOBALS['TCA'][$this->getName()]['graphql3']['flexFormColumns'] ?? [];
+
+        if (!is_array($paths)) {
+            throw new InternalErrorException(sprintf(self::ERROR_INVALID_FLEX_FORM_COLUMNS, $this->name));
+        }
+
         $columns = [];
 
-        foreach ($this->configuration['graphql3']['flexFormColumns'] ?? [] as $columnName => $configuration) {
-            $columns[] = new ColumnConfiguration($this, $columnName, $configuration);
+        foreach ($paths as $path) {
+            $columns[] = FlexFormFieldConfiguration::createFromString($this, $path)->getFlexColumn();
         }
 
         return $columns;

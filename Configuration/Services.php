@@ -13,7 +13,6 @@ use RozbehSharahi\Graphql3\Builder\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Builder\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
 use RozbehSharahi\Graphql3\FieldCreator\FieldCreatorInterface;
-use RozbehSharahi\Graphql3\FlexFormFieldCreator\FlexFormFieldCreatorInterface;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Resolver\RecordListResolverExtenderInterface;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
@@ -54,10 +53,6 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
     $containerBuilder
         ->registerForAutoconfiguration(FieldCreatorInterface::class)
         ->addTag('graphql3.field_creator');
-
-    $containerBuilder
-        ->registerForAutoconfiguration(FlexFormFieldCreatorInterface::class)
-        ->addTag('graphql3.flex_form_field_creator');
 
     $containerBuilder
         ->registerForAutoconfiguration(RecordTypeBuilderExtenderInterface::class)

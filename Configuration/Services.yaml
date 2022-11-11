@@ -39,7 +39,6 @@ services:
   RozbehSharahi\Graphql3\Builder\RecordTypeBuilder:
     arguments:
       $fieldCreators: !tagged_iterator { tag: graphql3.field_creator, default_priority_method: getPriority }
-      $flexFormFieldCreators: !tagged_iterator { tag: graphql3.flex_form_field_creator, default_priority_method: getPriority }
       $extenders: !tagged_iterator graphql3.record_type_builder_extender
 
   RozbehSharahi\Graphql3\Command\CreateTokenManualCommand:
