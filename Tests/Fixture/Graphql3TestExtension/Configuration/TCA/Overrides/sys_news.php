@@ -81,6 +81,27 @@ $GLOBALS['TCA']['sys_news']['columns']['flexform'] = [
                     <type>array</type>
                     <el>
                       '.$filesFlexForm.'
+                      <color>
+                        <label>Select color</label>
+                        <config>
+                          <type>select</type>
+                          <renderType>selectSingle</renderType>
+                          <items>
+                            <numIndex index="0">
+                                <numIndex index="0">None</numIndex>
+                                <numIndex index="1"></numIndex>
+                            </numIndex>
+                            <numIndex index="1">
+                                <numIndex index="0">Red</numIndex>
+                                <numIndex index="1">red</numIndex>
+                            </numIndex>
+                            <numIndex index="2">
+                                <numIndex index="0">Green</numIndex>
+                                <numIndex index="1">green</numIndex>
+                            </numIndex>
+                          </items>
+                        </config>
+                      </color>
                     </el>
                   </ROOT>
                 </T3DataStructure>
@@ -96,6 +117,13 @@ $GLOBALS['TCA']['sys_news']['graphql3']['flexFormColumns'] = [
             'foreign_match_fields' => [
                 'fieldname' => 'files',
             ],
+        ],
+    ],
+    'color' => [
+        'config' => [
+            'flexFormPointer' => 'flexform::color',
+            'type' => 'select',
+            'renderType' => 'selectSingle',
         ],
     ],
 ];

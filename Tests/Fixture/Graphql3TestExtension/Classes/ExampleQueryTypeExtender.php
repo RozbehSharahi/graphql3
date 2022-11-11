@@ -6,10 +6,8 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3TestExtension;
 
-use GraphQL\Type\Definition\Type;
 use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
 use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
-use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
 use RozbehSharahi\Graphql3\Type\QueryTypeExtenderInterface;
 
@@ -28,7 +26,6 @@ class ExampleQueryTypeExtender implements QueryTypeExtenderInterface
             ->add($this->recordNodeBuilder->for('sys_log')->build())
             ->add($this->recordListNodeBuilder->for('sys_news')->build()->withName('news'))
             ->add($this->recordNodeBuilder->for('sys_news')->build()->withName('newsItem'))
-            ->add(GraphqlNode::create('someNode')->withType(Type::string())->withResolver(fn () => 'Hello World'))
         ;
     }
 }

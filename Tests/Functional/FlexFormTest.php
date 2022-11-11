@@ -73,28 +73,12 @@ class FlexFormTest extends TestCase
         $scope->createRecord('tt_content', [
             'pid' => 1,
             'header' => 'Some plugin',
-            'pi_flexform' => '<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-                <T3FlexForms>
-                    <data>
-                        <sheet index="sDEF">
-                            <language index="lDEF">
-                                <field index="settings.flexFormString">
-                                    <value index="vDEF">string</value>
-                                </field>
-                                <field index="settings.flexFormInteger">
-                                    <value index="vDEF">1</value>
-                                </field>
-                                <field index="settings.flexFormInteger">
-                                    <value index="vDEF">1234</value>
-                                </field>
-                                <field index="settings.flexFormFloat">
-                                    <value index="vDEF">1234.12</value>
-                                </field>
-                            </language>
-                        </sheet>
-                    </data>
-                </T3FlexForms>
-            ',
+            'pi_flexform' => $this->createFlexFormData([
+                'settings.flexFormString' => 'string',
+                'settings.flexFormBool' => 1,
+                'settings.flexFormInteger' => 1234,
+                'settings.flexFormFloat' => 1234.12,
+            ]),
         ]);
 
         $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
@@ -144,7 +128,7 @@ class FlexFormTest extends TestCase
 
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('string', $response->get('data.content.flexFormString'));
-        self::assertFalse($response->get('data.content.flexFormBool'));
+        self::assertTrue($response->get('data.content.flexFormBool'));
         self::assertSame(1234, $response->get('data.content.flexFormInteger'));
         self::assertIsFloat($response->get('data.content.flexFormFloat'));
         self::assertEqualsWithDelta(1234.12, 0.01, $response->get('data.content.flexFormFloat'));
@@ -250,5 +234,73 @@ class FlexFormTest extends TestCase
         }');
 
         self::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testCanCreateFlexFormSingleSelect(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
+            'query' => $scope->get(QueryType::class),
+        ]));
+
+        $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
+            'flexSingleSelect' => [
+                'config' => [
+                    'type' => 'select',
+                    'renderType' => 'selectSingle',
+                    'flexFormPointer' => 'pi_flexform::flexSingleSelect',
+                    'items' => [
+                        ['Some value', 'some-value'],
+                        ['Some other value', 'some-other-value'],
+                    ],
+                ],
+            ],
+        ];
+
+        $scope
+            ->createRecord('tt_content', [
+                'uid' => 1,
+                'pi_flexform' => $this->createFlexFormData([
+                    'flexSingleSelect' => 'some-other-value',
+                ]),
+            ])
+        ;
+
+        $response = $scope->graphqlRequest('{
+            content(uid: 1) {
+                flexSingleSelect
+            }
+        }');
+
+        self::assertSame('some-other-value', $response->get('data.content.flexSingleSelect'));
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    private function createFlexFormData(array $data): string
+    {
+        $properties = '';
+
+        foreach ($data as $property => $value) {
+            $properties .= '
+                <field index="'.$property.'">
+                    <value index="vDEF">'.$value.'</value>
+                </field>
+            ';
+        }
+
+        return '<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+            <T3FlexForms>
+                <data>
+                    <sheet index="sDEF">
+                        <language index="lDEF">
+                            '.$properties.'
+                        </language>
+                    </sheet>
+                </data>
+            </T3FlexForms>
+        ';
     }
 }
