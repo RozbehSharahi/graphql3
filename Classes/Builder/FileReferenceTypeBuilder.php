@@ -10,6 +10,7 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode as Node;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use TYPO3\CMS\Core\Imaging\ImageManipulation\Area;
 use TYPO3\CMS\Core\Imaging\ImageManipulation\CropVariantCollection;
 use TYPO3\CMS\Core\Resource\FileReference;
 use TYPO3\CMS\Extbase\Service\ImageService;
@@ -102,18 +103,8 @@ class FileReferenceTypeBuilder implements TypeBuilderInterface
                             return null;
                         }
 
-                        if (!$fileReference->hasProperty('crop') || empty($fileReference->getProperty('crop'))) {
-                            return $fileReference->getPublicUrl();
-                        }
-
-                        $cropVariant = CropVariantCollection::create($fileReference->getProperty('crop'))
-                            ->getCropArea($args['variant'])
-                        ;
-
                         $processingInstructions = [
-                            'crop' => $cropVariant->isEmpty()
-                                ? null
-                                : $cropVariant->makeAbsoluteBasedOnFile($fileReference),
+                            'crop' => $this->getCropInstructions($fileReference, $args['variant']),
                         ];
 
                         if ($args['maxWidth'] ?? false) {
@@ -140,6 +131,29 @@ class FileReferenceTypeBuilder implements TypeBuilderInterface
             )
             ->toArray()
         ;
+    }
+
+    private function getCropInstructions(FileReference $fileReference, ?string $variant): ?Area
+    {
+        if (!$variant) {
+            return null;
+        }
+
+        $cropConfig = $fileReference->hasProperty('crop')
+            ? $fileReference->getProperty('crop')
+            : null;
+
+        if (!$cropConfig) {
+            return null;
+        }
+
+        $cropVariant = CropVariantCollection::create($cropConfig)->getCropArea($variant);
+
+        if ($cropVariant->isEmpty()) {
+            return null;
+        }
+
+        return $cropVariant->makeAbsoluteBasedOnFile($fileReference);
     }
 
     /**
