@@ -649,6 +649,8 @@ container in any extension's `Configuration/Services.yaml`.
 
 ### Flex form
 
+#### Intro
+
 While graphql is a strongly typed query language, flex-forms are more loose. At least on database side. The data of
 flex-forms is typed, however if you step deeper in to TYPO3 logic you will see that things can get very washy.
 
@@ -663,9 +665,11 @@ of such an automatic schema creation.
 Based on these thoughts `graphql3` delegates the integration of flex-form fields to the user of the extension instead of
 magically building up huge schemas. However, it tries to facilitate the procedure.
 
-Let's say there is a flex-form field `settings.myField` on `pi_flexform` on `tt_content`-table.
+#### Activate flex-form-fields on graphql
 
-For simple use-cases it is possible to use a none-type-safe variant of accessing the field, without further programming.
+> Activating a flex-form field via configuration is still in experimental state. The API might therefore change frequently. Please notice that you can also simply write your own record-type-extender in order to expose you flex-form fields !
+
+Flex forms can be accessed in a plain way:
 
 ```
 {
@@ -691,58 +695,47 @@ This will return a none-type-safe array, which is basically a json representatio
 }
 ```
 
-However, if the content element is for instance not saved yet, this could also return `null`. Also, there is no kind of
-nested records, relation, ... This is simply a json representation of the flex-form value for the record.
-
-Following are two approaches that could bring the power of graphql to your flex-form fields.
-
-1. Create a record-type-extender and integrate the fields you need manually, by using TYPO3's flex-form-service for
-   instance.
-2. Take advantage of flex-form-field-creators and `graphql3`'s TCA additions.
-
-The second approach is, which is going to be explained now.
-
-Following TCA configuration to the `tt_content` table will let `graphql3` try to auto generate a flex-form
-node `myField` on content node.
+However, graphql3 brings a type-safe integration for your flex-form fields. In order to expose a flex form field to
+graphql you must configure your tables TCA in order to tell `graphql3` the path to your flex-form configuration.
 
 ```php
 $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
-    'myField' => [
-        'config' => [
-            'type' => 'input',
-            'flexFormPointer' => 'pi_flexform::settings.myField'
-        ]  
-    ]
+    'pi_flexform::default::settings.myField'
 ];
 ```
 
-The configuration of flex-form-columns is exactly the same as TCA configurations. Of course only relevant fields are
-going to be used, but the config will be always be in sync with TYPO3's TCA definitions. The only addition is a
-mandatory `flexFormPointer`-field, which will describe the database field where the flexform is stored and the path to
-the value.
+The path two a flex-form field is split into 3 parts:
 
-If you forget to set this pointer, `graphql3` will throw a descriptive exception. Also, if the value is invalid.
+- the base database column: `pi_flexform`
+- the data structure variant `default` (see TCA documentation for config.ds)
+- the flex-form-field: `settings.myField`
 
-Depending on the configuration `graphql3` will do the rest to make the field available in the correct type. However,
-flex-form-columns do not yet support as many types, as normal database columns. Step by step more types will be
-provided.
+By this, `graphql3` will internally create a "fake-tca-column" based on the flex-form definition of `settings.myField`
+and pass it to the stack of field-creators as if it was a normal column. A unique name for that field will be
+created: `flex_piFlexform_default_settings_myField`. You can configure your own name the same way you would to for
+normal DB columns.
 
-Here a list of type which are already supported and others which will follow:
+```xml
 
-- [x] string type
-- [x] int type
-- [x] float type
-- [x] bool type
-- [x] single select type
-- [ ] 1:n type
-- [ ] n:1 type
-- [ ] m:n type
-- [x] language type
-- [x] file-reference type
-- [ ] ...
+<settings.myField>
+    <config>
+        ...
+        <graphql3>
+            <name>fieldName</name>
+        </graphql3>
+        ...
+    </config>
+</settings.myField>
+```
 
-In case you need not-yet-implemented types you can either wait for newer version or implement your own field-creator to
-handle this via `FlexFormFieldCreatorInterface`.
+If you look at the implementation of `RozbehSharahi\Graphql3\Domain\Model\Record::get` you will notice that values of
+column-names starting with `flex::` will result into a flex-form value lookup.
+
+This concept enables all field-creators to be compatible to flex-form columns as well. So in best-case whenever you
+write a field-creator, it will also be able to act as a flex-form-field-creator.
+
+**Please do not forget:** In case of bugs you can always create your own record-type-extender to expose you flex-form
+fields, and you might send me a message eon the issue board ofc.
 
 ### Mutations
 

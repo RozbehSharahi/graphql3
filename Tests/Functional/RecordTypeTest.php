@@ -73,7 +73,7 @@ class RecordTypeTest extends TestCase
     {
         $scope = $this->createScope();
 
-        $recordTypeBuilder = new RecordTypeBuilder([], [], [
+        $recordTypeBuilder = new RecordTypeBuilder([], [
             new class() implements RecordTypeBuilderExtenderInterface {
                 public function supportsTable(TableConfiguration $table): bool
                 {

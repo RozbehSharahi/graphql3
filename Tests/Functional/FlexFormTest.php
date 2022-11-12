@@ -17,30 +17,20 @@ class FlexFormTest extends TestCase
 {
     use FunctionalTrait;
 
-    private string $flexFormExample = '<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-        <T3FlexForms>
-            <data>
-                <sheet index="sDEF">
-                    <language index="lDEF">
-                        <field index="settings.flexFormField">
-                            <value index="vDEF">example value</value>
-                        </field>
-                    </language>
-                </sheet>
-            </data>
-        </T3FlexForms>
-    ';
-
-    public function testCanResolveManyToManyFields(): void
+    public function testCanCreateFlexFormPassThroughField(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $flexFormData = $this->createFlexFormData([
+            'settings.flexFormField' => 'example value',
+        ]);
 
         $scope
             ->createRecord('tt_content', [
                 'uid' => 1,
                 'pid' => 1,
                 'header' => 'Login',
-                'pi_flexform' => $this->flexFormExample,
+                'pi_flexform' => $flexFormData,
             ])
         ;
 
@@ -59,7 +49,7 @@ class FlexFormTest extends TestCase
         self::assertSame(200, $response->getStatusCode());
         self::assertSame('example value', $response->get('data.content.formatDefault.settings.flexFormField'));
         self::assertSame('example value', $response->get('data.content.formatObject.settings.flexFormField'));
-        self::assertSame($this->flexFormExample, $response->get('data.content.formatFlex'));
+        self::assertSame($flexFormData, $response->get('data.content.formatFlex'));
     }
 
     public function testCanExtendRecordWithFlexFormFields(): void
@@ -74,68 +64,118 @@ class FlexFormTest extends TestCase
             'pid' => 1,
             'header' => 'Some plugin',
             'pi_flexform' => $this->createFlexFormData([
-                'settings.flexFormString' => 'string',
-                'settings.flexFormBool' => 1,
-                'settings.flexFormInteger' => 1234,
-                'settings.flexFormFloat' => 1234.12,
+                'settings.string' => 'string',
+                'settings.bool' => 1,
+                'settings.integer' => 1234,
+                'settings.float' => 1234.12,
             ]),
         ]);
 
+        $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds'] = [
+            'default' => '
+                <T3DataStructure>
+                  <ROOT>
+                    <type>array</type>
+                    <el>
+                      <settings.string>
+                        <config>
+                          <type>input</type>
+                          <graphql3><name>string</name></graphql3>
+                        </config>
+                      </settings.string>
+                      <settings.bool>
+                        <config>
+                          <type>check</type>
+                          <graphql3><name>bool</name></graphql3>
+                        </config>
+                      </settings.bool>
+                      <settings.integer>
+                        <config>
+                          <type>number</type>
+                          <graphql3><name>integer</name></graphql3>
+                        </config>
+                      </settings.integer>
+                      <settings.float>
+                        <config>
+                          <type>number</type>
+                          <format>decimal</format>
+                          <graphql3><name>float</name></graphql3>
+                        </config>
+                      </settings.float>
+                      <settings.floatNotSet>
+                        <config>
+                          <type>number</type>
+                          <format>decimal</format>
+                        </config>
+                      </settings.floatNotSet>
+                    </el>
+                  </ROOT>
+                </T3DataStructure>
+            ',
+        ];
+
         $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
-            'flexFormString' => [
-                'config' => [
-                    'type' => 'input',
-                    'flexFormPointer' => 'pi_flexform::settings.flexFormString',
-                ],
-            ],
-            'flexFormBool' => [
-                'config' => [
-                    'type' => 'check',
-                    'flexFormPointer' => 'pi_flexform::settings.flexFormBool',
-                ],
-            ],
-            'flexFormInteger' => [
-                'config' => [
-                    'type' => 'number',
-                    'flexFormPointer' => 'pi_flexform::settings.flexFormInteger',
-                ],
-            ],
-            'flexFormFloat' => [
-                'config' => [
-                    'type' => 'number',
-                    'format' => 'decimal',
-                    'flexFormPointer' => 'pi_flexform::settings.flexFormFloat',
-                ],
-            ],
-            'flexFormFloatNotSet' => [
-                'config' => [
-                    'type' => 'number',
-                    'format' => 'decimal',
-                    'flexFormPointer' => 'pi_flexform::settings.flexFormFloatNotSet',
-                ],
-            ],
+            'pi_flexform::default::settings.string',
+            'pi_flexform::default::settings.bool',
+            'pi_flexform::default::settings.integer',
+            'pi_flexform::default::settings.float',
+            'pi_flexform::default::settings.floatNotSet',
         ];
 
         $response = $scope->graphqlRequest('{
             content(uid: 1) {
-                flexFormString
-                flexFormBool
-                flexFormInteger
-                flexFormFloat
-                flexFormFloatNotSet
+                string
+                bool
+                integer
+                float
+                flex_piFlexform_settings_floatNotSet
             }
         }');
 
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame('string', $response->get('data.content.flexFormString'));
-        self::assertTrue($response->get('data.content.flexFormBool'));
-        self::assertSame(1234, $response->get('data.content.flexFormInteger'));
-        self::assertIsFloat($response->get('data.content.flexFormFloat'));
-        self::assertEqualsWithDelta(1234.12, 0.01, $response->get('data.content.flexFormFloat'));
-        self::assertNull($response->get('data.content.flexFormFloatNotSet'));
+        self::assertSame('string', $response->get('data.content.string'));
+        self::assertTrue($response->get('data.content.bool'));
+        self::assertSame(1234, $response->get('data.content.integer'));
+        self::assertIsFloat($response->get('data.content.float'));
+        self::assertEqualsWithDelta(1234.12, 0.01, $response->get('data.content.float'));
+        self::assertNull($response->get('data.content.flex_piFlexform_settings_floatNotSet'));
     }
 
-    public function testNoneHandledFlexFormColumnsThrowException(): void
+    public function testFlexFormFileReferenceCanBeResolve(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
+            'query' => $scope->get(QueryType::class),
+        ]));
+
+        $scope->createRecord('tt_content', [
+            'pid' => 1,
+            'header' => 'Some plugin',
+            'pi_flexform' => $this->createFlexFormData([
+                'settings.string' => 'string',
+            ]),
+        ]);
+
+        $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds'] = [
+            'default' => 'FILE:EXT:graphql3/Tests/Fixture/FlexForm/flex-form.string-field.xml',
+        ];
+
+        $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
+            'pi_flexform::default::settings.string',
+        ];
+
+        $response = $scope->graphqlRequest('{
+            content(uid: 1) {
+                string
+            }
+        }');
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame('string', $response->get('data.content.string'));
+    }
+
+    public function testUndefinedFlexFormFieldConfigurationThrowsReasonableErrorMessage(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
 
@@ -149,12 +189,7 @@ class FlexFormTest extends TestCase
         ]);
 
         $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
-            'someField' => [
-                'config' => [
-                    'type' => 'some-thing-that-can-not-be-handle-by-any-creator',
-                    'flexFormPointer' => 'pi_flexform::settings.someField',
-                ],
-            ],
+            'pi_flexform::default::thisFieldDoesNotExist',
         ];
 
         $response = $scope->graphqlRequest('{
@@ -164,22 +199,35 @@ class FlexFormTest extends TestCase
         }');
 
         self::assertSame(500, $response->getStatusCode());
-        self::assertStringContainsString('no flex-form-field-creator that could handle', $response->getErrorMessage());
+        self::assertStringContainsString('Could not find flex field', $response->getErrorMessage());
     }
 
-    public function testCanCreateMediaFlexFormField(): void
+    public function testCanCreateFileRelation(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
 
-        $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
-            'flexFormMedia' => [
-                'config' => [
-                    'type' => 'file',
-                    'flexFormPointer' => 'pi_flexform::media',
-                    'foreign_table_field' => 'tt_content',
-                    'foreign_match_fields' => [
-                        'fieldname' => 'pi_flexform.media',
-                    ],
+        $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = ['pi_flexform::default::file'];
+        $GLOBALS['TCA']['tt_content']['columns']['pi_flexform'] = [
+            'config' => [
+                'type' => 'flex',
+                'ds' => [
+                    'default' => '
+                        <T3DataStructure>
+                          <ROOT>
+                            <type>array</type>
+                            <el>
+                              <file>
+                                <config>
+                                  <type>file</type>
+                                  <foreign_match_fields>
+                                    <fieldname>pi_flexform.file</fieldname>
+                                  </foreign_match_fields>
+                                </config>
+                              </file>
+                            </el>
+                          </ROOT>
+                        </T3DataStructure>
+                    ',
                 ],
             ],
         ];
@@ -187,7 +235,6 @@ class FlexFormTest extends TestCase
         $scope
             ->createRecord('tt_content', [
                 'uid' => 1,
-                'header' => 'some content element',
             ])
             ->createRecord('sys_file', [
                 'uid' => 200,
@@ -204,14 +251,14 @@ class FlexFormTest extends TestCase
             ->createRecord('sys_file_reference', [
                 'uid' => 1,
                 'tablenames' => 'tt_content',
-                'fieldname' => 'pi_flexform.media',
+                'fieldname' => 'pi_flexform.file',
                 'uid_local' => 200,
                 'uid_foreign' => 1,
             ])
             ->createRecord('sys_file_reference', [
                 'uid' => 2,
                 'tablenames' => 'tt_content',
-                'fieldname' => 'pi_flexform.media',
+                'fieldname' => 'pi_flexform.file',
                 'uid_local' => 300,
                 'uid_foreign' => 1,
             ])
@@ -224,7 +271,7 @@ class FlexFormTest extends TestCase
 
         $response = $scope->graphqlRequest('{ 
             content(uid: 1) {
-                flexFormMedia {
+                flex_piFlexform_file {
                   uid
                   publicUrl
                   extension
@@ -234,6 +281,9 @@ class FlexFormTest extends TestCase
         }');
 
         self::assertSame(200, $response->getStatusCode());
+        self::assertSame('user_upload/whatever.txt', $response->get('data.content.flex_piFlexform_file.0.publicUrl'));
+        self::assertSame('txt', $response->get('data.content.flex_piFlexform_file.0.extension'));
+        self::assertNull($response->get('data.content.flex_piFlexform_file.0.imageUrl'));
     }
 
     public function testCanCreateFlexFormSingleSelect(): void
@@ -245,15 +295,29 @@ class FlexFormTest extends TestCase
         ]));
 
         $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
-            'flexSingleSelect' => [
-                'config' => [
-                    'type' => 'select',
-                    'renderType' => 'selectSingle',
-                    'flexFormPointer' => 'pi_flexform::flexSingleSelect',
-                    'items' => [
-                        ['Some value', 'some-value'],
-                        ['Some other value', 'some-other-value'],
-                    ],
+            'pi_flexform::default::flexSingleSelect',
+        ];
+
+        $GLOBALS['TCA']['tt_content']['columns']['pi_flexform'] = [
+            'config' => [
+                'type' => 'flex',
+                'ds' => [
+                    'default' => '
+                        <T3DataStructure>
+                          <ROOT>
+                            <type>array</type>
+                            <el>
+                              <flexSingleSelect>
+                                <config>
+                                  <type>select</type>
+                                  <renderType>selectSingle</renderType>
+                                  <graphql3><name>flexSingleSelect</name></graphql3>
+                                </config>
+                              </flexSingleSelect>
+                            </el>
+                          </ROOT>
+                        </T3DataStructure>
+                    ',
                 ],
             ],
         ];
@@ -285,10 +349,28 @@ class FlexFormTest extends TestCase
         ]));
 
         $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
-            'flexLanguage' => [
-                'config' => [
-                    'type' => 'language',
-                    'flexFormPointer' => 'pi_flexform::flexLanguage',
+            'pi_flexform::default::flexLanguage',
+        ];
+
+        $GLOBALS['TCA']['tt_content']['columns']['pi_flexform'] = [
+            'config' => [
+                'type' => 'flex',
+                'ds' => [
+                    'default' => '
+                        <T3DataStructure>
+                          <ROOT>
+                            <type>array</type>
+                            <el>
+                              <flexLanguage>
+                                <config>
+                                  <type>language</type>
+                                  <graphql3><name>flexLanguage</name></graphql3>
+                                </config>
+                              </flexLanguage>
+                            </el>
+                          </ROOT>
+                        </T3DataStructure>
+                    ',
                 ],
             ],
         ];

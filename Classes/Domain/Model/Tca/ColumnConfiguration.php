@@ -10,6 +10,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ColumnConfiguration
 {
+    public const ERROR_COLUMN_CONFIG_MISSING = 'Cannot instantiate column-configuration from none TCA field %s.';
+
+    public const ERROR_TYPE_MISSING = 'Type missing on tca-column configuration: %s';
+
     public const HARD_NAME_MAP = [
         'sys_language_uid' => 'language',
         'tstamp' => 'updatedAt',
@@ -25,7 +29,7 @@ class ColumnConfiguration
         $configuration = $table->toArray()['columns'][$columnName] ?? null;
 
         if (null === $configuration) {
-            throw new InternalErrorException("Cannot instantiate column-configuration from none TCA field ({$columnName}).");
+            throw new InternalErrorException(sprintf(self::ERROR_COLUMN_CONFIG_MISSING, $columnName));
         }
 
         return GeneralUtility::makeInstance(self::class, $table, $columnName, $configuration);
@@ -39,6 +43,9 @@ class ColumnConfiguration
         protected string $name,
         protected array $configuration
     ) {
+        if (empty($this->configuration['config']['type'])) {
+            throw new InternalErrorException(sprintf(self::ERROR_TYPE_MISSING, $this->getFullName()));
+        }
     }
 
     /**
@@ -64,11 +71,6 @@ class ColumnConfiguration
         return $this->getConverter()->toCamel($this->name);
     }
 
-    public function getPascalGraphqlName(): string
-    {
-        return $this->getConverter()->toPascal($this->getGraphqlName());
-    }
-
     public function getGraphqlName(): ?string
     {
         if ($graphql3Name = $this->configuration['config']['graphql3']['name'] ?? null) {
@@ -79,7 +81,7 @@ class ColumnConfiguration
             return $hardMappedName;
         }
 
-        return $this->getCamelName();
+        return str_replace(['::', '.'], '_', $this->getCamelName());
     }
 
     public function getTable(): TableConfiguration
@@ -140,11 +142,6 @@ class ColumnConfiguration
         return !empty($this->configuration['config']['ds_pointerField_searchParent']);
     }
 
-    public function getManyToManyOpposite(): string
-    {
-        return $this->configuration['config']['MM_opposite_field'];
-    }
-
     public function getRelationTable(): string
     {
         return $this->configuration['config']['MM'];
@@ -163,16 +160,6 @@ class ColumnConfiguration
     public function getFormat(): string
     {
         return $this->configuration['config']['format'] ?? 'integer';
-    }
-
-    public function hasFlexFormPointer(): bool
-    {
-        return !empty($this->configuration['config']['flexFormPointer']);
-    }
-
-    public function isValidFlexFormPointer(): bool
-    {
-        return str_contains($this->getFlexFormPointer(), '::');
     }
 
     public function getFlexFormPointer(): string
