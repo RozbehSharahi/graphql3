@@ -13,7 +13,11 @@ class FlexFormFieldConfiguration
 
     public const ERROR_TYPE_MISSING = 'Flex form field %s must have a config.type: %s';
 
-    public const ERROR_DATA_STRUCTURE_MISSING = 'Could not find structure for column "%s" and type "%s".';
+    public const ERROR_MISSING_DATA_STRUCTURE = 'The column "%s" has not data structure. Flex form configurations without explicit data structure definition, are not supported.';
+
+    public const ERROR_MISSING_DATA_STRUCTURE_TYPE = 'The column "%s" has a data-structure however the given type %s could not be found on TCA configuration.';
+
+    public const ERROR_FLEX_COLUMN_NOT_FOUND_IN_DATA_STRUCTURE = 'Could not find flex field %s in structure: %s';
 
     public static function createFromString(TableConfiguration $table, string $path): self
     {
@@ -69,13 +73,13 @@ class FlexFormFieldConfiguration
         $column = $this->table->getColumn($this->getColumnName());
 
         if (!$column->hasDataStructure()) {
-            throw new InternalErrorException(sprintf(self::ERROR_DATA_STRUCTURE_MISSING, $this->getColumnName(), $this->getType()));
+            throw new InternalErrorException(sprintf(self::ERROR_MISSING_DATA_STRUCTURE, $this->getColumnName()));
         }
 
         $structure = $column->getDataStructure()[$this->getType()] ?? null;
 
         if (!$structure) {
-            throw new InternalErrorException(sprintf(self::ERROR_DATA_STRUCTURE_MISSING, $this->getColumnName(), $this->getType()));
+            throw new InternalErrorException(sprintf(self::ERROR_MISSING_DATA_STRUCTURE_TYPE, $this->getColumnName(), $this->getType()));
         }
 
         if (str_starts_with($structure, 'FILE:')) {
@@ -89,7 +93,7 @@ class FlexFormFieldConfiguration
         $fieldXml = $xml->getElementsByTagName($this->getFlexColumnName())->item(0) ?: null;
 
         if (!$fieldXml) {
-            throw new InternalErrorException(sprintf('Could not find flex field %s in structure: %s', $this->getPath(), $structure));
+            throw new InternalErrorException(sprintf(self::ERROR_FLEX_COLUMN_NOT_FOUND_IN_DATA_STRUCTURE, $this->getPath(), $structure));
         }
 
         $fieldXml = $fieldXml->ownerDocument->saveXML($fieldXml);
@@ -99,8 +103,7 @@ class FlexFormFieldConfiguration
             throw new InternalErrorException(sprintf(self::ERROR_TYPE_MISSING, $this->getPath(), $structure));
         }
 
-        return GeneralUtility::makeInstance(
-            ColumnConfiguration::class,
+        return GeneralUtility::makeInstance(ColumnConfiguration::class,
             $this->table,
             'flex::'.$this->getPath(),
             $tcaConfiguration

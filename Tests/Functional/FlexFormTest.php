@@ -9,6 +9,7 @@ namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use RozbehSharahi\Graphql3\Domain\Model\Tca\FlexFormFieldConfiguration;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 use RozbehSharahi\Graphql3\Type\QueryType;
@@ -393,6 +394,34 @@ class FlexFormTest extends TestCase
         }');
 
         self::assertSame('de', $response->get('data.content.flexLanguage.twoLetterIsoCode'));
+    }
+
+    public function testDynamicFlexFormStructuresAreNotSupported(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
+            'query' => $scope->get(QueryType::class),
+        ]));
+
+        $GLOBALS['TCA']['pages']['columns']['flexform_data'] = [
+            'config' => [
+                'type' => 'flex',
+            ],
+        ];
+        $GLOBALS['TCA']['pages']['graphql3']['flexFormColumns'] = ['flexform_data::default::settings.string'];
+
+        $response = $scope->graphqlRequest('{ 
+            page(uid: 1) { 
+                title 
+            } 
+        }');
+
+        self::assertSame(500, $response->getStatusCode());
+        self::assertStringContainsString(
+            sprintf(FlexFormFieldConfiguration::ERROR_MISSING_DATA_STRUCTURE, 'flexform_data'),
+            $response->getErrorMessage()
+        );
     }
 
     /**
