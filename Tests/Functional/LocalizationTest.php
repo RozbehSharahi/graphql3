@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional;
 
-use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
-use RozbehSharahi\Graphql3\Type\QueryType;
 
 class LocalizationTest extends TestCase
 {
@@ -22,11 +20,6 @@ class LocalizationTest extends TestCase
             ->createRecord('pages', ['pid' => 0, 'uid' => 2, 'sys_language_uid' => 1, 'title' => 'German root'])
             ->createRecord('pages', ['pid' => 1, 'uid' => 3, 'sys_language_uid' => 1, 'title' => 'German subpage'])
             ->createRecord('pages', ['pid' => 1, 'uid' => 4, 'title' => 'Some english subpage'])
-        ;
-
-        $scope
-            ->getSchemaRegistry()
-            ->registerCreator(fn () => new Schema(['query' => $scope->get(QueryType::class)]))
         ;
 
         $response = $scope->doGraphqlRequest('{ 
@@ -61,11 +54,6 @@ class LocalizationTest extends TestCase
             ->createRecord('pages', ['pid' => 1, 'uid' => 5, 'sys_language_uid' => 1, 'title' => 'German child 3'])
             ->createRecord('pages', ['pid' => 1, 'uid' => 6, 'sys_language_uid' => 0, 'title' => 'English child 1'])
             ->createRecord('pages', ['pid' => 1, 'uid' => 7, 'sys_language_uid' => 0, 'title' => 'English child 2'])
-        ;
-
-        $scope
-            ->getSchemaRegistry()
-            ->registerCreator(fn () => new Schema(['query' => $scope->get(QueryType::class)]))
         ;
 
         $response = $scope->doGraphqlRequest('{ 

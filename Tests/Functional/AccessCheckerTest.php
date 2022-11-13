@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional;
 
-use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Exception\UnauthorizedException;
@@ -133,15 +132,11 @@ class AccessCheckerTest extends TestCase
             ->withAutoCreateHomepage(false)
             ->withAutoCreateSchema(true)
             ->withAutoCreateSite(true)
-            ->withAutoCreateGraphqlSchema(false)
+            ->withAutoCreateGraphqlSchema(true)
             ->build()
         ;
 
         $scope->createRecord('pages', $rootPage);
-
-        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
-            'query' => $scope->getQueryType(),
-        ]));
 
         return $scope;
     }

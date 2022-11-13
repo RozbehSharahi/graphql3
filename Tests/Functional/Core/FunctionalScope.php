@@ -12,9 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
-use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Security\JwtManager;
-use RozbehSharahi\Graphql3\Type\QueryType;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\ServerRequest;
@@ -63,16 +61,6 @@ class FunctionalScope
     public function getConnectionPool(): ConnectionPool
     {
         return $this->get(ConnectionPool::class);
-    }
-
-    public function getSchemaRegistry(): SchemaRegistry
-    {
-        return $this->get(SchemaRegistry::class);
-    }
-
-    public function getQueryType(): QueryType
-    {
-        return $this->get(QueryType::class);
     }
 
     public function doServerRequest(ServerRequestInterface $request): ResponseInterface

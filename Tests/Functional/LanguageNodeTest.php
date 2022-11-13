@@ -10,6 +10,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Builder\LanguageNodeBuilder;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 
@@ -27,7 +28,7 @@ class LanguageNodeTest extends TestCase
             ->build()
         ;
 
-        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [

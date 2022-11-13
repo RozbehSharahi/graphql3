@@ -16,7 +16,6 @@ use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
-use RozbehSharahi\Graphql3\Type\QueryType;
 
 class FieldCreatorTest extends TestCase
 {
@@ -120,10 +119,6 @@ class FieldCreatorTest extends TestCase
             ->createRecord('pages', ['pid' => 1, 'title' => 'page 6'])
         ;
 
-        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
-
         $response = $scope->graphqlRequest('{
             page(uid: 1) {
                 title
@@ -146,10 +141,6 @@ class FieldCreatorTest extends TestCase
     public function testCanCreateOneToManyRelations(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-
-        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
 
         $scope
             ->createRecord('sys_news', ['pid' => 1, 'title' => 'News 1'])
@@ -192,10 +183,6 @@ class FieldCreatorTest extends TestCase
 
         $scope->updateTable($tableDiff);
 
-        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
-
         $scope
             ->createRecord('pages', ['uid' => 1, 'title' => 'root-page', 'news' => 555])
             ->createRecord('sys_news', ['uid' => 555, 'pid' => 1, 'title' => 'News 555'])
@@ -226,10 +213,6 @@ class FieldCreatorTest extends TestCase
     public function testLanguageParentHasNoUidParameter(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-
-        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
 
         $response = $scope->graphqlRequest('{
           page(uid: 1) {
