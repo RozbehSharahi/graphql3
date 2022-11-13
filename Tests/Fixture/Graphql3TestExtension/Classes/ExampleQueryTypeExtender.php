@@ -24,8 +24,8 @@ class ExampleQueryTypeExtender implements QueryTypeExtenderInterface
         return $nodes
             ->add($this->recordListNodeBuilder->for('sys_log')->build())
             ->add($this->recordNodeBuilder->for('sys_log')->build())
-            ->add($this->recordListNodeBuilder->for('sys_news')->build()->withName('news'))
-            ->add($this->recordNodeBuilder->for('sys_news')->build()->withName('newsItem'))
+            ->add($this->recordListNodeBuilder->for('sys_news')->build()->withName('sysNewsItems'))
+            ->add($this->recordNodeBuilder->for('sys_news')->build()->withName('sysNewsItem'))
         ;
     }
 }
