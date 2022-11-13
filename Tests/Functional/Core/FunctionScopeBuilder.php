@@ -14,7 +14,7 @@ use RozbehSharahi\Graphql3\Builder\RecordListTypeBuilder;
 use RozbehSharahi\Graphql3\Builder\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Environment\Typo3Environment;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
-use RozbehSharahi\Graphql3\Type\NoopQueryType;
+use RozbehSharahi\Graphql3\Type\QueryType;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Core\ApplicationContext;
@@ -285,7 +285,7 @@ class FunctionScopeBuilder
         if ($this->autoCreateGraphqlSchema) {
             /** @var SchemaRegistry $schemaRegistry */
             $schemaRegistry = $container->get(SchemaRegistry::class);
-            $schemaRegistry->registerCreator(fn () => new Schema(['query' => new NoopQueryType()]));
+            $schemaRegistry->registerCreator(fn () => new Schema(['query' => $container->get(QueryType::class)]));
         }
 
         $this->clearSiteFinderCache();

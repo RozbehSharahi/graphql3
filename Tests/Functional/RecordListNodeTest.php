@@ -10,6 +10,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 
@@ -34,7 +35,7 @@ class RecordListNodeTest extends TestCase
             ->createRecord('pages', ['uid' => 4, 'title' => 'Page 4'])
         ;
 
-        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [
@@ -91,7 +92,7 @@ class RecordListNodeTest extends TestCase
             ->createRecord('pages', ['uid' => 7, 'title' => 'Page 7', 'subtitle' => 'pink'])
         ;
 
-        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [

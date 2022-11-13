@@ -6,9 +6,12 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional;
 
+use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
+use RozbehSharahi\Graphql3\Type\NoopQueryType;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
 
@@ -19,6 +22,10 @@ class GraphqlRequestTest extends TestCase
     public function testCanRunAGraphqlRequest(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
+            'query' => new NoopQueryType(),
+        ]));
 
         $response = $scope->graphqlRequest('{
             noop

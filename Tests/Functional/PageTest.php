@@ -4,12 +4,9 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional;
 
-use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
-use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
-use RozbehSharahi\Graphql3\Type\QueryType;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 
 class PageTest extends TestCase
@@ -23,11 +20,6 @@ class PageTest extends TestCase
         $scope
             ->createRecord('pages', ['pid' => 1, 'uid' => 2, 'title' => 'First subpage'])
             ->createRecord('pages', ['pid' => 1, 'uid' => 3, 'title' => 'Second subpage'])
-        ;
-
-        $scope
-            ->getSchemaRegistry()
-            ->registerCreator(fn () => new Schema(['query' => $scope->get(QueryType::class)]))
         ;
 
         $response = $scope->doGraphqlRequest('{ 
@@ -89,11 +81,6 @@ class PageTest extends TestCase
             ])
         ;
 
-        $scope
-            ->getSchemaRegistry()
-            ->registerCreator(fn () => new Schema(['query' => $scope->get(QueryType::class)]))
-        ;
-
         $response = $scope->doGraphqlRequest('{ 
             page(uid: 1) {
                 title
@@ -119,10 +106,6 @@ class PageTest extends TestCase
     public function testPagesAreFilteredByDoktype(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-
-        $scope->getSchemaRegistry()->registerCreator(
-            fn () => new Schema(['query' => $scope->get(QueryType::class)])
-        );
 
         $scope
             ->createRecord('pages', [
@@ -205,10 +188,6 @@ class PageTest extends TestCase
     public function testPageChildrenHasNoLanguageAttribute(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-
-        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
 
         $response = $scope->graphqlRequest('{
             page(uid: 1) {

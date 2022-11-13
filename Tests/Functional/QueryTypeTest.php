@@ -12,6 +12,7 @@ use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
 use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlNodeCollection;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 use RozbehSharahi\Graphql3\Type\QueryType;
 use RozbehSharahi\Graphql3\Type\QueryTypeExtenderInterface;
@@ -22,26 +23,22 @@ class QueryTypeTest extends TestCase
 
     public function testHasWorkingPageNode(): void
     {
-        $scope = $this->getFunctionalScopeBuilder()->withAutoCreateGraphqlSchema(false)->build();
+        $scope = $this->getFunctionalScopeBuilder()->build();
 
-        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
-            'query' => $scope->getQueryType(),
-        ]));
-
-        $response = $scope->doGraphqlRequest('{
+        $response = $scope->graphqlRequest('{
             page(uid: 1) {
               title
             }
         }');
 
-        self::assertEquals('root page', $response['data']['page']['title']);
+        self::assertEquals('root page', $response->get('data.page.title'));
     }
 
     public function testCanExtendQueryType(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->withAutoCreateGraphqlSchema(false)->build();
 
-        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
             'query' => new QueryType(
                 $scope->get(RecordNodeBuilder::class),
                 $scope->get(RecordListNodeBuilder::class),

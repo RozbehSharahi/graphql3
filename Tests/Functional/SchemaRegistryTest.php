@@ -24,7 +24,7 @@ class SchemaRegistryTest extends TestCase
             ->build()
         ;
 
-        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => GraphqlNodeCollection::create([

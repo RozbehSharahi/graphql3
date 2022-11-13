@@ -14,6 +14,7 @@ use RozbehSharahi\Graphql3\Builder\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgument;
 use RozbehSharahi\Graphql3\Domain\Model\GraphqlArgumentCollection;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\TableConfiguration;
+use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Resolver\RecordResolver;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 
@@ -57,7 +58,7 @@ class RecordNodeTest extends TestCase
             },
         ];
 
-        $scope->getSchemaRegistry()->registerCreator(fn () => new Schema([
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [

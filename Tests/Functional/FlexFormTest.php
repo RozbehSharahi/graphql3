@@ -7,12 +7,9 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional;
 
-use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\FlexFormFieldConfiguration;
-use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
-use RozbehSharahi\Graphql3\Type\QueryType;
 
 class FlexFormTest extends TestCase
 {
@@ -35,10 +32,6 @@ class FlexFormTest extends TestCase
             ])
         ;
 
-        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
-
         $response = $scope->graphqlRequest('{
           content(uid: 1) {
             formatDefault: piFlexform
@@ -56,10 +49,6 @@ class FlexFormTest extends TestCase
     public function testCanExtendRecordWithFlexFormFields(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-
-        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
 
         $scope->createRecord('tt_content', [
             'pid' => 1,
@@ -146,10 +135,6 @@ class FlexFormTest extends TestCase
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
 
-        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
-
         $scope->createRecord('tt_content', [
             'pid' => 1,
             'header' => 'Some plugin',
@@ -179,10 +164,6 @@ class FlexFormTest extends TestCase
     public function testUndefinedFlexFormFieldConfigurationThrowsReasonableErrorMessage(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-
-        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
 
         $scope->createRecord('tt_content', [
             'pid' => 1,
@@ -265,11 +246,6 @@ class FlexFormTest extends TestCase
             ])
         ;
 
-        $scope
-            ->getSchemaRegistry()
-            ->registerCreator(fn () => new Schema(['query' => $scope->get(QueryType::class)]))
-        ;
-
         $response = $scope->graphqlRequest('{ 
             content(uid: 1) {
                 flex_piFlexform_file {
@@ -290,10 +266,6 @@ class FlexFormTest extends TestCase
     public function testCanCreateFlexFormSingleSelect(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-
-        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
 
         $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
             'pi_flexform::default::flexSingleSelect',
@@ -345,10 +317,6 @@ class FlexFormTest extends TestCase
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
 
-        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
-
         $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
             'pi_flexform::default::flexLanguage',
         ];
@@ -399,10 +367,6 @@ class FlexFormTest extends TestCase
     public function testDynamicFlexFormStructuresAreNotSupported(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-
-        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
-            'query' => $scope->get(QueryType::class),
-        ]));
 
         $GLOBALS['TCA']['pages']['columns']['flexform_data'] = [
             'config' => [
