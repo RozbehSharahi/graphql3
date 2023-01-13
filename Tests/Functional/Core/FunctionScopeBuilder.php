@@ -29,7 +29,6 @@ use TYPO3\CMS\Core\Database\Schema\SqlReader;
 use TYPO3\CMS\Core\Middleware\VerifyHostHeader;
 use TYPO3\CMS\Core\Site\SiteFinder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\RootlineUtility;
 use TYPO3\CMS\Frontend\Http\Application;
 
 class FunctionScopeBuilder
@@ -434,7 +433,6 @@ class FunctionScopeBuilder
 
         $siteFinder->getAllSites(false);
 
-        RootlineUtility::purgeCaches();
         GeneralUtility::makeInstance(CacheManager::class)->getCache('rootline')->flush();
 
         return $this;
