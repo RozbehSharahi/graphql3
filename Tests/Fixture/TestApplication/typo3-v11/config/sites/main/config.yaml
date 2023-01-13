@@ -1,5 +1,5 @@
 base: 'http://localhost:8080/'
-errorHandling: {  }
+errorHandling: []
 languages:
   -
     title: English
@@ -20,10 +20,10 @@ languages:
     base: /de/
     typo3Language: de
     locale: de_DE.UTF-8
-    iso-639-1: en
+    iso-639-1: de
     navigationTitle: Deutsch
     hreflang: de-de
     direction: ltr
     flag: de
 rootPageId: 1
-routes: {  }
+routes: []

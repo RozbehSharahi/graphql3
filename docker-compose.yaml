@@ -14,6 +14,7 @@ services:
       - PHP_IDE_CONFIG=serverName=graphql3
       - GRAPHQL3_JWT_PRIVATE_KEY=file://Tests/Fixture/KeyPairs/Rs256/private.pem
       - GRAPHQL3_JWT_PUBLIC_KEY=file://Tests/Fixture/KeyPairs/Rs256/public.pem
+      - TYPO3_CONTEXT=Development/Docker
     volumes:
       - './:/var/www/html'
     ports:

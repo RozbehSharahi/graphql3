@@ -8,7 +8,6 @@ use Doctrine\DBAL\Exception;
 use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Security\JwtManager;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -59,10 +58,5 @@ class CreateTokenFrontendUserCommand extends Command
         $output->writeln($token);
 
         return Command::SUCCESS;
-    }
-
-    protected function getQuestionHelper(): QuestionHelper
-    {
-        return $this->getHelper('question');
     }
 }

@@ -1,5 +1,5 @@
 base: 'http://localhost:8080/'
-errorHandling: {  }
+errorHandling: []
 languages:
   -
     title: English
@@ -27,4 +27,4 @@ languages:
     flag: de
 
 rootPageId: 1
-routes: {  }
+routes: []

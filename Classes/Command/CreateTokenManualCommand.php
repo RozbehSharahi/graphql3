@@ -53,6 +53,12 @@ class CreateTokenManualCommand extends Command
 
     protected function getQuestionHelper(): QuestionHelper
     {
-        return $this->getHelper('question');
+        $helper = $this->getHelper('question');
+
+        if (!$helper instanceof QuestionHelper) {
+            throw new \RuntimeException('Unexpected helper received in '.__METHOD__);
+        }
+
+        return $helper;
     }
 }
