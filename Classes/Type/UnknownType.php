@@ -12,7 +12,7 @@ use RozbehSharahi\Graphql3\Exception\NotImplementedException;
  */
 class UnknownType extends ScalarType
 {
-    public $description = 'Arbitrary data encoded in JavaScript Object Notation. See https://www.json.org.';
+    public string|null $description = 'Arbitrary data encoded in JavaScript Object Notation. See https://www.json.org.';
 
     /**
      * @return array<string, mixed>|string
