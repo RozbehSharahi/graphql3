@@ -38,7 +38,7 @@
         "typo3/cms-felogin": "^11.5 || ^12",
         "typo3/cms-fluid-styled-content": "^11.5 || ^12",
         "rozbehsharahi/graphql3-test-extension": "@dev",
-        "phpunit/phpunit": "^9",
+        "phpunit/phpunit": "^10",
         "friendsofphp/php-cs-fixer": "dev-master",
         "phpstan/phpstan": "1.8.x-dev"
     },
