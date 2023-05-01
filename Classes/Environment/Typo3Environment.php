@@ -20,10 +20,15 @@ class Typo3Environment
 
     public function isVersion(int $version, int $secondLevelVersion = null): bool
     {
-        if ($secondLevelVersion && $secondLevelVersion !== $this->getSecondLevelVersion()) {
+        if (null !== $secondLevelVersion && $secondLevelVersion !== $this->getSecondLevelVersion()) {
             return false;
         }
 
         return $this->getMainVersion() === $version;
+    }
+
+    public function isGreaterOrEqualVersion(int $version, int $secondLevelVersion = 0): bool
+    {
+        return $this->getMainVersion() >= $version && $this->getSecondLevelVersion() >= $secondLevelVersion;
     }
 }

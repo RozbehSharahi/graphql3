@@ -1,12 +1,18 @@
-<phpunit>
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd">
     <testsuites>
         <testsuite name="functional">
             <directory>Tests/Functional</directory>
         </testsuite>
     </testsuites>
-    <coverage>
+    <coverage/>
+    <source>
         <include>
             <directory suffix=".php">Classes</directory>
         </include>
-    </coverage>
+    </source>
+    <php>
+        <ini name="display_errors" value="true"/>
+    </php>
 </phpunit>

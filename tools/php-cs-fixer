@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+mkdir -p tools/lib/php-cs-fixer
+composer require --dev --working-dir=tools/lib/php-cs-fixer friendsofphp/php-cs-fixer
+tools/lib/php-cs-fixer/vendor/bin/php-cs-fixer "$@"
