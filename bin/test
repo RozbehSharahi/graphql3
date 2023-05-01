@@ -3,4 +3,8 @@
 bin/cache-clear
 bin/php-cs-fixer fix
 bin/phpstan
+
+echo "Wait 1 sec for tests"
+sleep 1
+
 bin/phpunit

@@ -90,7 +90,8 @@ class RecordNodeBuilder implements NodeBuilderInterface
 
         return fn ($_, $args) => $this
             ->recordResolver
-            ->for($this->table)->resolve(ItemRequest::create($args));
+            ->for($this->table)->resolve(ItemRequest::create($args))
+        ;
     }
 
     protected function assertTable(): self

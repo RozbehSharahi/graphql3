@@ -65,7 +65,7 @@ class SecurityTest extends TestCase
     /**
      * @return array<string, mixed>
      */
-    public function canCreateJwtTokenDataProvider(): array
+    public static function canCreateJwtTokenDataProvider(): array
     {
         return [
             'rs256' => [

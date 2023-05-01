@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v3
       - run: sed -i 's/\^11\.5 || \^12/^${{ matrix.version }}/g' composer.json
       - run: composer install
-      - run: vendor/bin/php-cs-fixer fix --dry-run
+      - run: tools/php-cs-fixer fix --dry-run
       - run: vendor/bin/phpstan
       - run: vendor/bin/phpunit
 

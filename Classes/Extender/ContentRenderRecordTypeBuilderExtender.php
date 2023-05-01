@@ -70,7 +70,7 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
 
                 $tsfe = $this->createFrontendController($site, $language, $pageId, $frontendUser);
 
-                if ($this->typo3Environment->isVersion(12, 1)) {
+                if ($this->typo3Environment->isGreaterOrEqualVersion(12, 1)) {
                     return $this->renderContentVersion12Point1($tsfe, $request, $record);
                 }
 
