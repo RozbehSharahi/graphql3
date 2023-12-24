@@ -30,7 +30,7 @@ class UnknownType extends ScalarType
         throw new NotImplementedException('Cannot and maybe should not parse free-object-type.');
     }
 
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral($valueNode, array $variables = null)
     {
         throw new NotImplementedException('Cannot and maybe should not parse literals of free-object-type.');
     }

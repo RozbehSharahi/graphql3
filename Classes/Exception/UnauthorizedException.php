@@ -8,7 +8,7 @@ class UnauthorizedException extends \RuntimeException implements Graphql3Excepti
 {
     public const DEFAULT_MESSAGE = 'Access denied.';
 
-    public function __construct(string $message = self::DEFAULT_MESSAGE, int $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $message = self::DEFAULT_MESSAGE, int $code = 0, \Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
