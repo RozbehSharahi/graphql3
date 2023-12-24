@@ -192,6 +192,11 @@ class ColumnConfiguration
         return 'datetime' === $this->getType();
     }
 
+    public function isSlug(): bool
+    {
+        return 'slug' === $this->getType();
+    }
+
     public function isOneToMany(): bool
     {
         return !$this->hasRelationTable() && 'inline' === $this->getType() && $this->hasForeignTable();
