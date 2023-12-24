@@ -63,8 +63,8 @@ class CurrentSession implements SingletonInterface
     public function hasToken(): bool
     {
         return
-            $this->getRequest()->hasHeader('Authorization') &&
-            str_starts_with($this->getRequest()->getHeaderLine('Authorization'), 'Bearer ');
+            $this->getRequest()->hasHeader('Authorization')
+            && str_starts_with($this->getRequest()->getHeaderLine('Authorization'), 'Bearer ');
     }
 
     public function getToken(): string

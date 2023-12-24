@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 
-use Exception;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -28,7 +27,7 @@ trait FunctionalTrait
     {
         try {
             return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        } catch (Exception) {
+        } catch (\Exception) {
             $this->fail('wrong json given in test '.self::class);
 
             return null;
@@ -43,7 +42,7 @@ trait FunctionalTrait
             return new ServerRequest($url, 'POST', $streamFactory->createStream(
                 json_encode(['query' => $graphqlBody], JSON_THROW_ON_ERROR)
             ));
-        } catch (Exception) {
+        } catch (\Exception) {
             $this->fail('Could not generate graphql request in '.__METHOD__);
         }
 

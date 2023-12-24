@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 
-use JsonException;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -30,7 +29,7 @@ class GraphqlResponse extends Response
 
         try {
             return json_decode($responseBody, true, 512, JSON_THROW_ON_ERROR);
-        } catch (JsonException) {
+        } catch (\JsonException) {
             throw new \RuntimeException('Could not parse graphql response in test: '.$responseBody);
         }
     }

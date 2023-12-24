@@ -7,7 +7,6 @@ namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
-use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
@@ -89,7 +88,7 @@ class FunctionalScope
             $bodyStream = (new StreamFactory())
                 ->createStream(json_encode(['query' => $graphql], JSON_THROW_ON_ERROR))
             ;
-        } catch (Exception) {
+        } catch (\Exception) {
             throw new \RuntimeException('Could not create graphql request in test.');
         }
 
@@ -102,7 +101,7 @@ class FunctionalScope
 
         try {
             return json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
-        } catch (Exception) {
+        } catch (\Exception) {
             throw new \RuntimeException('Test failed since doGraphqlRequest return invalid graphql response');
         }
     }
@@ -116,7 +115,7 @@ class FunctionalScope
             $bodyStream = (new StreamFactory())
                 ->createStream(json_encode(['query' => $graphql], JSON_THROW_ON_ERROR))
             ;
-        } catch (Exception) {
+        } catch (\Exception) {
             throw new \RuntimeException('Could not create graphql request in test.');
         }
 
