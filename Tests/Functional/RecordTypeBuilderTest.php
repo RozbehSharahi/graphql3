@@ -48,6 +48,7 @@ class RecordTypeBuilderTest extends TestCase
                 'uid' => 1,
                 'pid' => 0,
                 'title' => 'root-page',
+                'slug' => '/',
                 'crdate' => 338079600 + 7200,
                 'tstamp' => 338079600 + 7200,
                 'deleted' => 0,
@@ -73,6 +74,7 @@ class RecordTypeBuilderTest extends TestCase
         $response = $scope->doGraphqlRequest('{
             page {
                 title
+                slug
                 parentPage { title }
                 languageParent { title }
                 createdAt(format: "Y-m-d")
