@@ -49,6 +49,7 @@ class GraphqlController
         $response = $this->responseFactory
             ->createResponse()
             ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Access-Control-Allow-Origin', '*')
         ;
 
         try {

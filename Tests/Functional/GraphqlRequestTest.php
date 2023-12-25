@@ -130,4 +130,22 @@ class GraphqlRequestTest extends TestCase
 
         self::assertEquals(404, $response->getStatusCode());
     }
+
+    public function testCanControlCorsHeaders(): void
+    {
+        $scope = $this->getFunctionalScopeBuilder()->build();
+
+        $scope->get(SchemaRegistry::class)->registerCreator(fn () => new Schema([
+            'query' => new NoopQueryType(),
+        ]));
+
+        $response = $scope->graphqlRequest('{
+            noop
+        }');
+
+        self::assertEquals(200, $response->getStatusCode());
+        self::assertSame('noop', $response->get('data.noop'));
+        self::assertEquals('application/json', $response->getHeaderLine('Content-Type'));
+        self::assertEquals('*', $response->getHeaderLine('Access-Control-Allow-Origin'));
+    }
 }
