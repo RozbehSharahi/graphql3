@@ -128,6 +128,16 @@ class TableConfiguration
         return !empty($this->configuration['ctrl']['languageField']);
     }
 
+    public function hasSortingField(): bool
+    {
+        return !empty($this->configuration['ctrl']['sortby']);
+    }
+
+    public function getSortingField(): string
+    {
+        return $this->configuration['ctrl']['sortby'];
+    }
+
     public function hasAccessControl(): bool
     {
         return !empty($this->configuration['ctrl']['enablecolumns']['fe_group']);

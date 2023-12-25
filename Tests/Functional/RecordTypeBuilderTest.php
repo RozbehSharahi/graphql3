@@ -71,10 +71,11 @@ class RecordTypeBuilderTest extends TestCase
             ]),
         ]));
 
-        $response = $scope->doGraphqlRequest('{
+        $response = $scope->graphqlRequest('{
             page {
                 title
                 slug
+                sorting
                 parentPage { title }
                 languageParent { title }
                 createdAt(format: "Y-m-d")
@@ -85,14 +86,15 @@ class RecordTypeBuilderTest extends TestCase
             }
         }');
 
-        self::assertSame('root-page', $response['data']['page']['title']);
-        self::assertNull($response['data']['page']['languageParent']);
-        self::assertNull($response['data']['page']['parentPage']);
-        self::assertSame('1980-09-18', $response['data']['page']['createdAt']);
-        self::assertSame('1980-09-18', $response['data']['page']['updatedAt']);
-        self::assertFalse($response['data']['page']['hidden']);
-        self::assertFalse($response['data']['page']['deleted']);
-        self::assertTrue($response['data']['page']['navigationHide']);
+        self::assertSame('root-page', $response->get('data.page.title'));
+        self::assertNull($response->get('data.page.languageParent'));
+        self::assertNull($response->get('data.page.parentPage'));
+        self::assertSame('1980-09-18', $response->get('data.page.createdAt'));
+        self::assertSame('1980-09-18', $response->get('data.page.updatedAt'));
+        self::assertFalse($response->get('data.page.hidden'));
+        self::assertFalse($response->get('data.page.deleted'));
+        self::assertTrue($response->get('data.page.navigationHide'));
+        self::assertIsInt($response->get('data.page.sorting'));
     }
 
     public function testCanResolveParentPage(): void
