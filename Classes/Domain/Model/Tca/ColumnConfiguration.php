@@ -177,6 +177,13 @@ class ColumnConfiguration
         return 'input' === $this->getType() || 'text' === $this->getType();
     }
 
+    public function isLink(): bool
+    {
+        return
+            'link' === $this->getType()
+            || ('input' === $this->getType() && 'inputLink' === $this->getRenderType());
+    }
+
     public function isInt(): bool
     {
         return 'number' === $this->getType() && 'decimal' !== $this->getFormat();
