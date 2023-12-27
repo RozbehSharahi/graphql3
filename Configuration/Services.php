@@ -12,6 +12,7 @@ use RozbehSharahi\Graphql3\Builder\RecordNodeExtenderInterface;
 use RozbehSharahi\Graphql3\Builder\RecordTypeBuilder;
 use RozbehSharahi\Graphql3\Builder\RecordTypeBuilderExtenderInterface;
 use RozbehSharahi\Graphql3\Controller\GraphqlController;
+use RozbehSharahi\Graphql3\Environment\Typo3Environment;
 use RozbehSharahi\Graphql3\FieldCreator\FieldCreatorInterface;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Resolver\RecordListResolverExtenderInterface;
@@ -80,5 +81,6 @@ return static function (ContainerConfigurator $container, ContainerBuilder $cont
         $containerBuilder->registerForAutoconfiguration(RecordResolver::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(JwtManager::class)->setPublic(true);
         $containerBuilder->registerForAutoconfiguration(MutationType::class)->setPublic(true);
+        $containerBuilder->registerForAutoconfiguration(Typo3Environment::class)->setPublic(true);
     }
 };
