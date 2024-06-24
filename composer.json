@@ -24,7 +24,7 @@
         "typo3/cms-frontend": "^11.5 || ^12",
         "typo3/cms-extensionmanager": "^11.5 || ^12",
         "webonyx/graphql-php": "^v15.0.1",
-        "symfony/security-core": "^v6.0.14",
+        "symfony/security-core": "^v7.1.1",
         "doctrine/inflector": "^2.0.6",
         "firebase/php-jwt": "^6.3.0"
     },
