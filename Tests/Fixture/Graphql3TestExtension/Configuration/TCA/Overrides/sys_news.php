@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 $GLOBALS['TCA']['sys_news']['types']['1']['showitem'] .= ',flexform';
 
-$typo3Environment = new \RozbehSharahi\Graphql3\Environment\Typo3Environment();
+$typo3Environment = new RozbehSharahi\Graphql3\Environment\Typo3Environment();
 
 $filesFlexForm = '
   <settings.files>

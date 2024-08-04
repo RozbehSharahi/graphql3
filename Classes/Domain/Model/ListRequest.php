@@ -26,7 +26,7 @@ class ListRequest
     /**
      * @param array<string, mixed> $arguments
      */
-    public static function create(array $arguments = [], \Closure $queryModifier = null): self
+    public static function create(array $arguments = [], ?\Closure $queryModifier = null): self
     {
         return GeneralUtility::makeInstance(self::class, $arguments, $queryModifier);
     }
@@ -34,7 +34,7 @@ class ListRequest
     /**
      * @param array<string, mixed> $arguments
      */
-    public function __construct(protected array $arguments = [], \Closure $queryModifier = null)
+    public function __construct(protected array $arguments = [], ?\Closure $queryModifier = null)
     {
         $this->queryModifier = $queryModifier ?: static fn ($v) => $v;
     }

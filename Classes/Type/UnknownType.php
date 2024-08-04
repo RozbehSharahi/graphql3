@@ -12,7 +12,7 @@ use RozbehSharahi\Graphql3\Exception\NotImplementedException;
  */
 class UnknownType extends ScalarType
 {
-    public string|null $description = 'Arbitrary data encoded in JavaScript Object Notation. See https://www.json.org.';
+    public ?string $description = 'Arbitrary data encoded in JavaScript Object Notation. See https://www.json.org.';
 
     /**
      * @return array<string, mixed>|string
@@ -30,7 +30,7 @@ class UnknownType extends ScalarType
         throw new NotImplementedException('Cannot and maybe should not parse free-object-type.');
     }
 
-    public function parseLiteral($valueNode, array $variables = null)
+    public function parseLiteral($valueNode, ?array $variables = null)
     {
         throw new NotImplementedException('Cannot and maybe should not parse literals of free-object-type.');
     }

@@ -126,7 +126,7 @@ class FunctionalScope
     }
 
     /**
-     * @param array<string, int|string|boolean> $data
+     * @param array<string, int|string|bool> $data
      */
     public function createRecord(string $table, array $data): self
     {

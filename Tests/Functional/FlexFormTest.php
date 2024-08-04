@@ -144,7 +144,7 @@ class FlexFormTest extends TestCase
         ]);
 
         $GLOBALS['TCA']['tt_content']['columns']['pi_flexform']['config']['ds'] = [
-            'default' => 'FILE:EXT:graphql3/Tests/Fixture/FlexForm/flex-form.string-field.xml',
+            'default' => 'FILE:EXT:graphql3test/Configuration/FlexForm/flex-form.string-field.xml',
         ];
 
         $GLOBALS['TCA']['tt_content']['graphql3']['flexFormColumns'] = [
