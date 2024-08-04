@@ -54,7 +54,7 @@
 <script>
     function graphQLFetcher(graphQLParams) {
         return fetch(
-            '//' + window.location.host + '/graphql',
+            window.location.href.split('/graphiql').join('/graphql'),
             {
                 method: 'post',
                 headers: {
