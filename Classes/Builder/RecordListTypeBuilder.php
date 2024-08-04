@@ -58,29 +58,29 @@ class RecordListTypeBuilder implements TypeBuilderInterface
         }
 
         return self::$cache[$this->table->getName()] ?? self::$cache[$this->table->getName()] = new ObjectType([
-                'name' => $this->table->getPascalSingularName().'List',
-                'fields' => function () {
-                    return Collection::create()
-                        ->add(
-                            Node::create('count')
-                                ->withType(Type::int())
-                                ->withResolver(fn (ListRequest $request) => $this
-                                    ->recordListResolver
-                                    ->for($this->table)
-                                    ->resolveCount($request)
-                                )
-                        )
-                        ->add(
-                            Node::create('items')
-                                ->withType(Type::listOf($this->recordTypeBuilder->for($this->table)->build()))
-                                ->withResolver(fn (ListRequest $request) => $this
-                                    ->recordListResolver
-                                    ->for($this->table)
-                                    ->resolveItems($request))
-                        )
-                        ->toArray()
-                    ;
-                },
-            ]);
+            'name' => $this->table->getPascalSingularName().'List',
+            'fields' => function () {
+                return Collection::create()
+                    ->add(
+                        Node::create('count')
+                            ->withType(Type::int())
+                            ->withResolver(fn (ListRequest $request) => $this
+                                ->recordListResolver
+                                ->for($this->table)
+                                ->resolveCount($request)
+                            )
+                    )
+                    ->add(
+                        Node::create('items')
+                            ->withType(Type::listOf($this->recordTypeBuilder->for($this->table)->build()))
+                            ->withResolver(fn (ListRequest $request) => $this
+                                ->recordListResolver
+                                ->for($this->table)
+                                ->resolveItems($request))
+                    )
+                    ->toArray()
+                ;
+            },
+        ]);
     }
 }

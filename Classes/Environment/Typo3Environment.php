@@ -18,7 +18,7 @@ class Typo3Environment
         return (int) explode('.', VersionNumberUtility::getCurrentTypo3Version())[1];
     }
 
-    public function isVersion(int $version, int $secondLevelVersion = null): bool
+    public function isVersion(int $version, ?int $secondLevelVersion = null): bool
     {
         if (null !== $secondLevelVersion && $secondLevelVersion !== $this->getSecondLevelVersion()) {
             return false;

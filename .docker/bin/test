@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+
+.docker/bin/cache-clear
+.docker/bin/php-cs-fixer fix
+.docker/bin/phpstan
+
+echo "Wait 1 sec for tests"
+sleep 1
+
+.docker/bin/phpunit

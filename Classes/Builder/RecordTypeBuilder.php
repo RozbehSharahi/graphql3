@@ -62,31 +62,31 @@ class RecordTypeBuilder implements TypeBuilderInterface
         }
 
         return self::$cache[$this->table->getName()] ?? self::$cache[$this->table->getName()] = new ObjectType([
-                'name' => $this->table->getPascalSingularName(),
-                'fields' => function () {
-                    $fields = GraphqlNodeCollection::create();
+            'name' => $this->table->getPascalSingularName(),
+            'fields' => function () {
+                $fields = GraphqlNodeCollection::create();
 
-                    $columns = [...$this->table->getColumns(), ...$this->table->getFlexFormColumns()];
+                $columns = [...$this->table->getColumns(), ...$this->table->getFlexFormColumns()];
 
-                    foreach ($columns as $column) {
-                        $node = $this->resolveNode($column);
+                foreach ($columns as $column) {
+                    $node = $this->resolveNode($column);
 
-                        if (!$node) {
-                            continue;
-                        }
-
-                        $fields = $fields->add($node);
+                    if (!$node) {
+                        continue;
                     }
 
-                    foreach ($this->extenders as $extender) {
-                        if ($extender->supportsTable($this->table)) {
-                            $fields = $extender->extendNodes($this->table, $fields);
-                        }
-                    }
+                    $fields = $fields->add($node);
+                }
 
-                    return $fields->toArray();
-                },
-            ]);
+                foreach ($this->extenders as $extender) {
+                    if ($extender->supportsTable($this->table)) {
+                        $fields = $extender->extendNodes($this->table, $fields);
+                    }
+                }
+
+                return $fields->toArray();
+            },
+        ]);
     }
 
     protected function resolveNode(ColumnConfiguration $column): ?GraphqlNode

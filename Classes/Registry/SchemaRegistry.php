@@ -9,7 +9,7 @@ use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 
 class SchemaRegistry
 {
-    protected \Closure|null $schemaCreator = null;
+    protected ?\Closure $schemaCreator = null;
 
     public function registerCreator(\Closure $schemaCreator): self
     {
