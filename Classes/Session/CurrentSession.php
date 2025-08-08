@@ -10,6 +10,7 @@ use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Security\JwtManager;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 
@@ -41,7 +42,7 @@ class CurrentSession implements SingletonInterface
         return $this->request;
     }
 
-    public function getSite(): SiteInterface
+    public function getSite(): Site
     {
         return $this->request->getAttribute('site');
     }
@@ -103,7 +104,7 @@ class CurrentSession implements SingletonInterface
     public function isLanguageCodeAvailable(string $code): bool
     {
         foreach ($this->getSite()->getLanguages() as $language) {
-            if ($language->getTwoLetterIsoCode() === $code) {
+            if ($language->getLocale()->getLanguageCode() === $code) {
                 return true;
             }
         }
@@ -114,7 +115,7 @@ class CurrentSession implements SingletonInterface
     public function getLanguageByCode(string $code): SiteLanguage
     {
         foreach ($this->getSite()->getLanguages() as $language) {
-            if ($language->getTwoLetterIsoCode() === $code) {
+            if ($language->getLocale()->getLanguageCode() === $code) {
                 return $language;
             }
         }

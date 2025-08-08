@@ -48,3 +48,6 @@ services:
   RozbehSharahi\Graphql3\Command\CreateTokenFrontendUserCommand:
     tags:
       - { name: console.command, command: 'graphql3:create-token:frontend-user' }
+
+  TYPO3\CMS\Core\TypoScript\FrontendTypoScriptFactory:
+    public: true

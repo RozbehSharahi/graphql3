@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace RozbehSharahi\Graphql3\Tests\Functional;
 
 use PHPUnit\Framework\TestCase;
-use RozbehSharahi\Graphql3\Environment\Typo3Environment;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalScope;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class ContentTest extends TestCase
 {
@@ -17,10 +15,6 @@ class ContentTest extends TestCase
     public function testCanFetchContent(): void
     {
         $scope = $this->createScope();
-
-        if (11 === $scope->get(Typo3Environment::class)->getMainVersion()) {
-            GeneralUtility::setIndpEnv('TYPO3_REQUEST_HOST', 'testing.typo3');
-        }
 
         $scope
             ->createRecord('tt_content', [

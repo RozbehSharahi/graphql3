@@ -8,14 +8,10 @@ use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Session\CurrentSession;
 use TYPO3\CMS\Core\LinkHandling\LinkService;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
-use TYPO3\CMS\Extbase\Mvc\Request;
-use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 
 class TypolinkService implements SingletonInterface
 {
     public function __construct(
-        protected UriBuilder $uriBuilder,
         protected LinkService $linkService,
         protected CurrentSession $currentSession,
     ) {
@@ -50,22 +46,6 @@ class TypolinkService implements SingletonInterface
 
     protected function createPageLink(int $pageUid): string
     {
-        // settings the attribute seems to be some kind of misconception of TYPO3
-        // Therefore we do this here as it is also done in UriBuilder
-        // @see \TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder::getRequest
-        $extbaseRequest = new Request(
-            $this
-                ->currentSession
-                ->getRequest()
-                ->withAttribute('extbase', new ExtbaseRequestParameters())
-        );
-
-        return $this->uriBuilder
-            ->reset()
-            ->setRequest($extbaseRequest)
-            ->setTargetPageUid($pageUid)
-            ->setCreateAbsoluteUri(false)
-            ->buildFrontendUri()
-        ;
+        return $this->currentSession->getSite()->getRouter()->generateUri($pageUid)->__toString();
     }
 }

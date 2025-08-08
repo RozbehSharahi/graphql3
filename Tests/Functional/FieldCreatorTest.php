@@ -14,6 +14,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Builder\RecordNodeBuilder;
+use RozbehSharahi\Graphql3\Environment\Typo3Environment;
 use RozbehSharahi\Graphql3\Registry\SchemaRegistry;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
 
@@ -177,7 +178,9 @@ class FieldCreatorTest extends TestCase
     {
         $scope = $this->getFunctionalScopeBuilder()->withAutoCreateHomepage(false)->build();
 
-        $tableDiff = new TableDiff('pages', [
+        $table = (new Typo3Environment())->isVersion(13) ? new Table('pages') : 'pages';
+
+        $tableDiff = new TableDiff($table, [
             (new Column('news', Type::getType('integer')))->setNotnull(false),
         ]);
 

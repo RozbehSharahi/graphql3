@@ -6,6 +6,8 @@
 > trust in its production readiness**. Currently there is not much movement.
 > You are very welcome to contribute by testing and using the
 > [issue board](https://github.com/RozbehSharahi/graphql3/issues).
+ 
+> With version 2.0.0, TYPO3 11 is no longer supported. Make sure to have php >= 8.2 and TYPO3 12 or 13 installed
 
 ---
 

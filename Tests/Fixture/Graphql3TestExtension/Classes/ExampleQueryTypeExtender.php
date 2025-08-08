@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-/** @noinspection PhpIllegalPsrClassPathInspection */
-
 namespace RozbehSharahi\Graphql3TestExtension;
 
 use RozbehSharahi\Graphql3\Builder\RecordListNodeBuilder;
@@ -22,8 +20,6 @@ class ExampleQueryTypeExtender implements QueryTypeExtenderInterface
     public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
     {
         return $nodes
-            ->add($this->recordListNodeBuilder->for('sys_log')->build())
-            ->add($this->recordNodeBuilder->for('sys_log')->build())
             ->add($this->recordListNodeBuilder->for('sys_news')->build()->withName('sysNewsItems'))
             ->add($this->recordNodeBuilder->for('sys_news')->build()->withName('sysNewsItem'))
         ;

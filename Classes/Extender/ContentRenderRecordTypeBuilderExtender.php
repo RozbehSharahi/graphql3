@@ -17,15 +17,17 @@ use RozbehSharahi\Graphql3\Environment\Typo3Environment;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
 use RozbehSharahi\Graphql3\Session\CurrentSession;
 use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Core\Site\Entity\SiteInterface;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\TypoScript\FrontendTypoScriptFactory;
+use TYPO3\CMS\Core\TypoScript\IncludeTree\SysTemplateRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
 use TYPO3\CMS\Frontend\Authentication\FrontendUserAuthentication;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use TYPO3\CMS\Frontend\Page\PageInformation;
 
 class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
 {
@@ -37,10 +39,11 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
 
     public const ERROR_UNEXPECTED_DIRECT_RESPONSE = 'TSFE gave a direct response on determineId. Is there a page that conflicts with your graphql3 route?';
 
-    public const ERROR_UNEXPECTED_TYPO3_CORE_CODE = 'Content rendering on graphql3 is very different on each typo3 version. However an unexpected state of core code was detected on runtime.';
-
-    public function __construct(protected CurrentSession $currentSession, protected Typo3Environment $typo3Environment)
-    {
+    public function __construct(
+        protected CurrentSession $currentSession,
+        protected Typo3Environment $typo3Environment,
+        protected SysTemplateRepository $sysTemplateRepository,
+    ) {
     }
 
     public function supportsTable(TableConfiguration $table): bool
@@ -70,16 +73,12 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
 
                 $tsfe = $this->createFrontendController($site, $language, $pageId, $frontendUser);
 
-                if ($this->typo3Environment->isGreaterOrEqualVersion(12, 1)) {
-                    return $this->renderContentVersion12Point1($tsfe, $request, $record);
+                if ($this->typo3Environment->isVersion(13)) {
+                    return $this->renderContentVersion13($tsfe, $request, $record);
                 }
 
-                if ($this->typo3Environment->isVersion(12, 0)) {
-                    return $this->renderContentVersion12Point0($tsfe, $request, $record);
-                }
-
-                if ($this->typo3Environment->isVersion(11)) {
-                    return $this->renderContentVersion11($tsfe, $request, $record);
+                if ($this->typo3Environment->isVersion(12)) {
+                    return $this->renderContentVersion12($tsfe, $request, $record);
                 }
 
                 throw new InternalErrorException('Unsupported typo3 version for graphql3.');
@@ -89,22 +88,51 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
         return $nodes->add($node);
     }
 
-    protected function renderContentVersion12Point1(
+    protected function renderContentVersion13(
         TypoScriptFrontendController $tsfe,
         ServerRequestInterface $request,
         Record $record,
     ): string {
-        $directResponse = $tsfe->determineId($request);
+        $frontendTypoScriptFactory = GeneralUtility::makeInstance(FrontendTypoScriptFactory::class);
 
-        if ($directResponse) {
-            throw new InternalErrorException(self::ERROR_UNEXPECTED_DIRECT_RESPONSE);
+        if (!$frontendTypoScriptFactory instanceof FrontendTypoScriptFactory) {
+            throw new InternalErrorException('FrontendTypoScriptFactory not found in container.');
         }
 
-        try {
-            $request = $tsfe->getFromCache($request);
-        } catch (\Throwable $e) {
-            throw new InternalErrorException(self::ERROR_COULD_NOT_CREATE_FRONTEND_CONTROLLER.': '.$e->getMessage());
+        /** @var SiteInterface $site */
+        $site = $request->getAttribute('site');
+
+        $sysTemplateRows = $this->evaluateSysTemplateRows($request, $record->getPid());
+
+        if (empty($sysTemplateRows)) {
+            throw new \RuntimeException(self::ERROR_COULD_NOT_CREATE_FRONTEND_CONTROLLER);
         }
+
+        $frontendTypoScript = $frontendTypoScriptFactory->createSettingsAndSetupConditions(
+            $site,
+            $sysTemplateRows,
+            [],
+            null,
+        );
+
+        $frontendTypoScriptFactory->createSetupConfigOrFullSetup(
+            true,
+            $frontendTypoScript,
+            $site,
+            $sysTemplateRows,
+            [],
+            '0',
+            null,
+            $request,
+        );
+
+        $pageInformation = new PageInformation();
+        $pageInformation->setId($record->getPid());
+        $pageInformation->setPageRecord([]);
+        $pageInformation->setSysTemplateRows($sysTemplateRows);
+
+        $request = $request->withAttribute('frontend.typoscript', $frontendTypoScript);
+        $request = $request->withAttribute('frontend.page.information', $pageInformation);
 
         $renderer = $this->createRenderer($tsfe);
         $renderer->setRequest($request);
@@ -131,24 +159,22 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
             return $tsfe->content;
         });
 
-        $tsfe->releaseLocks();
-
         return $renderedContent;
     }
 
-    protected function renderContentVersion12Point0(
+    protected function renderContentVersion12(
         TypoScriptFrontendController $tsfe,
         ServerRequestInterface $request,
         Record $record,
     ): string {
-        $directResponse = $tsfe->determineId($request);
+        $directResponse = $tsfe->determineId($request); // @phpstan-ignore-line
 
         if ($directResponse) {
             throw new InternalErrorException(self::ERROR_UNEXPECTED_DIRECT_RESPONSE);
         }
 
         try {
-            $tsfe->getFromCache($request);
+            $request = $tsfe->getFromCache($request); // @phpstan-ignore-line
         } catch (\Throwable $e) {
             throw new InternalErrorException(self::ERROR_COULD_NOT_CREATE_FRONTEND_CONTROLLER.': '.$e->getMessage());
         }
@@ -178,68 +204,9 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
             return $tsfe->content;
         });
 
-        $tsfe->releaseLocks();
-
-        RootlineUtility::{'purgeCaches'}();
-
-        return $renderedContent;
-    }
-
-    protected function renderContentVersion11(
-        TypoScriptFrontendController $tsfe,
-        ServerRequest $request,
-        Record $record,
-    ): string {
-        $directResponse = $tsfe->determineId($request);
-
-        if ($directResponse) {
-            throw new InternalErrorException(self::ERROR_UNEXPECTED_DIRECT_RESPONSE);
+        if (method_exists($tsfe, 'releaseLocks')) {
+            $tsfe->releaseLocks();
         }
-
-        try {
-            $tsfe->getFromCache($request);
-        } catch (\Throwable $e) {
-            throw new InternalErrorException(self::ERROR_COULD_NOT_CREATE_FRONTEND_CONTROLLER.': '.$e->getMessage());
-        }
-
-        if (!method_exists($tsfe, 'getConfigArray')) {
-            throw new InternalErrorException(self::ERROR_UNEXPECTED_TYPO3_CORE_CODE);
-        }
-
-        try {
-            $tsfe->getConfigArray($request);
-        } catch (\Throwable $e) {
-            throw new InternalErrorException(self::ERROR_COULD_NOT_CREATE_FRONTEND_CONTROLLER.': '.$e->getMessage());
-        }
-
-        $renderer = $this->createRenderer($tsfe);
-        $renderer->setRequest($request);
-
-        $renderedContent = $renderer->cObjGetSingle('RECORDS', [
-            'tables' => 'tt_content',
-            'source' => $record->getUid(),
-            'dontCheckPid' => 1,
-        ]);
-
-        // now it gets wicked, we replace the uncached markers INT_script
-        $tsfe->content = $renderedContent;
-        $tsfe->cObj = $renderer;
-        $tsfe->config['INTincScript'] ??= [];
-        $tsfe->config['INTincScript_ext'] ??= [];
-        $tsfe->config['INTincScript_ext']['divKey'] ??= null;
-
-        // The run method will make sure to rollback tsfe and typo3_request globals
-        $renderedContent = $this->run(function () use ($tsfe, $request) {
-            $GLOBALS['TSFE'] = $tsfe;
-            $GLOBALS['TYPO3_REQUEST'] = $request;
-            $tsfe->INTincScript($request);
-
-            return $tsfe->content;
-        });
-
-        $tsfe->releaseLocks();
-
-        RootlineUtility::{'purgeCaches'}();
 
         return $renderedContent;
     }
@@ -279,5 +246,15 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
             new PageArguments($pageId, '0', []),
             $frontendUser
         );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function evaluateSysTemplateRows(ServerRequestInterface $request, int $pageId): array
+    {
+        $rootLine = GeneralUtility::makeInstance(RootlineUtility::class, $pageId)->get();
+
+        return $this->sysTemplateRepository->getSysTemplateRowsByRootline($rootLine, $request);
     }
 }

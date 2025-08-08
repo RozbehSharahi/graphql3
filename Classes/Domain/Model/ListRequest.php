@@ -119,7 +119,7 @@ class ListRequest
         }
 
         $clone = clone $this;
-        $clone->arguments[self::PARAMETER_LANGUAGE] = $record->getLanguage()->getTwoLetterIsoCode();
+        $clone->arguments[self::PARAMETER_LANGUAGE] = $record->getLanguage()->getLocale()->getLanguageCode();
 
         return $clone;
     }

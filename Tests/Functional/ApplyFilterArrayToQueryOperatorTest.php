@@ -16,7 +16,7 @@ class ApplyFilterArrayToQueryOperatorTest extends TestCase
     public function testCanApplyFilterArrayToQueryBuilder(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-        $query = $scope->getConnectionPool()->getQueryBuilderForTable('pages');
+        $query = $scope->getConnectionPool()->getQueryBuilderForTable('pages')->select('*');
 
         $this->createOperator()->operate($query, [
             ['type' => 'eq', 'field' => 'uid', 'value' => 123],
@@ -31,7 +31,7 @@ class ApplyFilterArrayToQueryOperatorTest extends TestCase
     public function testCanApplyOrTypeToQueryBuilder(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-        $query = $scope->getConnectionPool()->getQueryBuilderForTable('pages');
+        $query = $scope->getConnectionPool()->getQueryBuilderForTable('pages')->select('*');
 
         $this->createOperator()->operate($query, [
             [
@@ -51,7 +51,7 @@ class ApplyFilterArrayToQueryOperatorTest extends TestCase
     public function testCanApplyInTypeToQueryBuilder(): void
     {
         $scope = $this->getFunctionalScopeBuilder()->build();
-        $query = $scope->getConnectionPool()->getQueryBuilderForTable('pages');
+        $query = $scope->getConnectionPool()->getQueryBuilderForTable('pages')->select('*');
 
         $this->createOperator()->operate($query, [
             ['type' => 'in', 'field' => 'uid', 'values' => ['10', '20', '30']],

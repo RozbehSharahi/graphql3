@@ -419,17 +419,10 @@ class FunctionScopeBuilder
         return '<?php return '.var_export($configuration, true).';';
     }
 
-    /** @noinspection PhpExpressionResultUnusedInspection */
     protected function clearSiteFinderCache(): self
     {
         /** @var SiteFinder $siteFinder */
         $siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
-
-        // Typo3 BUG: does not empty mappingRootPageIdToIdentifier on useCache = false
-        $reflection = new \ReflectionClass($siteFinder);
-        $property = $reflection->getProperty('mappingRootPageIdToIdentifier');
-        $property->setAccessible(true);
-        $property->setValue($siteFinder, []);
 
         $siteFinder->getAllSites(false);
 

@@ -136,11 +136,6 @@ class PageTest extends TestCase
             ->createRecord('pages', [
                 'pid' => 1,
                 'title' => 'some title',
-                'doktype' => PageRepository::DOKTYPE_RECYCLER,
-            ])
-            ->createRecord('pages', [
-                'pid' => 1,
-                'title' => 'some title',
                 'doktype' => PageRepository::DOKTYPE_SPACER,
             ])
             ->createRecord('pages', [
@@ -162,12 +157,12 @@ class PageTest extends TestCase
         self::assertSame(200, $response->getStatusCode());
         self::assertSame(5, $response->get('data.pages.count')); // don't forget homepage
 
-        $doktypes = array_map(static fn ($v) => $v['doktype'], $response->get('data.pages.items'));
-        self::assertContainsEquals('0', $doktypes);
-        self::assertContainsEquals(PageRepository::DOKTYPE_DEFAULT, $doktypes);
-        self::assertContainsEquals(PageRepository::DOKTYPE_SHORTCUT, $doktypes);
-        self::assertContainsEquals(PageRepository::DOKTYPE_LINK, $doktypes);
-        self::assertContainsEquals(PageRepository::DOKTYPE_SPACER, $doktypes);
+        $pageTypes = array_map(static fn ($v) => $v['doktype'], $response->get('data.pages.items'));
+        self::assertContainsEquals('0', $pageTypes);
+        self::assertContainsEquals(PageRepository::DOKTYPE_DEFAULT, $pageTypes);
+        self::assertContainsEquals(PageRepository::DOKTYPE_SHORTCUT, $pageTypes);
+        self::assertContainsEquals(PageRepository::DOKTYPE_LINK, $pageTypes);
+        self::assertContainsEquals(PageRepository::DOKTYPE_SPACER, $pageTypes);
 
         $response = $scope->graphqlRequest('{
             pages(allDoktypes: true) {
@@ -179,10 +174,10 @@ class PageTest extends TestCase
         }');
 
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame(9, $response->get('data.pages.count')); // don't forget homepage
+        self::assertSame(8, $response->get('data.pages.count')); // don't forget homepage
 
-        $doktypes = array_map(static fn ($v) => $v['doktype'], $response->get('data.pages.items'));
-        self::assertContainsEquals(PageRepository::DOKTYPE_SYSFOLDER, $doktypes);
+        $pageTypes = array_map(static fn ($v) => $v['doktype'], $response->get('data.pages.items'));
+        self::assertContainsEquals(PageRepository::DOKTYPE_SYSFOLDER, $pageTypes);
     }
 
     public function testPageChildrenHasNoLanguageAttribute(): void

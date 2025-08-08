@@ -8,8 +8,8 @@ use PHPUnit\Framework\TestCase;
 use RozbehSharahi\Graphql3\Domain\Model\JwtUser;
 use RozbehSharahi\Graphql3\Security\JwtManager;
 use RozbehSharahi\Graphql3\Tests\Functional\Core\FunctionalTrait;
+use TYPO3\CMS\Core\Context\AspectInterface;
 use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Context\UserAspect;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 class SecurityTest extends TestCase
@@ -113,16 +113,29 @@ class SecurityTest extends TestCase
 
     public function testCanCreateJwtTokenFromSession(): void
     {
-        $userAspect = $this->createMock(UserAspect::class);
-        $userAspect->method('isLoggedIn')->willReturn(true);
-        $userAspect->method('get')->willReturnCallback(fn ($param) => [
-            'username' => 'test-user',
-            'id' => 1,
-        ][$param]);
-        $userAspect->method('getGroupIds')->willReturn([-1, 0, '0', '-3', 2, 4]);
-
         GeneralUtility::makeInstance(Context::class)
-            ->setAspect('frontend.user', $userAspect)
+            ->setAspect('frontend.user', new class implements AspectInterface {
+                public function isLoggedIn(): bool
+                {
+                    return true;
+                }
+
+                public function get(string $name)
+                {
+                    return [
+                        'username' => 'test-user',
+                        'id' => 1,
+                    ][$name];
+                }
+
+                /**
+                 * @return array<int, string|int>
+                 */
+                public function getGroupIds(): array
+                {
+                    return [-1, 0, '0', '-3', 2, 4];
+                }
+            })
         ;
 
         $user = JwtUser::createFromTypo3Session();

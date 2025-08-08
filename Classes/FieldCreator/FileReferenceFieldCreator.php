@@ -10,15 +10,16 @@ use RozbehSharahi\Graphql3\Domain\Model\GraphqlNode;
 use RozbehSharahi\Graphql3\Domain\Model\Record;
 use RozbehSharahi\Graphql3\Domain\Model\Tca\ColumnConfiguration;
 use RozbehSharahi\Graphql3\Exception\InternalErrorException;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Resource\FileReference;
-use TYPO3\CMS\Core\Resource\FileRepository;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 
 class FileReferenceFieldCreator implements FieldCreatorInterface
 {
     public function __construct(
         protected FileReferenceTypeBuilder $fileReferenceTypeBuilder,
-        protected FileRepository $fileRepository,
+        protected ResourceFactory $resourceFactory,
         protected ConnectionPool $connectionPool,
     ) {
     }
@@ -56,7 +57,7 @@ class FileReferenceFieldCreator implements FieldCreatorInterface
             ->from('sys_file_reference')
             ->where(
                 $query
-                    ->expr()->eq('uid_foreign', $query->createNamedParameter($record->getUid(), \PDO::PARAM_INT)),
+                    ->expr()->eq('uid_foreign', $query->createNamedParameter($record->getUid(), Connection::PARAM_INT)),
                 $query
                     ->expr()->eq('tablenames', $query->createNamedParameter($record->getTable()->getName())),
                 $query
@@ -68,7 +69,7 @@ class FileReferenceFieldCreator implements FieldCreatorInterface
         try {
             $uids = array_map(static fn ($v) => $v['uid'], $query->executeQuery()->fetchAllAssociative());
 
-            return array_map(fn ($v) => $this->fileRepository->findFileReferenceByUid($v), $uids);
+            return array_map(fn ($v) => $this->resourceFactory->getFileReferenceObject($v), $uids);
         } catch (\Throwable $e) {
             throw new InternalErrorException('Error on fetching file-references for '.$column->getFullName().': '.$e->getMessage());
         }

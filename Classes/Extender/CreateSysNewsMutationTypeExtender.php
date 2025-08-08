@@ -55,7 +55,7 @@ class CreateSysNewsMutationTypeExtender implements MutationTypeExtenderInterface
                     ]);
                     $query->executeStatement();
 
-                    return $query->getConnection()->lastInsertId('sys_news');
+                    return $query->getConnection()->lastInsertId();
                 })
         );
     }

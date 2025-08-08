@@ -1,0 +1,26 @@
+base: 'http://localhost:8080/'
+languages:
+  -
+    title: English
+    enabled: true
+    languageId: 0
+    base: /en/
+    locale: en_US.UTF-8
+    navigationTitle: English
+    flag: us
+    hreflang: ''
+    websiteTitle: ''
+  -
+    title: German
+    enabled: true
+    locale: de_DE
+    hreflang: ''
+    base: /de/
+    websiteTitle: ''
+    navigationTitle: Deutsch
+    fallbackType: strict
+    fallbacks: ''
+    flag: de
+    languageId: 1
+rootPageId: 1
+websiteTitle: ''

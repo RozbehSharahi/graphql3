@@ -61,12 +61,12 @@ class LocalizationTest extends TestCase
                 count
                 items {
                     title
-                    language {twoLetterIsoCode}
+                    language {locale}
                     children {
                         count
                         items {
                             title
-                            language {twoLetterIsoCode}
+                            language {locale}
                         }
                     }
                 }

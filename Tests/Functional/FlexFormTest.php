@@ -356,12 +356,12 @@ class FlexFormTest extends TestCase
         $response = $scope->graphqlRequest('{
             content(uid: 1) {
                 flexLanguage {
-                    twoLetterIsoCode
+                    locale
                 }
             }
         }');
 
-        self::assertSame('de', $response->get('data.content.flexLanguage.twoLetterIsoCode'));
+        self::assertSame('de-AT', $response->get('data.content.flexLanguage.locale'));
     }
 
     public function testDynamicFlexFormStructuresAreNotSupported(): void

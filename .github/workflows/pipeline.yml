@@ -6,7 +6,7 @@ jobs:
 
     strategy:
       matrix:
-        version: [12]
+        version: ['12.4', '13.4']
 
     env:
       GRAPHQL3_JWT_PRIVATE_KEY: "file://Tests/Fixture/KeyPairs/Rs256/private.pem"
@@ -18,7 +18,7 @@ jobs:
           php-version: "8.2"
           extensions: pdo, sqlite3, intl-70.1
       - uses: actions/checkout@v3
-      - run: sed -i 's/\^12.4/^${{ matrix.version }}/g' composer.json
+      - run: sed -i 's/\^12\.4 || \^13\.4/^${{ matrix.version }}/g' composer.json
       - run: composer install
       - run: tools/php-cs-fixer fix --dry-run
       - run: vendor/bin/phpstan

@@ -6,3 +6,4 @@ parameters:
 		- Tests
 	excludePaths:
 	    - Tests/Fixture
+	    - Classes/Extender/ContentRenderRecordTypeBuilderExtender
