@@ -7,7 +7,7 @@ echo "Create temporary v12 composer.json"
 bin/docker exec app cp composer.json composer.v12.json
 
 echo "Now replace version numbers on version specific composer.*.json"
-bin/docker exec app sed -i 's/\^11\.5 || \^12/^12/g' composer.v12.json
+bin/docker exec app sed -i 's/\^12/^12/g' composer.v12.json
 
 echo "Now calling composer update so typo3 sets up missing files in public directory."
 bin/docker exec --env COMPOSER=composer.v12.json app composer update
