@@ -20,7 +20,7 @@ class AccessChecker
     public function __construct(
         protected CurrentSession $currentSession,
         protected JwtManager $jwtManager,
-        protected iterable $voters
+        protected iterable $voters,
     ) {
         $this->decisionManager = new AccessDecisionManager($voters, new UnanimousStrategy(true));
     }

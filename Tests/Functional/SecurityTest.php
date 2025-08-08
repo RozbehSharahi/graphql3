@@ -23,7 +23,7 @@ class SecurityTest extends TestCase
         string $algorithm,
         string $privateKey,
         ?string $publicKey,
-        ?string $passphrase
+        ?string $passphrase,
     ): void {
         $scope = $this->getFunctionalScopeBuilder()->build();
 

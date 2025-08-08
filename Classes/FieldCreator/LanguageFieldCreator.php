@@ -15,7 +15,7 @@ class LanguageFieldCreator implements FieldCreatorInterface
 {
     public function __construct(
         protected LanguageTypeBuilder $languageTypeBuilder,
-        protected LanguageResolver $languageResolver
+        protected LanguageResolver $languageResolver,
     ) {
     }
 

@@ -25,7 +25,7 @@ class RecordNodeBuilder implements NodeBuilderInterface
     public function __construct(
         protected RecordTypeBuilder $recordTypeBuilder,
         protected RecordResolver $recordResolver,
-        protected iterable $extenders
+        protected iterable $extenders,
     ) {
     }
 

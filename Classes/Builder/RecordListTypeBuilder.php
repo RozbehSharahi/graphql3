@@ -29,7 +29,7 @@ class RecordListTypeBuilder implements TypeBuilderInterface
 
     public function __construct(
         protected RecordTypeBuilder $recordTypeBuilder,
-        protected RecordListResolver $recordListResolver
+        protected RecordListResolver $recordListResolver,
     ) {
     }
 

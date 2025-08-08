@@ -38,7 +38,7 @@ class RecordTypeBuilder implements TypeBuilderInterface
      */
     public function __construct(
         protected iterable $fieldCreators,
-        protected iterable $extenders
+        protected iterable $extenders,
     ) {
     }
 

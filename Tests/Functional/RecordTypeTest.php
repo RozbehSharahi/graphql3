@@ -75,7 +75,7 @@ class RecordTypeTest extends TestCase
         $scope = $this->createScope();
 
         $recordTypeBuilder = new RecordTypeBuilder([], [
-            new class() implements RecordTypeBuilderExtenderInterface {
+            new class implements RecordTypeBuilderExtenderInterface {
                 public function supportsTable(TableConfiguration $table): bool
                 {
                     return 'pages' === $table->getName();
@@ -83,7 +83,7 @@ class RecordTypeTest extends TestCase
 
                 public function extendNodes(
                     TableConfiguration $table,
-                    GraphqlNodeCollection $nodes
+                    GraphqlNodeCollection $nodes,
                 ): GraphqlNodeCollection {
                     return $nodes->add(
                         GraphqlNode::create('titleHash')

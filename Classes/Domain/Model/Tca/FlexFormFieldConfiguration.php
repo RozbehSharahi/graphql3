@@ -34,7 +34,7 @@ class FlexFormFieldConfiguration
         protected TableConfiguration $table,
         protected string $type,
         protected string $columnName,
-        protected string $flexColumnName
+        protected string $flexColumnName,
     ) {
     }
 

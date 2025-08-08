@@ -17,7 +17,7 @@ class PidRecordTypeBuilderExtender implements RecordTypeBuilderExtenderInterface
 {
     public function __construct(
         protected RecordTypeBuilder $recordTypeBuilder,
-        protected RecordResolver $recordResolver
+        protected RecordResolver $recordResolver,
     ) {
     }
 

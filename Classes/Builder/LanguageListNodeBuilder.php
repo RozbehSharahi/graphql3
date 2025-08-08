@@ -13,7 +13,7 @@ class LanguageListNodeBuilder implements NodeBuilderInterface
 {
     public function __construct(
         protected LanguageTypeBuilder $languageTypeBuilder,
-        protected LanguageListResolver $languageListResolver
+        protected LanguageListResolver $languageListResolver,
     ) {
     }
 

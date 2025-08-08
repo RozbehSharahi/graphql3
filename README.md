@@ -2,9 +2,10 @@
 
 ---
 
-> **This extension is brand-new still and lacks testing of real users.
+> **This extension lacks testing of real users. The more users report issues and create PRs, the more you can
+> trust in its production readiness**. Currently there is not much movement.
 > You are very welcome to contribute by testing and using the
-> [issue board](https://github.com/RozbehSharahi/graphql3/issues).**
+> [issue board](https://github.com/RozbehSharahi/graphql3/issues).
 
 ---
 

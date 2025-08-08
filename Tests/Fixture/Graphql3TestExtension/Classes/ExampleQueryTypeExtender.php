@@ -15,7 +15,7 @@ class ExampleQueryTypeExtender implements QueryTypeExtenderInterface
 {
     public function __construct(
         protected RecordNodeBuilder $recordNodeBuilder,
-        protected RecordListNodeBuilder $recordListNodeBuilder
+        protected RecordListNodeBuilder $recordListNodeBuilder,
     ) {
     }
 

@@ -27,7 +27,7 @@ class GraphqlRequestMiddleware implements MiddlewareInterface
         protected SchemaRegistry $schemaRegistry,
         protected CurrentSession $currentSession,
         protected ErrorHandler $errorHandler,
-        protected iterable $setups
+        protected iterable $setups,
     ) {
     }
 

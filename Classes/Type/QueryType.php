@@ -21,7 +21,7 @@ class QueryType extends ObjectType
         protected RecordListNodeBuilder $recordListNodeBuilder,
         protected LanguageNodeBuilder $languageNodeBuilder,
         protected LanguageListNodeBuilder $languageListNodeBuilder,
-        protected iterable $extenders
+        protected iterable $extenders,
     ) {
         parent::__construct([
             'name' => 'Query',

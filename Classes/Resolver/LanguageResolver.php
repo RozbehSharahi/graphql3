@@ -13,7 +13,7 @@ class LanguageResolver
 {
     public function __construct(
         protected CurrentSession $currentSession,
-        protected AccessChecker $accessChecker
+        protected AccessChecker $accessChecker,
     ) {
     }
 
