@@ -55,7 +55,7 @@ class GraphqlRequestTest extends TestCase
         ;
 
         self::assertEquals(200, (string) $response->getStatusCode());
-        self::assertStringContainsString('graphQLFetcher', (string) $response->getBody());
+        self::assertStringContainsString('createGraphiQLFetcher', (string) $response->getBody());
     }
 
     public function testInvalidQueryRespondsAsJsonWithStatusCode400(): void
