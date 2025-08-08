@@ -17,7 +17,7 @@ class GraphqlNode
         protected string $name,
         protected Type $type,
         protected \Closure $resolver,
-        protected GraphqlArgumentCollection $arguments
+        protected GraphqlArgumentCollection $arguments,
     ) {
     }
 

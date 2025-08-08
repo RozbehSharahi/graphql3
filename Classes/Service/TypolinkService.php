@@ -17,7 +17,7 @@ class TypolinkService implements SingletonInterface
     public function __construct(
         protected UriBuilder $uriBuilder,
         protected LinkService $linkService,
-        protected CurrentSession $currentSession
+        protected CurrentSession $currentSession,
     ) {
     }
 

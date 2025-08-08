@@ -18,7 +18,7 @@ class PageChildrenRecordTypeBuilderExtender implements RecordTypeBuilderExtender
 {
     public function __construct(
         protected RecordListNodeBuilder $recordListNodeBuilder,
-        protected ConnectionPool $connectionPool
+        protected ConnectionPool $connectionPool,
     ) {
     }
 

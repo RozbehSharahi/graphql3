@@ -21,7 +21,7 @@ class GraphqlController
     public function __construct(
         protected ResponseFactoryInterface $responseFactory,
         protected Executor $executor,
-        protected SchemaRegistry $schemaRegistry
+        protected SchemaRegistry $schemaRegistry,
     ) {
     }
 

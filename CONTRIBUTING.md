@@ -3,16 +3,16 @@
 Starting development environment
 
 ```shell
-bin/docker up -d
+.docker/bin/start
 ```
 
-`bin/docker` is basically a proxy for `docker-compose` so you can do the same things as you would do
+`.docker/bin/compose` is basically a proxy for `docker-compose` so you can do the same things as you would do
 with `docker-compose`.
 
 ```
-bin/docker build
-bin/docker logs -f
-bin/docker down
+.docker/bin/compose build
+.docker/bin/compose logs -f
+.docker/bin/compose down
 ```
 
 ## Testing
@@ -20,25 +20,25 @@ bin/docker down
 Running tests
 
 ```shell
-bin/phpunit
+.docker/bin/phpunit
 ```
 
 Running php-cs-fixer
 
 ```shell
-bin/php-cs-fixer
+.docker/bin/php-cs-fixer
 ```
 
 Running phpstan
 
 ```shell
-bin/phpstan
+.docker/bin/phpstan
 ```
 
 Running all at once:
 
 ```shell
-bin/test
+.docker/bin/test
 ```
 
 ### Testing application

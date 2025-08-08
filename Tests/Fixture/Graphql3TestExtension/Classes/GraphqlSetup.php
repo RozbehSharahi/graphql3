@@ -18,7 +18,7 @@ class GraphqlSetup implements SetupInterface
     public function __construct(
         protected SchemaRegistry $schemaRegistry,
         protected QueryType $queryType,
-        protected MutationType $mutationType
+        protected MutationType $mutationType,
     ) {
     }
 

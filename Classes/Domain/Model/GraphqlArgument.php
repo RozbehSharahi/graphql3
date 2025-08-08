@@ -24,7 +24,7 @@ class GraphqlArgument
     public function __construct(
         protected string $name,
         protected Type $type,
-        protected mixed $defaultValue
+        protected mixed $defaultValue,
     ) {
     }
 

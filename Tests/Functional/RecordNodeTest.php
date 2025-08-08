@@ -41,7 +41,7 @@ class RecordNodeTest extends TestCase
         ]);
 
         $extenders = [
-            new class() implements RecordNodeExtenderInterface {
+            new class implements RecordNodeExtenderInterface {
                 public function supportsTable(TableConfiguration $table): bool
                 {
                     return 'pages' === $table->getName();
@@ -49,7 +49,7 @@ class RecordNodeTest extends TestCase
 
                 public function extendArguments(
                     TableConfiguration $table,
-                    GraphqlArgumentCollection $arguments
+                    GraphqlArgumentCollection $arguments,
                 ): GraphqlArgumentCollection {
                     return $arguments
                         ->add(GraphqlArgument::create('removeRestrictions')->withType(Type::boolean()))

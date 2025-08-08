@@ -28,7 +28,7 @@ class RecordListResolver
         protected ApplyFilterArrayToQueryOperator $applyFilterArrayToQueryOperator,
         protected AccessChecker $accessChecker,
         protected CurrentSession $currentSession,
-        protected iterable $extenders
+        protected iterable $extenders,
     ) {
     }
 

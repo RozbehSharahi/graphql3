@@ -26,7 +26,7 @@ class RecordListNodeBuilder implements NodeBuilderInterface
         protected RecordListTypeBuilder $recordListTypeBuilder,
         protected OrderItemInputType $orderFieldType,
         protected FilterInputType $filterInputType,
-        protected iterable $extenders
+        protected iterable $extenders,
     ) {
     }
 

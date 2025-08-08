@@ -15,7 +15,7 @@ class LanguageParentFieldCreator implements FieldCreatorInterface
 {
     public function __construct(
         protected RecordNodeBuilder $recordNodeBuilder,
-        protected RecordResolver $recordResolver
+        protected RecordResolver $recordResolver,
     ) {
     }
 

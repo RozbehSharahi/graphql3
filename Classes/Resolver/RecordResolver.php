@@ -18,7 +18,7 @@ class RecordResolver
 
     public function __construct(
         protected ConnectionPool $connectionPool,
-        protected AccessChecker $accessChecker
+        protected AccessChecker $accessChecker,
     ) {
     }
 

@@ -45,7 +45,7 @@ class QueryTypeTest extends TestCase
                 $scope->get(LanguageNodeBuilder::class),
                 $scope->get(LanguageListNodeBuilder::class),
                 [
-                    new class() implements QueryTypeExtenderInterface {
+                    new class implements QueryTypeExtenderInterface {
                         public function extend(GraphqlNodeCollection $nodes): GraphqlNodeCollection
                         {
                             return $nodes

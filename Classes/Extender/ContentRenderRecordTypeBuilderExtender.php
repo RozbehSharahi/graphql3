@@ -92,7 +92,7 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
     protected function renderContentVersion12Point1(
         TypoScriptFrontendController $tsfe,
         ServerRequestInterface $request,
-        Record $record
+        Record $record,
     ): string {
         $directResponse = $tsfe->determineId($request);
 
@@ -139,7 +139,7 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
     protected function renderContentVersion12Point0(
         TypoScriptFrontendController $tsfe,
         ServerRequestInterface $request,
-        Record $record
+        Record $record,
     ): string {
         $directResponse = $tsfe->determineId($request);
 
@@ -188,7 +188,7 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
     protected function renderContentVersion11(
         TypoScriptFrontendController $tsfe,
         ServerRequest $request,
-        Record $record
+        Record $record,
     ): string {
         $directResponse = $tsfe->determineId($request);
 
@@ -269,7 +269,7 @@ class ContentRenderRecordTypeBuilderExtender implements RecordTypeBuilderExtende
         SiteInterface $site,
         SiteLanguage $language,
         int $pageId,
-        FrontendUserAuthentication $frontendUser
+        FrontendUserAuthentication $frontendUser,
     ): TypoScriptFrontendController {
         return GeneralUtility::makeInstance(
             TypoScriptFrontendController::class,

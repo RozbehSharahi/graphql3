@@ -19,7 +19,7 @@ class FileReferenceFieldCreator implements FieldCreatorInterface
     public function __construct(
         protected FileReferenceTypeBuilder $fileReferenceTypeBuilder,
         protected FileRepository $fileRepository,
-        protected ConnectionPool $connectionPool
+        protected ConnectionPool $connectionPool,
     ) {
     }
 

@@ -41,7 +41,7 @@ class ColumnConfiguration
     public function __construct(
         protected TableConfiguration $table,
         protected string $name,
-        protected array $configuration
+        protected array $configuration,
     ) {
         if (empty($this->configuration['config']['type'])) {
             throw new InternalErrorException(sprintf(self::ERROR_TYPE_MISSING, $this->getFullName()));
