@@ -18,7 +18,7 @@ jobs:
           php-version: "8.1"
           extensions: pdo, sqlite3, intl-70.1
       - uses: actions/checkout@v3
-      - run: sed -i 's/\^12/^${{ matrix.version }}/g' composer.json
+      - run: sed -i 's/\^12.4/^${{ matrix.version }}/g' composer.json
       - run: composer install
       - run: tools/php-cs-fixer fix --dry-run
       - run: vendor/bin/phpstan
