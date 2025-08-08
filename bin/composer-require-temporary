@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-bin/docker exec app cp composer.json composer.temp.json
-bin/docker exec --env=COMPOSER=composer.temp.json app composer require "$@"
-bin/docker exec app rm composer.temp.*

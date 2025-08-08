@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-git fetch --all && git rebase origin/main && git push origin HEAD
