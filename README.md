@@ -15,6 +15,12 @@ If you register a schema, it is accessible via the tail `/graphql` or `/graphiql
 > https://www.example.com/my-site-root/graphql  
 > https://www.example.com/my-site-root/graphiql (TYPO3_CONTEXT=Development only)
 
+## Installation
+
+```php
+composer require rozbehsharahi/graphql3
+```
+
 ## Usage
 
 Schemas are registered using `webonyx/graphql-php` package types.
