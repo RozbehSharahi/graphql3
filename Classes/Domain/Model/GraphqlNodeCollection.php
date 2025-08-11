@@ -104,7 +104,7 @@ class GraphqlNodeCollection
     protected function assertAllGraphqlNodes(array $items): self
     {
         foreach ($items as $item) {
-            if (!$item instanceof GraphqlNode) {
+            if (!$item instanceof GraphqlNode) { // @phpstan-ignore-line
                 throw new InternalErrorException(self::class.' only allows '.GraphqlNode::class.' items.');
             }
         }

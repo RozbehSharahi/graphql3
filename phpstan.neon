@@ -1,9 +1,8 @@
 parameters:
 	level: 6
-	checkGenericClassInNonGenericObjectType: false
 	paths:
 		- Classes
 		- Tests
 	excludePaths:
 	    - Tests/Fixture
-	    - Classes/Extender/ContentRenderRecordTypeBuilderExtender
+	    - Classes/Extender/ContentRenderRecordTypeBuilderExtender.php

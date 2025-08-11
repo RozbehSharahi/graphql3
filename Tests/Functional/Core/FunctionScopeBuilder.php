@@ -6,6 +6,8 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 
+use Doctrine\DBAL\Exception;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use GraphQL\Type\Schema;
 use Psr\Container\ContainerInterface;
@@ -406,6 +408,11 @@ class FunctionScopeBuilder
         return $this->getConnectionPool()->getQueryBuilderForTable($table);
     }
 
+    /**
+     * @return AbstractSchemaManager<AbstractPlatform>
+     *
+     * @throws Exception
+     */
     protected function getSchemaManager(): AbstractSchemaManager
     {
         return $this->getConnection()->createSchemaManager();

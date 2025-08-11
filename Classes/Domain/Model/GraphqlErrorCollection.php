@@ -34,7 +34,7 @@ class GraphqlErrorCollection
     public function __construct(protected array $errors, protected int $code = Response::HTTP_BAD_REQUEST)
     {
         foreach ($this->errors as $error) {
-            if (!$error instanceof GraphqlError) {
+            if (!$error instanceof GraphqlError) { // @phpstan-ignore-line
                 throw new InternalErrorException(self::class.' only allows '.GraphqlError::class.' items.');
             }
         }

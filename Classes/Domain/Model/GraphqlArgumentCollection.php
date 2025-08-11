@@ -95,7 +95,7 @@ class GraphqlArgumentCollection
     }
 
     /**
-     * @param GraphqlArgument[] $items
+     * @param array<int, mixed> $items
      */
     protected function assertAllGraphqlArguments(array $items): self
     {
