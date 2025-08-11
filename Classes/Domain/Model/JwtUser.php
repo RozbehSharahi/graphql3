@@ -95,7 +95,7 @@ class JwtUser implements UserInterface
     public function __construct(protected string $username, protected array $roles)
     {
         foreach ($this->roles as $role) {
-            if (!is_string($role)) {
+            if (!is_string($role)) { // @phpstan-ignore-line
                 throw new InternalErrorException('Roles on jwt-user must be an array of strings.');
             }
         }

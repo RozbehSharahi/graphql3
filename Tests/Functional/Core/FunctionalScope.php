@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RozbehSharahi\Graphql3\Tests\Functional\Core;
 
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Schema\TableDiff;
@@ -177,6 +178,9 @@ class FunctionalScope
         return $this;
     }
 
+    /**
+     * @return AbstractSchemaManager<AbstractPlatform>
+     */
     protected function getSchemaManager(): AbstractSchemaManager
     {
         try {
