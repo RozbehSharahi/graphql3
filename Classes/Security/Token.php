@@ -41,18 +41,16 @@ class Token implements TokenInterface
         return $this->user ?? null;
     }
 
-    public function setUser(?UserInterface $user): self
+    public function setUser(?UserInterface $user): void
     {
         if ($user && !$user instanceof JwtUser) {
             throw new InternalErrorException('Only jwt-users are allowed to be set on token.');
         }
 
         $this->user = $user;
-
-        return $this;
     }
 
-    public function eraseCredentials(): self
+    public function eraseCredentials(): void
     {
         throw new NotImplementedException('Not implemented');
     }
@@ -68,7 +66,7 @@ class Token implements TokenInterface
     /**
      * @param array<string, mixed> $attributes
      */
-    public function setAttributes(array $attributes): self
+    public function setAttributes(array $attributes): void
     {
         throw new NotImplementedException('Not implemented');
     }
@@ -83,7 +81,7 @@ class Token implements TokenInterface
         throw new NotImplementedException('Not implemented');
     }
 
-    public function setAttribute(string $name, mixed $value): self
+    public function setAttribute(string $name, mixed $value): void
     {
         throw new NotImplementedException('Not implemented');
     }

@@ -106,13 +106,17 @@ class JwtUser implements UserInterface
         return $this->roles;
     }
 
-    public function eraseCredentials(): self
+    public function eraseCredentials(): void
     {
         throw new NotImplementedException();
     }
 
     public function getUserIdentifier(): string
     {
+        if ('' === $this->username) {
+            throw new InternalErrorException('User identifier is not supported.');
+        }
+
         return $this->username;
     }
 
