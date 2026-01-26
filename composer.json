@@ -40,7 +40,7 @@
         "typo3/cms-fluid-styled-content": "^12.4 || ^13.4",
         "rozbehsharahi/graphql3-test-extension": "@dev",
         "phpunit/phpunit": "^10",
-        "phpstan/phpstan": "2.1.31",
+        "phpstan/phpstan": "2.1.37",
         "helhum/typo3-console": "^8.2"
     },
     "config": {
